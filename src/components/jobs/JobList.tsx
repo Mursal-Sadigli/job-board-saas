@@ -42,7 +42,6 @@ export default function JobList({ jobs }: JobListProps) {
         <div
           key={job.id}
           className="animate-in fade-in slide-in-from-bottom-2 duration-500 fill-mode-both"
-          style={{ animationDelay: `${i * 40}ms` }}
         >
           <JobCard job={job} />
         </div>

@@ -5,15 +5,23 @@ interface EmailTemplateProps {
 
 export function EmailTemplate({ firstName, jobs }: EmailTemplateProps) {
   return (
-    <div style={{ fontFamily: "Inter, sans-serif", maxWidth: 600, margin: "0 auto" }}>
-      <h1 style={{ color: "#6366f1" }}>Hi {firstName} 👋</h1>
-      <p>Here are today's job matches for you:</p>
-      {jobs.map((j, i) => (
-        <div key={i} style={{ padding: "12px 16px", border: "1px solid #e5e7eb", borderRadius: 8, marginBottom: 8 }}>
-          <strong>{j.title}</strong>
-          <p style={{ margin: "4px 0 0", color: "#6b7280", fontSize: 14 }}>{j.company} • {j.location}</p>
-        </div>
-      ))}
+    <div className="font-sans max-w-[600px] mx-auto p-4 bg-white">
+      <h1 className="text-2xl font-bold text-slate-900 mb-4">
+        Salam {firstName} 👋
+      </h1>
+      <p className="text-slate-600 mb-4 text-base">
+        Sizin üçün gündəlik uyğun iş elanları:
+      </p>
+      <div className="space-y-3">
+        {jobs.map((j, i) => (
+          <div key={i} className="p-4 border border-slate-200 rounded-xl bg-slate-50/50">
+            <strong className="block text-slate-900 font-semibold">{j.title}</strong>
+            <p className="mt-1 text-slate-500 text-sm">
+              {j.company} • {j.location}
+            </p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Job } from "@/types/job";
 import { formatRelativeTime } from "@/utils/formatters";
 import {
@@ -41,34 +42,29 @@ const expLevelConfig: Record<string, string> = {
 };
 
 export default function JobCard({ job }: JobCardProps) {
+  const [logoError, setLogoError] = useState(false);
   const locConfig = locationTypeConfig[job.locationType] || locationTypeConfig.any;
   const expLabel = expLevelConfig[job.experienceLevel] || expLevelConfig.any;
+
+  const showLogo = job.companyLogo && !logoError;
 
   return (
     <div className="bg-white border border-slate-200 rounded-xl p-4 cursor-pointer group hover:border-slate-400 hover:shadow-sm transition-all duration-200">
       <div className="flex items-start gap-4">
         {/* Company Logo */}
         <div className="shrink-0 flex items-center justify-center w-12 h-12 rounded-lg bg-slate-50 border border-slate-200 overflow-hidden">
-          {job.companyLogo ? (
+          {showLogo ? (
             <img
               src={job.companyLogo}
               alt={job.company}
               className="w-full h-full object-contain p-2"
-              onError={(e) => {
-                const el = e.currentTarget as HTMLImageElement;
-                el.style.display = "none";
-                const next = el.nextElementSibling as HTMLElement;
-                if (next) next.style.display = "flex";
-              }}
+              onError={() => setLogoError(true)}
             />
-          ) : null}
-          <div
-            className={`w-full h-full items-center justify-center font-bold text-lg text-slate-700 ${
-              job.companyLogo ? "hidden" : "flex"
-            }`}
-          >
-            {job.company[0]}
-          </div>
+          ) : (
+            <div className="w-full h-full flex items-center justify-center font-bold text-lg text-slate-700">
+              {job.company[0]}
+            </div>
+          )}
         </div>
 
         {/* Content */}
