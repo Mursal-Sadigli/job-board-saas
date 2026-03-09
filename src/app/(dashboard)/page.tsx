@@ -10,7 +10,7 @@ export default function JobBoardPage() {
   return (
     <div className="flex h-[calc(100vh-53px)]">
       {/* Left: Filter panel */}
-      <div className="w-72 flex-shrink-0">
+      <div className="w-72 shrink-0">
         <JobFiltersPanel
           filters={filters}
           onChange={setFilters}
@@ -20,10 +20,7 @@ export default function JobBoardPage() {
       </div>
 
       {/* Right: Job list */}
-      <div
-        className="flex-1 overflow-y-auto px-6 py-5"
-        style={{ background: "hsl(var(--background))" }}
-      >
+      <div className="flex-1 overflow-y-auto px-6 py-5 bg-slate-50/50">
         <JobList jobs={jobs} />
       </div>
     </div>

@@ -12,7 +12,6 @@ import {
   Wifi,
   Users,
 } from "lucide-react";
-import { cn } from "@/utils/cn";
 
 interface JobCardProps {
   job: Job;
@@ -33,12 +32,12 @@ const jobTypeConfig: Record<string, string> = {
   any: "Any",
 };
 
-const expLevelConfig: Record<string, { label: string; color: string }> = {
-  junior: { label: "Junior", color: "rgba(16,185,129,0.15)" },
-  mid: { label: "Mid Level", color: "rgba(99,102,241,0.15)" },
-  senior: { label: "Senior", color: "rgba(245,158,11,0.15)" },
-  lead: { label: "Lead", color: "rgba(239,68,68,0.15)" },
-  any: { label: "Any", color: "rgba(107,114,128,0.15)" },
+const expLevelConfig: Record<string, { label: string; bgClass: string; textClass: string; borderClass: string }> = {
+  junior: { label: "Junior", bgClass: "bg-emerald-50", textClass: "text-emerald-700", borderClass: "border-emerald-200" },
+  mid: { label: "Mid Level", bgClass: "bg-indigo-50", textClass: "text-indigo-700", borderClass: "border-indigo-200" },
+  senior: { label: "Senior", bgClass: "bg-amber-50", textClass: "text-amber-700", borderClass: "border-amber-200" },
+  lead: { label: "Lead", bgClass: "bg-rose-50", textClass: "text-rose-700", borderClass: "border-rose-200" },
+  any: { label: "Any", bgClass: "bg-slate-50", textClass: "text-slate-600", borderClass: "border-slate-200" },
 };
 
 export default function JobCard({ job }: JobCardProps) {
@@ -46,29 +45,15 @@ export default function JobCard({ job }: JobCardProps) {
   const expConfig = expLevelConfig[job.experienceLevel];
 
   return (
-    <div
-      className="card-hover rounded-xl p-4 cursor-pointer group"
-      style={{
-        background: "hsl(var(--surface))",
-        border: "1px solid hsl(var(--border-subtle))",
-      }}
-      onMouseEnter={(e) => {
-        (e.currentTarget as HTMLElement).style.borderColor =
-          "rgba(99,102,241,0.25)";
-      }}
-      onMouseLeave={(e) => {
-        (e.currentTarget as HTMLElement).style.borderColor =
-          "hsl(var(--border-subtle))";
-      }}
-    >
+    <div className="bg-white border border-slate-200 rounded-xl p-4 cursor-pointer group hover:border-indigo-500 hover:shadow-md transition-all duration-200">
       <div className="flex items-start gap-4">
         {/* Company Logo */}
-        <div className="flex-shrink-0">
+        <div className="shrink-0 flex items-center justify-center w-12 h-12 rounded-lg bg-slate-50 border border-slate-100 overflow-hidden">
           {job.companyLogo ? (
             <img
               src={job.companyLogo}
               alt={job.company}
-              className="company-logo"
+              className="w-full h-full object-contain p-2"
               onError={(e) => {
                 const el = e.currentTarget as HTMLImageElement;
                 el.style.display = "none";
@@ -78,8 +63,9 @@ export default function JobCard({ job }: JobCardProps) {
             />
           ) : null}
           <div
-            className="company-logo-placeholder"
-            style={{ display: job.companyLogo ? "none" : "flex" }}
+            className={`w-full h-full items-center justify-center font-bold text-lg text-indigo-600 ${
+              job.companyLogo ? "hidden" : "flex"
+            }`}
           >
             {job.company[0]}
           </div>
@@ -90,29 +76,20 @@ export default function JobCard({ job }: JobCardProps) {
           {/* Top row */}
           <div className="flex items-start justify-between gap-2 mb-2">
             <div>
-              <h3
-                className="font-semibold text-base leading-tight group-hover:text-indigo-400 transition-colors"
-                style={{ color: "hsl(var(--foreground))" }}
-              >
+              <h3 className="font-semibold text-base leading-tight text-slate-900 group-hover:text-indigo-600 transition-colors">
                 {job.title}
               </h3>
-              <p
-                className="text-sm mt-0.5"
-                style={{ color: "hsl(var(--foreground-muted))" }}
-              >
+              <p className="text-sm mt-0.5 text-slate-500">
                 {job.company}
               </p>
             </div>
             {/* Time + New badge */}
-            <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
-              <span
-                className="text-xs"
-                style={{ color: "hsl(var(--foreground-subtle))" }}
-              >
+            <div className="flex flex-col items-end gap-1.5 shrink-0">
+              <span className="text-xs text-slate-400">
                 {formatRelativeTime(job.postedAt)}
               </span>
               {job.isNew && (
-                <span className="badge badge-new text-xs px-2 py-0.5">
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700 border border-emerald-200">
                   New
                 </span>
               )}
@@ -120,49 +97,44 @@ export default function JobCard({ job }: JobCardProps) {
           </div>
 
           {/* Tags row */}
-          <div className="flex flex-wrap gap-1.5">
+          <div className="flex flex-wrap gap-2 mt-3">
             {job.featured && (
-              <span className="badge badge-featured">
-                <Award size={11} />
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-200">
+                <Award size={12} />
                 Featured
               </span>
             )}
 
             {/* Location */}
-            <span className="badge badge-location">
-              <MapPin size={11} />
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium bg-slate-50 text-slate-600 border border-slate-200">
+              <MapPin size={12} />
               {job.location || `${job.city}${job.state ? `, ${job.state}` : ""}`}
             </span>
 
             {/* Location type */}
-            <span className="badge badge-location">
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium bg-slate-50 text-slate-600 border border-slate-200">
               {locConfig.icon}
               {locConfig.label}
             </span>
 
             {/* Job type */}
-            <span className="badge badge-location">
-              <Briefcase size={11} />
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium bg-slate-50 text-slate-600 border border-slate-200">
+              <Briefcase size={12} />
               {jobTypeConfig[job.jobType]}
             </span>
 
             {/* Experience */}
             <span
-              className="badge"
-              style={{
-                background: expConfig.color,
-                color: "hsl(var(--foreground-muted))",
-                border: "1px solid hsl(var(--border-subtle))",
-              }}
+              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium border ${expConfig.bgClass} ${expConfig.textClass} ${expConfig.borderClass}`}
             >
-              <Clock size={11} />
+              <Clock size={12} />
               {expConfig.label}
             </span>
 
             {/* Salary */}
             {job.salary && (
-              <span className="badge badge-location">
-                <DollarSign size={11} />
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+                <DollarSign size={12} />
                 {job.salary}
               </span>
             )}

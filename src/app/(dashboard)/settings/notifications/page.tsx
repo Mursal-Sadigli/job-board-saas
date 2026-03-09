@@ -8,6 +8,9 @@ import {
   notificationSchema,
   NotificationFormData,
 } from "@/validators/notificationSchema";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function NotificationsPage() {
   const [saved, setSaved] = useState(false);
@@ -24,104 +27,77 @@ export default function NotificationsPage() {
   };
 
   return (
-    <div
-      className="h-full overflow-y-auto px-6 py-6"
-      style={{ background: "hsl(var(--background))" }}
-    >
+    <div className="h-full overflow-y-auto px-6 py-6 bg-slate-50">
       {/* Page header */}
       <div className="mb-6">
         <div className="flex items-center gap-2 mb-1">
-          <Bell size={20} style={{ color: "hsl(var(--primary))" }} />
-          <h1
-            className="text-xl font-bold"
-            style={{ fontFamily: "var(--font-outfit)", color: "hsl(var(--foreground))" }}
-          >
+          <Bell size={20} className="text-indigo-600" />
+          <h1 className="text-xl font-bold text-slate-900">
             Notifications
           </h1>
         </div>
-        <p className="text-sm" style={{ color: "hsl(var(--foreground-muted))" }}>
+        <p className="text-sm text-slate-500">
           Manage your job alert preferences
         </p>
       </div>
 
       {/* Container */}
-      <div
-        className="rounded-xl p-6 max-w-xl"
-        style={{
-          background: "hsl(var(--surface))",
-          border: "1px solid hsl(var(--border-subtle))",
-        }}
-      >
+      <div className="rounded-xl p-6 max-w-xl bg-white border border-slate-200 shadow-sm">
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
           {/* Daily Email Toggle */}
           <div className="flex items-center justify-between">
             <div>
-              <p
-                className="text-sm font-semibold"
-                style={{ color: "hsl(var(--foreground))" }}
-              >
+              <p className="text-sm font-semibold text-slate-900">
                 Daily Email Notifications
               </p>
-              <p
-                className="text-xs mt-0.5"
-                style={{ color: "hsl(var(--foreground-subtle))" }}
-              >
+              <p className="text-xs mt-0.5 text-slate-500">
                 Receive a daily digest of new matching jobs
               </p>
             </div>
-            <div
-              className={`toggle-track ${daily ? "checked" : ""}`}
-              onClick={() => setDaily((p) => !p)}
-            >
-              <div className="toggle-thumb" />
-            </div>
+            <Switch
+              checked={daily}
+              onCheckedChange={setDaily}
+            />
           </div>
 
           {/* Divider */}
-          <div style={{ borderTop: "1px solid hsl(var(--border-subtle))" }} />
+          <div className="border-t border-slate-200" />
 
           {/* Filter Prompt */}
           <div className="flex flex-col gap-2">
-            <label
-              className="text-sm font-semibold"
-              style={{ color: "hsl(var(--foreground))" }}
-            >
+            <label className="text-sm font-semibold text-slate-900">
               Filter Prompt
             </label>
-            <p
-              className="text-xs"
-              style={{ color: "hsl(var(--foreground-subtle))" }}
-            >
+            <p className="text-xs text-slate-500">
               Describe the kind of jobs you're looking for (used by AI to filter notifications)
             </p>
-            <textarea
+            <Textarea
               {...register("filterPrompt")}
               placeholder="e.g. Senior frontend engineer roles at startups in San Francisco, preferably remote or hybrid..."
               rows={4}
-              className="input-base resize-none"
-              style={{ lineHeight: "1.6" }}
+              className="resize-none bg-white"
             />
             {errors.filterPrompt && (
-              <p className="text-xs" style={{ color: "hsl(var(--danger))" }}>
+              <p className="text-xs text-rose-500">
                 {errors.filterPrompt.message}
               </p>
             )}
           </div>
 
           {/* Save button */}
-          <button type="submit" className="btn-primary">
+          <Button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white mt-2">
             {saved ? (
               <>
-                <CheckCircle size={16} />
+                <CheckCircle size={16} className="mr-2" />
                 Saved!
               </>
             ) : (
               <>
-                <Save size={16} />
+                <Save size={16} className="mr-2" />
                 Save Notification Settings
               </>
             )}
-          </button>
+          </Button>
         </form>
       </div>
     </div>

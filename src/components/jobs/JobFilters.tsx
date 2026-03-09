@@ -2,6 +2,15 @@
 
 import { Job, JobFilters } from "@/types/job";
 import { SlidersHorizontal, RotateCcw } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const US_STATES = [
   "Any", "AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA",
@@ -29,37 +38,18 @@ export default function JobFiltersPanel({
   };
 
   return (
-    <div
-      className="flex flex-col h-full overflow-y-auto"
-      style={{
-        background: "hsl(var(--surface))",
-        borderRight: "1px solid hsl(var(--border-subtle))",
-      }}
-    >
+    <div className="flex flex-col h-full overflow-y-auto bg-slate-50 border-r border-slate-200">
       {/* Header */}
-      <div
-        className="flex items-center justify-between px-5 py-4"
-        style={{ borderBottom: "1px solid hsl(var(--border-subtle))" }}
-      >
+      <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200 bg-white">
         <div className="flex items-center gap-2">
-          <SlidersHorizontal size={16} style={{ color: "hsl(var(--primary))" }} />
-          <h2
-            className="font-semibold text-sm"
-            style={{ color: "hsl(var(--foreground))" }}
-          >
+          <SlidersHorizontal size={16} className="text-indigo-600" />
+          <h2 className="font-semibold text-sm text-slate-900">
             Filters
           </h2>
         </div>
         <button
           onClick={onReset}
-          className="flex items-center gap-1 text-xs px-2 py-1 rounded-md transition-colors"
-          style={{ color: "hsl(var(--foreground-subtle))" }}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.color = "hsl(var(--foreground))")
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.color = "hsl(var(--foreground-subtle))")
-          }
+          className="flex items-center gap-1 text-xs px-2 py-1 rounded-md text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors"
         >
           <RotateCcw size={12} />
           Reset
@@ -67,100 +57,113 @@ export default function JobFiltersPanel({
       </div>
 
       {/* Filter fields */}
-      <div className="flex flex-col gap-5 p-5">
+      <div className="flex flex-col gap-6 p-5">
         {/* Job Title */}
         <FilterField label="Job Title">
-          <input
-            className="input-base"
+          <Input
             placeholder="e.g. Frontend Engineer"
             value={filters.title}
             onChange={(e) => update("title", e.target.value)}
+            className="bg-white"
           />
         </FilterField>
 
         {/* Location Requirement */}
         <FilterField label="Location Requirement">
-          <select
-            className="select-base"
+          <Select
             value={filters.locationType}
-            onChange={(e) =>
-              update("locationType", e.target.value as JobFilters["locationType"])
+            onValueChange={(value) =>
+              update("locationType", value as JobFilters["locationType"])
             }
           >
-            <option value="any">Any</option>
-            <option value="in-office">In Office</option>
-            <option value="hybrid">Hybrid</option>
-            <option value="remote">Remote</option>
-          </select>
+            <SelectTrigger className="bg-white">
+              <SelectValue placeholder="Select location type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="any">Any</SelectItem>
+              <SelectItem value="in-office">In Office</SelectItem>
+              <SelectItem value="hybrid">Hybrid</SelectItem>
+              <SelectItem value="remote">Remote</SelectItem>
+            </SelectContent>
+          </Select>
         </FilterField>
 
         {/* City */}
         <FilterField label="City">
-          <input
-            className="input-base"
+          <Input
             placeholder="e.g. San Francisco"
             value={filters.city}
             onChange={(e) => update("city", e.target.value)}
+            className="bg-white"
           />
         </FilterField>
 
         {/* State */}
         <FilterField label="State">
-          <select
-            className="select-base"
+          <Select
             value={filters.state}
-            onChange={(e) => update("state", e.target.value)}
+            onValueChange={(value) => update("state", value)}
           >
-            {US_STATES.map((state) => (
-              <option key={state} value={state === "Any" ? "any" : state}>
-                {state}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger className="bg-white">
+              <SelectValue placeholder="Select state" />
+            </SelectTrigger>
+            <SelectContent>
+              {US_STATES.map((state) => (
+                <SelectItem key={state} value={state === "Any" ? "any" : state}>
+                  {state}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </FilterField>
 
         {/* Job Type */}
         <FilterField label="Job Type">
-          <select
-            className="select-base"
+          <Select
             value={filters.jobType}
-            onChange={(e) =>
-              update("jobType", e.target.value as JobFilters["jobType"])
+            onValueChange={(value) =>
+              update("jobType", value as JobFilters["jobType"])
             }
           >
-            <option value="any">Any</option>
-            <option value="full-time">Full Time</option>
-            <option value="part-time">Part Time</option>
-            <option value="contract">Contract</option>
-            <option value="internship">Internship</option>
-          </select>
+            <SelectTrigger className="bg-white">
+              <SelectValue placeholder="Select job type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="any">Any</SelectItem>
+              <SelectItem value="full-time">Full Time</SelectItem>
+              <SelectItem value="part-time">Part Time</SelectItem>
+              <SelectItem value="contract">Contract</SelectItem>
+              <SelectItem value="internship">Internship</SelectItem>
+            </SelectContent>
+          </Select>
         </FilterField>
 
         {/* Experience Level */}
         <FilterField label="Experience Level">
-          <select
-            className="select-base"
+          <Select
             value={filters.experienceLevel}
-            onChange={(e) =>
-              update(
-                "experienceLevel",
-                e.target.value as JobFilters["experienceLevel"]
-              )
+            onValueChange={(value) =>
+              update("experienceLevel", value as JobFilters["experienceLevel"])
             }
           >
-            <option value="any">Any</option>
-            <option value="junior">Junior</option>
-            <option value="mid">Mid Level</option>
-            <option value="senior">Senior</option>
-            <option value="lead">Lead</option>
-          </select>
+            <SelectTrigger className="bg-white">
+              <SelectValue placeholder="Select experience level" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="any">Any</SelectItem>
+              <SelectItem value="junior">Junior</SelectItem>
+              <SelectItem value="mid">Mid Level</SelectItem>
+              <SelectItem value="senior">Senior</SelectItem>
+              <SelectItem value="lead">Lead</SelectItem>
+            </SelectContent>
+          </Select>
         </FilterField>
 
         {/* Filter button */}
-        <button onClick={onApply} className="btn-primary mt-2">
-          <SlidersHorizontal size={15} />
+        <Button onClick={onApply} className="w-full mt-2 bg-indigo-600 hover:bg-indigo-700 text-white">
+          <SlidersHorizontal size={15} className="mr-2" />
           Apply Filters
-        </button>
+        </Button>
       </div>
     </div>
   );
@@ -174,11 +177,8 @@ function FilterField({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-1.5">
-      <label
-        className="text-xs font-semibold uppercase tracking-wider"
-        style={{ color: "hsl(var(--foreground-subtle))" }}
-      >
+    <div className="flex flex-col gap-2">
+      <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">
         {label}
       </label>
       {children}

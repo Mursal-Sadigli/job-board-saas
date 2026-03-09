@@ -13,7 +13,7 @@ export default function DashboardLayout({
   const { isOpen, toggle } = useSidebar();
 
   return (
-    <div className="min-h-screen flex" style={{ background: "hsl(var(--background))" }}>
+    <div className="min-h-screen flex bg-slate-50">
       <Sidebar />
 
       {/* Main content */}
@@ -24,30 +24,14 @@ export default function DashboardLayout({
         )}
       >
         {/* Top bar */}
-        <header
-          className="sticky top-0 z-30 flex items-center gap-3 px-5 py-3"
-          style={{
-            background: "hsl(var(--background))",
-            borderBottom: "1px solid hsl(var(--border-subtle))",
-          }}
-        >
+        <header className="sticky top-0 z-30 flex items-center gap-3 px-5 py-3 bg-white border-b border-slate-200 shadow-sm">
           <button
             onClick={toggle}
-            className="w-8 h-8 flex items-center justify-center rounded-lg transition-colors"
-            style={{ color: "hsl(var(--foreground-muted))" }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.color = "hsl(var(--foreground))")
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.color = "hsl(var(--foreground-muted))")
-            }
+            className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors"
           >
             <Menu size={18} />
           </button>
-          <span
-            className="text-sm font-medium"
-            style={{ color: "hsl(var(--foreground-muted))" }}
-          >
+          <span className="text-sm font-medium text-slate-600">
             WDS Jobs
           </span>
         </header>
