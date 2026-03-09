@@ -50,7 +50,7 @@ function DialogContent({
       <DialogPrimitive.Popup
         data-slot="dialog-content"
         className={cn(
-          "fixed left-[50%] top-[50%] z-50 flex w-full max-w-[550px] -translate-x-[50%] -translate-y-[50%] flex-col gap-4 bg-card border border-border p-0 shadow-2xl transition duration-200 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-open:slide-in-from-left-1/2 data-open:slide-in-from-top-1/2 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 data-closed:slide-out-to-left-1/2 data-closed:slide-out-to-top-1/2 rounded-[2rem]",
+          "fixed left-[50%] top-[50%] z-50 flex w-full max-w-[550px] -translate-x-[50%] -translate-y-[50%] flex-col gap-0 bg-card border border-border p-0 shadow-2xl transition duration-200 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-open:slide-in-from-left-1/2 data-open:slide-in-from-top-1/2 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 data-closed:slide-out-to-left-1/2 data-closed:slide-out-to-top-1/2 rounded-[2rem]",
           className
         )}
         {...props}
@@ -62,7 +62,7 @@ function DialogContent({
             render={
               <Button
                 variant="ghost"
-                className="absolute top-6 right-6 h-8 w-8 rounded-full bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-all"
+                className="absolute top-6 right-6 h-8 w-8 rounded-full bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-all z-[60]"
                 size="icon"
               />
             }
@@ -80,7 +80,7 @@ function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="dialog-header"
-      className={cn("flex flex-col gap-1 p-8 pb-0", className)}
+      className={cn("flex flex-col gap-1 p-0", className)}
       {...props}
     />
   )
@@ -90,7 +90,7 @@ function DialogFooter({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="dialog-footer"
-      className={cn("mt-auto flex flex-col gap-4 p-8 pt-4", className)}
+      className={cn("mt-auto flex flex-col gap-4 p-0", className)}
       {...props}
     />
   )

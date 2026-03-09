@@ -141,12 +141,12 @@
 /* Quill Editor Styles */
 .ql-toolbar.ql-snow {
   border: none !important;
-  border-bottom: 1px solid oklch(var(--border)) !important;
-  background: oklch(var(--muted) / 0.3) !important;
+  border-bottom: 1px solid var(--border) !important;
+  background: color-mix(in oklch, var(--muted) 30%, transparent) !important;
   padding: 8px !important;
   display: flex !important;
   flex-wrap: wrap !important;
-  gap: 4px !important;
+  gap: 2px !important;
 }
 
 .ql-container.ql-snow {
@@ -157,46 +157,72 @@
 }
 
 .ql-editor {
-  min-height: 200px !important;
-  padding: 16px !important;
+  min-height: 140px !important;
+  padding: 12px 16px !important;
   line-height: 1.6 !important;
-  color: oklch(var(--foreground)) !important;
+  color: var(--foreground) !important;
 }
 
 .ql-editor.ql-blank::before {
-  color: oklch(var(--muted-foreground) / 0.6) !important;
+  color: var(--muted-foreground) !important;
   font-style: normal !important;
   left: 16px !important;
+  opacity: 0.6;
 }
 
+/* Toolbar icon colors */
 .ql-snow .ql-stroke {
-  stroke: oklch(var(--muted-foreground)) !important;
+  stroke: var(--foreground) !important;
+  opacity: 0.7;
 }
 
-.ql-snow .ql-fill {
-  fill: oklch(var(--muted-foreground)) !important;
+.ql-snow .ql-fill,
+.ql-snow .ql-stroke.ql-fill {
+  fill: var(--foreground) !important;
+  opacity: 0.7;
 }
 
-.ql-snow .ql-picker {
-  color: oklch(var(--muted-foreground)) !important;
+.ql-snow .ql-picker,
+.ql-snow .ql-picker-label {
+  color: var(--foreground) !important;
+  opacity: 0.75;
 }
 
 .ql-snow.ql-toolbar button:hover .ql-stroke,
+.ql-snow.ql-toolbar button.ql-active .ql-stroke {
+  stroke: var(--foreground) !important;
+  opacity: 1;
+}
+
 .ql-snow.ql-toolbar button:hover .ql-fill,
-.ql-snow.ql-toolbar button.ql-active .ql-stroke,
 .ql-snow.ql-toolbar button.ql-active .ql-fill {
-  stroke: oklch(var(--foreground)) !important;
-  fill: oklch(var(--foreground)) !important;
+  fill: var(--foreground) !important;
+  opacity: 1;
+}
+
+.ql-snow.ql-toolbar button:hover,
+.ql-snow.ql-toolbar button.ql-active,
+.ql-snow.ql-toolbar .ql-picker-label:hover,
+.ql-snow.ql-toolbar .ql-picker-label.ql-active {
+  color: var(--foreground) !important;
+  opacity: 1;
 }
 
 .ql-snow .ql-picker-options {
-  background-color: oklch(var(--card)) !important;
-  border-color: oklch(var(--border)) !important;
-  border-radius: 12px !important;
-  padding: 8px !important;
+  background-color: var(--card) !important;
+  border-color: var(--border) !important;
+  border-radius: 8px !important;
+  padding: 4px !important;
   z-index: 100 !important;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1) !important;
 }
 
 .ql-snow .ql-picker-item:hover {
-  color: oklch(var(--foreground)) !important;
+  color: var(--foreground) !important;
+  background: color-mix(in oklch, var(--muted) 50%, transparent) !important;
+}
+
+/* Color picker swatches */
+.ql-snow .ql-color-picker .ql-picker-options {
+  width: 160px !important;
 }

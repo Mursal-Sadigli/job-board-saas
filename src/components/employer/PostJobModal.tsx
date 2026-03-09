@@ -16,95 +16,90 @@ import { Input } from "@/components/ui/input"
 import { Plus } from "lucide-react"
 
 // Import styles
-import "react-quill/dist/quill.snow.css"
+import "react-quill-new/dist/quill.snow.css"
 
 // Dynamic import for ReactQuill to avoid SSR issues
-const ReactQuill = dynamic(() => import("react-quill"), { 
+const ReactQuill = dynamic(() => import("react-quill-new"), { 
   ssr: false,
-  loading: () => <div className="h-[200px] bg-muted/20 animate-pulse rounded-xl" />
+  loading: () => <div className="h-[120px] bg-muted/20 animate-pulse rounded-md" />
 })
 
 const quillModules = {
   toolbar: [
-    [{ 'header': [1, 2, 3, false] }],
-    ['bold', 'italic', 'underline', 'strike'],
-    [{ 'list': 'ordered' }, { 'list': 'bullet' }, { 'list': 'check' }],
-    ['link', 'blockquote', 'code-block'],
-    [{ 'script': 'sub' }, { 'script': 'super' }],
-    ['formula'],
-    ['clean']
+    [{ 'header': [1, 2, 3, false] }, 'bold', 'italic', 'underline', 'strike',
+     { 'list': 'ordered' }, { 'list': 'bullet' }, 'blockquote', 'link', 'clean']
   ],
 }
 
 const quillFormats = [
   'header',
   'bold', 'italic', 'underline', 'strike',
-  'list', 'bullet', 'check',
-  'link', 'blockquote', 'code-block',
-  'script', 'formula'
+  'list',
+  'blockquote', 'link'
 ]
 
 export function PostJobModal({ children }: { children?: React.ReactElement }) {
   const [open, setOpen] = useState(false)
-  const [description, setDescription] = useState("")
+  const [title, setTitle] = useState("")
+  const [coverLetter, setCoverLetter] = useState("")
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger
         render={children || (
-          <Button className="rounded-2xl gap-2 font-bold h-11 px-6">
-            <Plus size={18} />
-            İş Elanı Paylaş
-          </Button>
+          <button className="inline-flex items-center justify-center gap-2 h-11 px-6 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-sm font-bold hover:bg-slate-800 dark:hover:bg-slate-100 transition-all shadow-xl shadow-slate-900/10 dark:shadow-white/5 active:scale-95 group">
+            <Plus size={18} className="group-hover:rotate-90 transition-transform duration-300" />
+            Yeni Elan Əlavə Et
+          </button>
         )}
       />
-      <DialogContent className="max-w-[650px]">
-        <DialogHeader>
-          <DialogTitle>Yeni Vakansiya</DialogTitle>
-          <DialogDescription>
-            İş elanının təfərrüatlarını daxil edin və dərhal paylaşın.
+      <DialogContent className="max-w-[420px] p-0 overflow-hidden rounded-xl border border-border bg-background">
+        <DialogHeader className="px-5 pt-5 pb-2">
+          <DialogTitle className="text-lg font-bold tracking-tight text-foreground">Müraciət</DialogTitle>
+          <DialogDescription className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
+            İş elanına müraciət geri alına bilməz və hər elan üçün yalnız bir dəfə edilə bilər.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="p-8 py-4 space-y-6">
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-sm font-bold text-foreground">Başlıq</label>
-              <Input 
-                placeholder="Məs: Senior React Developer" 
-                className="h-11 rounded-xl bg-muted/40 border-border"
+        <div className="px-5 pb-2 space-y-3">
+          {/* Job Title */}
+          <div className="space-y-1">
+            <label className="text-xs font-semibold text-foreground">Vakansiya Başlığı</label>
+            <Input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Məs: Senior React Developer"
+              className="h-9 text-sm rounded-md bg-muted/30 border-border focus-visible:ring-ring/30"
+            />
+          </div>
+
+          {/* Cover Letter */}
+          <div className="space-y-1">
+            <label className="text-xs font-semibold text-foreground">Müraciət Məktubu</label>
+            <div className="border border-border rounded-md overflow-hidden bg-card focus-within:ring-1 focus-within:ring-ring transition-all">
+              <ReactQuill
+                theme="snow"
+                value={coverLetter}
+                onChange={setCoverLetter}
+                modules={quillModules}
+                formats={quillFormats}
+                className="bg-transparent"
               />
             </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-bold text-foreground">İş Təsviri</label>
-              <div className="border border-border rounded-xl overflow-hidden bg-muted/20">
-                <ReactQuill
-                  theme="snow"
-                  value={description}
-                  onChange={setDescription}
-                  modules={quillModules}
-                  formats={quillFormats}
-                  placeholder="İş öhdəlikləri, tələblər və s..."
-                  className="bg-transparent"
-                />
-              </div>
-              <span className="text-[10px] text-muted-foreground font-medium italic">
-                Opsional
-              </span>
-            </div>
+            <p className="text-[11px] text-muted-foreground">Opsional</p>
           </div>
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="px-5 pt-2 pb-5">
           <Button 
             onClick={() => setOpen(false)}
-            className="w-full h-12 rounded-2xl bg-foreground text-background hover:opacity-90 font-black text-sm uppercase tracking-widest shadow-xl transition-all active:scale-[0.98]"
+            className="w-full h-10 rounded-md bg-foreground text-background hover:opacity-90 font-semibold text-sm transition-all active:scale-[0.98]"
           >
-            İş Elanı Paylaş
+            Müraciət Et
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   )
 }
+
