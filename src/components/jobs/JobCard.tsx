@@ -18,37 +18,37 @@ interface JobCardProps {
 }
 
 const locationTypeConfig = {
-  "in-office": { label: "In Office", icon: <Monitor size={12} /> },
-  hybrid: { label: "Hybrid", icon: <Users size={12} /> },
-  remote: { label: "Remote", icon: <Wifi size={12} /> },
-  any: { label: "Any", icon: <MapPin size={12} /> },
+  "in-office": { label: "Ofisdə", icon: <Monitor size={12} /> },
+  hybrid: { label: "Hibrid", icon: <Users size={12} /> },
+  remote: { label: "Uzaqdan", icon: <Wifi size={12} /> },
+  any: { label: "Fərqi yoxdur", icon: <MapPin size={12} /> },
 };
 
 const jobTypeConfig: Record<string, string> = {
-  "full-time": "Full Time",
-  "part-time": "Part Time",
-  contract: "Contract",
-  internship: "Internship",
-  any: "Any",
+  "full-time": "Tam iş günü",
+  "part-time": "Yarımştat",
+  contract: "Müqavilə",
+  internship: "Təcrübəçi",
+  any: "Fərqi yoxdur",
 };
 
-const expLevelConfig: Record<string, { label: string; bgClass: string; textClass: string; borderClass: string }> = {
-  junior: { label: "Junior", bgClass: "bg-emerald-50", textClass: "text-emerald-700", borderClass: "border-emerald-200" },
-  mid: { label: "Mid Level", bgClass: "bg-indigo-50", textClass: "text-indigo-700", borderClass: "border-indigo-200" },
-  senior: { label: "Senior", bgClass: "bg-amber-50", textClass: "text-amber-700", borderClass: "border-amber-200" },
-  lead: { label: "Lead", bgClass: "bg-rose-50", textClass: "text-rose-700", borderClass: "border-rose-200" },
-  any: { label: "Any", bgClass: "bg-slate-50", textClass: "text-slate-600", borderClass: "border-slate-200" },
+const expLevelConfig: Record<string, string> = {
+  junior: "Başlanğıc",
+  mid: "Orta",
+  senior: "Peşəkar",
+  lead: "Rəhbər",
+  any: "Fərqi yoxdur",
 };
 
 export default function JobCard({ job }: JobCardProps) {
-  const locConfig = locationTypeConfig[job.locationType];
-  const expConfig = expLevelConfig[job.experienceLevel];
+  const locConfig = locationTypeConfig[job.locationType] || locationTypeConfig.any;
+  const expLabel = expLevelConfig[job.experienceLevel] || expLevelConfig.any;
 
   return (
-    <div className="bg-white border border-slate-200 rounded-xl p-4 cursor-pointer group hover:border-indigo-500 hover:shadow-md transition-all duration-200">
+    <div className="bg-white border border-slate-200 rounded-xl p-4 cursor-pointer group hover:border-slate-400 hover:shadow-sm transition-all duration-200">
       <div className="flex items-start gap-4">
         {/* Company Logo */}
-        <div className="shrink-0 flex items-center justify-center w-12 h-12 rounded-lg bg-slate-50 border border-slate-100 overflow-hidden">
+        <div className="shrink-0 flex items-center justify-center w-12 h-12 rounded-lg bg-slate-50 border border-slate-200 overflow-hidden">
           {job.companyLogo ? (
             <img
               src={job.companyLogo}
@@ -63,7 +63,7 @@ export default function JobCard({ job }: JobCardProps) {
             />
           ) : null}
           <div
-            className={`w-full h-full items-center justify-center font-bold text-lg text-indigo-600 ${
+            className={`w-full h-full items-center justify-center font-bold text-lg text-slate-700 ${
               job.companyLogo ? "hidden" : "flex"
             }`}
           >
@@ -76,7 +76,7 @@ export default function JobCard({ job }: JobCardProps) {
           {/* Top row */}
           <div className="flex items-start justify-between gap-2 mb-2">
             <div>
-              <h3 className="font-semibold text-base leading-tight text-slate-900 group-hover:text-indigo-600 transition-colors">
+              <h3 className="font-semibold text-base leading-tight text-slate-900 group-hover:underline transition-all">
                 {job.title}
               </h3>
               <p className="text-sm mt-0.5 text-slate-500">
@@ -89,8 +89,8 @@ export default function JobCard({ job }: JobCardProps) {
                 {formatRelativeTime(job.postedAt)}
               </span>
               {job.isNew && (
-                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700 border border-emerald-200">
-                  New
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-slate-900 text-white shadow-sm">
+                  Yeni
                 </span>
               )}
             </div>
@@ -99,42 +99,42 @@ export default function JobCard({ job }: JobCardProps) {
           {/* Tags row */}
           <div className="flex flex-wrap gap-2 mt-3">
             {job.featured && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-200">
-                <Award size={12} />
-                Featured
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium bg-slate-100 text-slate-800 border border-slate-200">
+                <Award size={12} className="text-slate-600" />
+                Önə çıxan
               </span>
             )}
 
             {/* Location */}
             <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium bg-slate-50 text-slate-600 border border-slate-200">
-              <MapPin size={12} />
+              <MapPin size={12} className="text-slate-400" />
               {job.location || `${job.city}${job.state ? `, ${job.state}` : ""}`}
             </span>
 
             {/* Location type */}
             <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium bg-slate-50 text-slate-600 border border-slate-200">
-              {locConfig.icon}
+              <span className="text-slate-400">{locConfig.icon}</span>
               {locConfig.label}
             </span>
 
             {/* Job type */}
             <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium bg-slate-50 text-slate-600 border border-slate-200">
-              <Briefcase size={12} />
-              {jobTypeConfig[job.jobType]}
+              <Briefcase size={12} className="text-slate-400" />
+              {jobTypeConfig[job.jobType] || jobTypeConfig.any}
             </span>
 
             {/* Experience */}
             <span
-              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium border ${expConfig.bgClass} ${expConfig.textClass} ${expConfig.borderClass}`}
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium border bg-slate-50 text-slate-600 border-slate-200"
             >
-              <Clock size={12} />
-              {expConfig.label}
+              <Clock size={12} className="text-slate-400" />
+              {expLabel}
             </span>
 
             {/* Salary */}
             {job.salary && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
-                <DollarSign size={12} />
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium bg-slate-50 text-slate-600 border border-slate-200">
+                <DollarSign size={12} className="text-slate-400" />
                 {job.salary}
               </span>
             )}

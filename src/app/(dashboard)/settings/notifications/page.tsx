@@ -31,13 +31,13 @@ export default function NotificationsPage() {
       {/* Page header */}
       <div className="mb-6">
         <div className="flex items-center gap-2 mb-1">
-          <Bell size={20} className="text-indigo-600" />
+          <Bell size={20} className="text-slate-700" />
           <h1 className="text-xl font-bold text-slate-900">
-            Notifications
+            Bildirişlər
           </h1>
         </div>
         <p className="text-sm text-slate-500">
-          Manage your job alert preferences
+          İş xəbərdarlığı seçimlərini idarə edin
         </p>
       </div>
 
@@ -48,10 +48,10 @@ export default function NotificationsPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-semibold text-slate-900">
-                Daily Email Notifications
+                Gündəlik E-poçt Bildirişləri
               </p>
               <p className="text-xs mt-0.5 text-slate-500">
-                Receive a daily digest of new matching jobs
+                Sizə uyğun yeni işlərin gündəlik xülasəsini əldə edin
               </p>
             </div>
             <Switch
@@ -66,14 +66,14 @@ export default function NotificationsPage() {
           {/* Filter Prompt */}
           <div className="flex flex-col gap-2">
             <label className="text-sm font-semibold text-slate-900">
-              Filter Prompt
+              Filtrləmə Mətni (Prompt)
             </label>
             <p className="text-xs text-slate-500">
-              Describe the kind of jobs you're looking for (used by AI to filter notifications)
+              Axtardığınız iş növünü təsvir edin (Süni İntellekt tərəfindən bildirişləri filtrləmək üçün istifadə olunur)
             </p>
             <Textarea
               {...register("filterPrompt")}
-              placeholder="e.g. Senior frontend engineer roles at startups in San Francisco, preferably remote or hybrid..."
+              placeholder="məs. Bakıda və ya uzaqdan işləmək üçün senior frontend mühəndis rolu..."
               rows={4}
               className="resize-none bg-white"
             />
@@ -85,16 +85,16 @@ export default function NotificationsPage() {
           </div>
 
           {/* Save button */}
-          <Button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white mt-2">
+          <Button type="submit" className="w-full bg-slate-900 hover:bg-slate-800 text-white mt-2">
             {saved ? (
               <>
                 <CheckCircle size={16} className="mr-2" />
-                Saved!
+                Yadda saxlanıldı!
               </>
             ) : (
               <>
                 <Save size={16} className="mr-2" />
-                Save Notification Settings
+                Bildiriş Ayarlarını Yadda Saxla
               </>
             )}
           </Button>

@@ -17,10 +17,10 @@ export default function JobList({ jobs }: JobListProps) {
         </div>
         <div className="text-center">
           <p className="font-semibold text-slate-900">
-            No jobs found
+            İş tapılmadı
           </p>
           <p className="text-sm mt-1 text-slate-500">
-            Try adjusting your filters
+            Filtrləri dəyişdirməyə cəhd edin
           </p>
         </div>
       </div>
@@ -31,9 +31,9 @@ export default function JobList({ jobs }: JobListProps) {
     <div className="flex flex-col gap-3">
       {/* Count */}
       <div className="flex items-center gap-2 mb-1 px-1">
-        <Briefcase size={14} className="text-indigo-600" />
+        <Briefcase size={14} className="text-slate-700" />
         <span className="text-sm font-medium text-slate-500">
-          {jobs.length} job{jobs.length !== 1 ? "s" : ""} found
+          {jobs.length} iş tapıldı
         </span>
       </div>
 

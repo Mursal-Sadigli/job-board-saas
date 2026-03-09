@@ -41,13 +41,13 @@ export default function ResumePage() {
       {/* Page header */}
       <div className="mb-6">
         <div className="flex items-center gap-2 mb-1">
-          <FileText size={20} className="text-indigo-600" />
+          <FileText size={20} className="text-slate-700" />
           <h1 className="text-xl font-bold text-slate-900">
-            Resume
+            Tərcümeyi-hal
           </h1>
         </div>
         <p className="text-sm text-slate-500">
-          Upload your CV / resume for job applications
+          İş müraciətləri üçün CV / tərcümeyi-halınızı yükləyin
         </p>
       </div>
 
@@ -56,8 +56,8 @@ export default function ResumePage() {
         <div
           className={`border-2 border-dashed rounded-xl p-10 text-center cursor-pointer transition-all duration-200 ${
             dragging
-              ? "border-indigo-500 bg-indigo-50"
-              : "border-slate-300 bg-white hover:border-indigo-400 hover:bg-slate-50"
+              ? "border-slate-800 bg-slate-100"
+              : "border-slate-300 bg-white hover:border-slate-400 hover:bg-slate-50"
           }`}
           onClick={() => inputRef.current?.click()}
           onDragOver={(e) => {
@@ -80,15 +80,15 @@ export default function ResumePage() {
             onChange={(e) => handleFiles(e.target.files)}
           />
           <div className="flex flex-col items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-indigo-100 text-indigo-600">
+            <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-slate-100 text-slate-700 border border-slate-200">
               <Upload size={24} />
             </div>
             <div>
               <p className="font-semibold text-slate-900">
-                Click to upload or drag & drop
+                Yükləmək və ya sürükləyib buraxmaq üçün klikləyin
               </p>
               <p className="text-sm mt-1 text-slate-500">
-                PDF files only (max 5MB)
+                Yalnız PDF faylları (maks. 5MB)
               </p>
             </div>
           </div>
@@ -98,7 +98,7 @@ export default function ResumePage() {
         {resumes.length > 0 && (
           <div className="rounded-xl overflow-hidden bg-white border border-slate-200 shadow-sm">
             <div className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 border-b border-slate-200 bg-slate-50/50">
-              Uploaded Resumes ({resumes.length})
+              Yüklənmiş Tərcümeyi-hallar ({resumes.length})
             </div>
             <div className="divide-y divide-slate-100">
               {resumes.map((resume) => (
@@ -106,7 +106,7 @@ export default function ResumePage() {
                   key={resume.id}
                   className="flex items-center gap-4 px-5 py-3 animate-in fade-in"
                 >
-                  <div className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 bg-rose-50 text-rose-500">
+                  <div className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 bg-slate-100 border border-slate-200 text-slate-600">
                     <File size={18} />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -126,12 +126,12 @@ export default function ResumePage() {
                     onClick={() => openPreview(resume.url)}
                   >
                     <Eye size={14} className="mr-1.5 text-slate-400 group-hover:text-slate-600" />
-                    View
+                    Bax
                   </Button>
                   {/* Delete button */}
                   <button
                     onClick={() => removeResume(resume.id)}
-                    className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                    className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
                   >
                     <Trash2 size={16} />
                   </button>
@@ -155,16 +155,16 @@ export default function ResumePage() {
             {/* Modal header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
               <div className="flex items-center gap-2">
-                <FileText size={18} className="text-indigo-600" />
+                <FileText size={18} className="text-slate-700" />
                 <span className="font-semibold text-slate-900">
-                  Resume Preview
+                  Tərcümeyi-hal Önizləməsi
                 </span>
               </div>
               <div className="flex items-center gap-3">
                 <Button variant="outline" size="sm" asChild>
                   <a href={previewUrl} download>
                     <Download size={14} className="mr-2" />
-                    Download
+                    Yüklə
                   </a>
                 </Button>
                 <button

@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/select";
 
 const US_STATES = [
-  "Any", "AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA",
+  "Fərqi yoxdur", "AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA",
   "HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI",
   "MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND",
   "OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA",
@@ -42,9 +42,9 @@ export default function JobFiltersPanel({
       {/* Header */}
       <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200 bg-white">
         <div className="flex items-center gap-2">
-          <SlidersHorizontal size={16} className="text-indigo-600" />
+          <SlidersHorizontal size={16} className="text-slate-700" />
           <h2 className="font-semibold text-sm text-slate-900">
-            Filters
+            Filtrlər
           </h2>
         </div>
         <button
@@ -52,16 +52,16 @@ export default function JobFiltersPanel({
           className="flex items-center gap-1 text-xs px-2 py-1 rounded-md text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors"
         >
           <RotateCcw size={12} />
-          Reset
+          Sıfırla
         </button>
       </div>
 
       {/* Filter fields */}
       <div className="flex flex-col gap-6 p-5">
         {/* Job Title */}
-        <FilterField label="Job Title">
+        <FilterField label="Vəzifə">
           <Input
-            placeholder="e.g. Frontend Engineer"
+            placeholder="məs. Frontend mühəndis"
             value={filters.title}
             onChange={(e) => update("title", e.target.value)}
             className="bg-white"
@@ -69,7 +69,7 @@ export default function JobFiltersPanel({
         </FilterField>
 
         {/* Location Requirement */}
-        <FilterField label="Location Requirement">
+        <FilterField label="İş Yeri Növü">
           <Select
             value={filters.locationType}
             onValueChange={(value) =>
@@ -77,21 +77,21 @@ export default function JobFiltersPanel({
             }
           >
             <SelectTrigger className="bg-white">
-              <SelectValue placeholder="Select location type" />
+              <SelectValue placeholder="İş növünü seçin" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="any">Any</SelectItem>
-              <SelectItem value="in-office">In Office</SelectItem>
-              <SelectItem value="hybrid">Hybrid</SelectItem>
-              <SelectItem value="remote">Remote</SelectItem>
+              <SelectItem value="any">Fərqi yoxdur</SelectItem>
+              <SelectItem value="in-office">Ofisdə</SelectItem>
+              <SelectItem value="hybrid">Hibrid</SelectItem>
+              <SelectItem value="remote">Uzaqdan</SelectItem>
             </SelectContent>
           </Select>
         </FilterField>
 
         {/* City */}
-        <FilterField label="City">
+        <FilterField label="Şəhər">
           <Input
-            placeholder="e.g. San Francisco"
+            placeholder="məs. Bakı"
             value={filters.city}
             onChange={(e) => update("city", e.target.value)}
             className="bg-white"
@@ -99,17 +99,17 @@ export default function JobFiltersPanel({
         </FilterField>
 
         {/* State */}
-        <FilterField label="State">
+        <FilterField label="Bölgə/Ştat">
           <Select
             value={filters.state}
             onValueChange={(value) => update("state", value)}
           >
             <SelectTrigger className="bg-white">
-              <SelectValue placeholder="Select state" />
+              <SelectValue placeholder="Ştat/Bölgə seçin" />
             </SelectTrigger>
             <SelectContent>
               {US_STATES.map((state) => (
-                <SelectItem key={state} value={state === "Any" ? "any" : state}>
+                <SelectItem key={state} value={state === "Fərqi yoxdur" || state === "Any" ? "any" : state}>
                   {state}
                 </SelectItem>
               ))}
@@ -118,7 +118,7 @@ export default function JobFiltersPanel({
         </FilterField>
 
         {/* Job Type */}
-        <FilterField label="Job Type">
+        <FilterField label="İş Rejimi">
           <Select
             value={filters.jobType}
             onValueChange={(value) =>
@@ -126,20 +126,20 @@ export default function JobFiltersPanel({
             }
           >
             <SelectTrigger className="bg-white">
-              <SelectValue placeholder="Select job type" />
+              <SelectValue placeholder="İş rejimi seçin" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="any">Any</SelectItem>
-              <SelectItem value="full-time">Full Time</SelectItem>
-              <SelectItem value="part-time">Part Time</SelectItem>
-              <SelectItem value="contract">Contract</SelectItem>
-              <SelectItem value="internship">Internship</SelectItem>
+              <SelectItem value="any">Fərqi yoxdur</SelectItem>
+              <SelectItem value="full-time">Tam iş günü</SelectItem>
+              <SelectItem value="part-time">Yarımştat</SelectItem>
+              <SelectItem value="contract">Müqavilə</SelectItem>
+              <SelectItem value="internship">Təcrübəçi</SelectItem>
             </SelectContent>
           </Select>
         </FilterField>
 
         {/* Experience Level */}
-        <FilterField label="Experience Level">
+        <FilterField label="Təcrübə Səviyyəsi">
           <Select
             value={filters.experienceLevel}
             onValueChange={(value) =>
@@ -147,22 +147,22 @@ export default function JobFiltersPanel({
             }
           >
             <SelectTrigger className="bg-white">
-              <SelectValue placeholder="Select experience level" />
+              <SelectValue placeholder="Səviyyə seçin" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="any">Any</SelectItem>
-              <SelectItem value="junior">Junior</SelectItem>
-              <SelectItem value="mid">Mid Level</SelectItem>
-              <SelectItem value="senior">Senior</SelectItem>
-              <SelectItem value="lead">Lead</SelectItem>
+              <SelectItem value="any">Fərqi yoxdur</SelectItem>
+              <SelectItem value="junior">Başlanğıc</SelectItem>
+              <SelectItem value="mid">Orta</SelectItem>
+              <SelectItem value="senior">Peşəkar</SelectItem>
+              <SelectItem value="lead">Rəhbər</SelectItem>
             </SelectContent>
           </Select>
         </FilterField>
 
         {/* Filter button */}
-        <Button onClick={onApply} className="w-full mt-2 bg-indigo-600 hover:bg-indigo-700 text-white">
+        <Button onClick={onApply} className="w-full mt-2 bg-slate-900 hover:bg-slate-800 text-white">
           <SlidersHorizontal size={15} className="mr-2" />
-          Apply Filters
+          Filtrləri Tətbiq Et
         </Button>
       </div>
     </div>
