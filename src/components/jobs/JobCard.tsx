@@ -33,10 +33,10 @@ const jobTypeConfig: Record<string, string> = {
 };
 
 const expLevelConfig: Record<string, string> = {
-  junior: "Başlanğıc",
-  mid: "Orta",
-  senior: "Peşəkar",
-  lead: "Rəhbər",
+  junior: "Junior",
+  mid: "Mid",
+  senior: "Senior",
+  lead: "Lead",
   any: "İstənilən",
 };
 

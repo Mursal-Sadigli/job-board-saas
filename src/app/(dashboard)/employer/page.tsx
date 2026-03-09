@@ -16,7 +16,7 @@ export default function EmployerPage() {
                 İşəgötürən Paneli
               </h1>
               <p className="text-sm text-slate-500 mt-0.5">
-                İş elanlarınızı və müraciətlərinizi idarə edin
+                İş elanlarınızı və müraciətlərinizi idarə edin (Şəhər və ya Rayon üzrə)
               </p>
             </div>
           </div>

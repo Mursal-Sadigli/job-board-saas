@@ -12,14 +12,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const US_STATES = [
-  "İstənilən", "AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA",
-  "HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI",
-  "MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND",
-  "OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA",
-  "WA","WV","WI","WY"
-];
-
 interface JobFiltersProps {
   filters: JobFilters;
   onChange: (filters: JobFilters) => void;
@@ -89,33 +81,16 @@ export default function JobFiltersPanel({
         </FilterField>
 
         {/* City */}
-        <FilterField label="Şəhər">
+        <FilterField label="Şəhər və ya Rayon">
           <Input
-            placeholder="məs. Bakı"
+            placeholder="məs. Bakı, Gəncə"
             value={filters.city}
             onChange={(e) => update("city", e.target.value)}
             className="bg-white"
           />
         </FilterField>
 
-        {/* State */}
-        <FilterField label="Bölgə/Ştat">
-          <Select
-            value={filters.state}
-            onValueChange={(value) => update("state", value)}
-          >
-            <SelectTrigger className="bg-white">
-              <SelectValue placeholder="Ştat/Bölgə seçin" />
-            </SelectTrigger>
-            <SelectContent>
-              {US_STATES.map((state) => (
-                <SelectItem key={state} value={state === "İstənilən" || state === "Any" ? "any" : state}>
-                  {state}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </FilterField>
+
 
         {/* Job Type */}
         <FilterField label="İş Rejimi">
@@ -151,10 +126,10 @@ export default function JobFiltersPanel({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="any">İstənilən</SelectItem>
-              <SelectItem value="junior">Başlanğıc</SelectItem>
-              <SelectItem value="mid">Orta</SelectItem>
-              <SelectItem value="senior">Peşəkar</SelectItem>
-              <SelectItem value="lead">Rəhbər</SelectItem>
+              <SelectItem value="junior">Junior</SelectItem>
+              <SelectItem value="mid">Mid</SelectItem>
+              <SelectItem value="senior">Senior</SelectItem>
+              <SelectItem value="lead">Lead</SelectItem>
             </SelectContent>
           </Select>
         </FilterField>
