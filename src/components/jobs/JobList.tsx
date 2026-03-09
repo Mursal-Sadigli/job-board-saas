@@ -11,16 +11,16 @@ interface JobListProps {
 export default function JobList({ jobs }: JobListProps) {
   if (jobs.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-64 gap-3 bg-white rounded-xl border border-slate-200">
-        <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-slate-50 border border-slate-100">
-          <SearchX size={24} className="text-slate-400" />
+      <div className="flex flex-col items-center justify-center py-20 gap-4 bg-card rounded-[2.5rem] border border-dashed border-border shadow-inner">
+        <div className="w-20 h-20 rounded-3xl flex items-center justify-center bg-muted/20 border border-border shadow-sm">
+          <SearchX size={32} className="text-muted-foreground/40" />
         </div>
-        <div className="text-center">
-          <p className="font-semibold text-slate-900">
-            İş tapılmadı
+        <div className="text-center space-y-2">
+          <p className="text-xl font-bold text-foreground tracking-tight">
+            Nəticə tapılmadı
           </p>
-          <p className="text-sm mt-1 text-slate-500">
-            Filtrləri dəyişdirməyə cəhd edin
+          <p className="text-sm text-muted-foreground max-w-[200px] mx-auto leading-relaxed">
+            Seçdiyiniz filtrlərə uyğun heç bir iş elanı mövcud deyil.
           </p>
         </div>
       </div>
@@ -28,13 +28,17 @@ export default function JobList({ jobs }: JobListProps) {
   }
 
   return (
-    <div className="flex flex-col gap-3">
-      {/* Count */}
-      <div className="flex items-center gap-2 mb-1 px-1">
-        <Briefcase size={14} className="text-slate-700" />
-        <span className="text-sm font-medium text-slate-500">
-          {jobs.length} iş tapıldı
-        </span>
+    <div className="flex flex-col gap-4">
+      {/* Count Header */}
+      <div className="flex items-center justify-between mb-2 px-1">
+        <div className="flex items-center gap-2.5">
+          <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+            <Briefcase size={14} className="text-primary" />
+          </div>
+          <span className="text-sm font-bold text-foreground/80 tracking-tight">
+            {jobs.length} vakansiya mövcuddur
+          </span>
+        </div>
       </div>
 
       {/* Cards */}

@@ -23,15 +23,24 @@ export const metadata: Metadata = {
     "AI ilə dəstəklənən müasir iş elanları platforması. Bacarıq və seçimlərinizə uyğun ən yaxşı texnoloji işləri tapın.",
 };
 
+import { ThemeProvider } from "@/components/ThemeProvider";
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="az" className={cn("font-sans", geist.variable)}>
-      <body className={`${inter.variable} ${outfit.variable} antialiased bg-[#F8F9FA]`}>
-        {children}
+    <html lang="az" className={cn("font-sans", geist.variable)} suppressHydrationWarning>
+      <body className={`${inter.variable} ${outfit.variable} antialiased min-h-screen bg-background`}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );

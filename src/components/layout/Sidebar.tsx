@@ -13,7 +13,9 @@ import {
   Settings,
   LogOut,
   ChevronRight,
-  MenuSquare
+  MenuSquare,
+  Moon,
+  Sun
 } from "lucide-react";
 import { useSidebar } from "@/hooks/useSidebar";
 import { ROUTES } from "@/routes/paths";
@@ -26,6 +28,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useTheme } from "next-themes";
+import { Switch } from "@/components/ui/switch";
 
 interface NavItem {
   label: string;
@@ -83,22 +87,27 @@ export default function Sidebar({
   onToggle 
 }: SidebarProps) {
   const pathname = usePathname();
+  const { theme, setTheme } = useTheme();
   const { settingsExpanded, toggleSettings } = useSidebar();
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const isSettingsActive =
     pathname.startsWith("/settings") || settingsExpanded;
 
+  const toggleTheme = () => {
+    setTheme(theme === "dark" ? "light" : "dark");
+  };
+
   return (
-    <div className="flex w-full flex-col h-full overflow-hidden bg-white border-r border-slate-200">
+    <div className="flex w-full flex-col h-full overflow-hidden bg-background border-r border-border shadow-sm/5">
       {/* Header */}
-      <div className="flex items-center h-[65px] px-4 border-b border-slate-200">
-        <div className="flex items-center gap-2.5 overflow-hidden">
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-slate-900 text-white">
+      <div className="flex items-center h-[65px] px-4 border-b border-border bg-background/50 backdrop-blur-md">
+        <div className="flex items-center gap-3 overflow-hidden">
+          <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-lg shadow-slate-900/10 dark:shadow-white/5 transition-all">
             <MenuSquare size={16} />
           </div>
           {!isCollapsed && (
-            <span className="font-bold text-base tracking-tight text-slate-900 truncate">
+            <span className="font-bold text-base tracking-tight text-slate-900 dark:text-white truncate">
               WDS Jobs
             </span>
           )}
@@ -106,7 +115,7 @@ export default function Sidebar({
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 overflow-y-auto px-3 py-4 flex flex-col gap-1">
+      <nav className="flex-1 overflow-y-auto px-3 py-6 flex flex-col gap-1.5 custom-scrollbar">
         {mainNavItems.map((item) => {
           const isActive = pathname === item.href;
           return (
@@ -115,14 +124,14 @@ export default function Sidebar({
               href={item.href}
               onClick={() => onNavigate?.()}
               className={cn(
-                "flex items-center rounded-md text-sm font-medium transition-colors h-10",
+                "flex items-center rounded-xl text-sm font-medium transition-all h-10 group",
                 isCollapsed ? "justify-center px-0" : "px-3 gap-3",
                 isActive
-                  ? "bg-slate-100 text-slate-900"
-                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                  ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-md shadow-slate-900/10"
+                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900"
               )}
             >
-              <div className={cn("shrink-0", isActive ? "text-slate-900" : "text-slate-400")}>
+              <div className={cn("shrink-0 transition-colors", isActive ? "text-inherit" : "text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white")}>
                 {item.icon}
               </div>
               {!isCollapsed && <span className="truncate">{item.label}</span>}
@@ -131,27 +140,32 @@ export default function Sidebar({
         })}
 
         {/* Settings group */}
-        <div className="mt-2">
+        <div className="mt-4">
+          {!isCollapsed && (
+            <div className="px-3 mb-2 text-[10px] font-bold uppercase tracking-widest text-slate-400/80">
+              Konfiqurasiya
+            </div>
+          )}
           <button
             onClick={toggleSettings}
             className={cn(
-              "w-full flex items-center rounded-md text-sm font-medium transition-colors h-10",
+              "w-full flex items-center rounded-xl text-sm font-medium transition-all h-10 group",
               isCollapsed ? "justify-center px-0" : "px-3 gap-3",
               isSettingsActive
-                ? "text-slate-900"
-                : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                ? "text-slate-900 dark:text-white"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900"
             )}
           >
-            <div className={cn("shrink-0", isSettingsActive ? "text-slate-900" : "text-slate-400")}>
+            <div className={cn("shrink-0 transition-colors", isSettingsActive ? "text-slate-900 dark:text-white" : "text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white")}>
               <Settings size={18} />
             </div>
             {!isCollapsed && (
               <>
-                <span className="flex-1 text-left truncate">Tənzimləmələr</span>
+                <span className="flex-1 text-left truncate font-medium">Tənzimləmələr</span>
                 <ChevronRight
                   size={14}
                   className={cn(
-                    "transition-transform duration-200 text-slate-400",
+                    "transition-transform duration-300 text-slate-400",
                     settingsExpanded && "rotate-90"
                   )}
                 />
@@ -163,11 +177,11 @@ export default function Sidebar({
           {!isCollapsed && (
             <div
               className={cn(
-                "overflow-hidden transition-all duration-300",
-                settingsExpanded ? "max-h-24 opacity-100" : "max-h-0 opacity-0"
+                "overflow-hidden transition-all duration-500 ease-in-out",
+                settingsExpanded ? "max-h-[200px] opacity-100 mt-1" : "max-h-0 opacity-0"
               )}
             >
-              <div className="mt-1 ml-5 pl-4 flex flex-col gap-1 border-l border-slate-200">
+              <div className="ml-5 pl-4 flex flex-col gap-1 border-l border-border/60">
                 {settingsItems.map((item) => {
                   const isSubActive = pathname === item.href;
                   return (
@@ -176,13 +190,13 @@ export default function Sidebar({
                       href={item.href}
                       onClick={() => onNavigate?.()}
                       className={cn(
-                        "flex items-center gap-3 px-3 py-1.5 rounded-md text-sm font-medium transition-colors",
+                        "flex items-center gap-3 px-3 py-1.5 rounded-lg text-[13px] font-medium transition-all",
                         isSubActive
-                          ? "bg-slate-100 text-slate-900"
-                          : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                          ? "text-slate-900 dark:text-white bg-slate-100/50 dark:bg-slate-900/50"
+                          : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-900/30"
                       )}
                     >
-                      <div className={cn(isSubActive ? "text-slate-900" : "text-slate-400")}>
+                      <div className={cn("shrink-0 transition-colors", isSubActive ? "text-slate-900 dark:text-white" : "text-slate-400")}>
                         {item.icon}
                       </div>
                       <span>{item.label}</span>
@@ -196,16 +210,16 @@ export default function Sidebar({
       </nav>
 
       {/* User section */}
-      <div className="p-3 border-t border-slate-200">
+      <div className="p-4 border-t border-border bg-background/50 backdrop-blur-md">
         <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
           <DropdownMenuTrigger 
             className={cn(
-              "w-full flex items-center rounded-lg hover:bg-slate-100 transition-colors group outline-none h-12",
-              isCollapsed ? "justify-center px-0" : "px-3 gap-3"
+              "w-full flex items-center rounded-xl focus:bg-slate-100 dark:focus:bg-slate-900 hover:bg-slate-100/50 dark:hover:bg-slate-900/50 transition-all group outline-none h-14 border border-transparent hover:border-border cursor-pointer",
+              isCollapsed ? "justify-center px-0" : "px-2.5 gap-3"
             )}
           >
             {/* Avatar */}
-            <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-sm font-bold bg-slate-900 text-white">
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-sm font-bold bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-md">
               {MOCK_USER.firstName[0]}
               {MOCK_USER.lastName[0]}
             </div>
@@ -213,38 +227,58 @@ export default function Sidebar({
             {!isCollapsed && (
               <>
                 <div className="flex-1 text-left min-w-0">
-                  <p className="text-sm font-semibold text-slate-900 truncate">
+                  <p className="text-[13px] font-bold text-foreground truncate uppercase tracking-tight">
                     {MOCK_USER.firstName} {MOCK_USER.lastName}
                   </p>
-                  <p className="text-xs text-slate-500 truncate">
+                  <p className="text-xs text-muted-foreground truncate font-medium">
                     {MOCK_USER.email}
                   </p>
                 </div>
                 <ChevronDown
                   size={14}
                   className={cn(
-                    "transition-transform duration-200 shrink-0 text-slate-400",
+                    "transition-transform duration-300 shrink-0 text-muted-foreground/60 group-hover:text-foreground",
                     dropdownOpen && "rotate-180"
                   )}
                 />
               </>
             )}
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-[230px]">
-            <DropdownMenuItem className="cursor-pointer gap-2" onClick={() => setDropdownOpen(false)}>
-              <User size={15} className="text-slate-500" />
+          <DropdownMenuContent align="end" className="w-[240px] rounded-2xl p-2 border-border shadow-2xl bg-white dark:bg-slate-950 isolate z-100">
+            <div className="px-2 py-1.5 mb-2 sm:hidden">
+               <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Hesab</p>
+            </div>
+            <DropdownMenuItem className="cursor-pointer gap-2.5 px-3 py-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-900 transition-all font-medium" onClick={() => setDropdownOpen(false)}>
+              <User size={16} className="text-slate-400" />
               <span>Profil</span>
             </DropdownMenuItem>
-            <DropdownMenuItem className="cursor-pointer gap-2" onClick={() => {
+            <DropdownMenuItem className="cursor-pointer gap-2.5 px-3 py-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-900 transition-all font-medium" onClick={() => {
               setDropdownOpen(false);
               toggleSettings();
             }}>
-              <Settings size={15} className="text-slate-500" />
+              <Settings size={16} className="text-slate-400" />
               <span>Tənzimləmələr</span>
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="cursor-pointer gap-2 text-red-600 focus:text-red-600 focus:bg-red-50" onClick={() => setDropdownOpen(false)}>
-              <LogOut size={15} />
+            
+            <DropdownMenuSeparator className="my-2 bg-border/50" />
+            
+            {/* Theme Toggle - User Request */}
+            <div className="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-900 transition-all group">
+              <div className="flex items-center gap-2.5 font-medium">
+                {theme === "dark" ? <Moon size={16} className="text-indigo-400" /> : <Sun size={16} className="text-amber-500" />}
+                <span className="text-sm">Tünd Rejim</span>
+              </div>
+              <Switch 
+                checked={theme === "dark"} 
+                onCheckedChange={toggleTheme}
+                size="sm"
+              />
+            </div>
+
+            <DropdownMenuSeparator className="my-2 bg-border/50" />
+            
+            <DropdownMenuItem className="cursor-pointer gap-2.5 px-3 py-2.5 rounded-xl text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-all font-semibold" onClick={() => setDropdownOpen(false)}>
+              <LogOut size={16} />
               <span>Çıxış</span>
             </DropdownMenuItem>
           </DropdownMenuContent>

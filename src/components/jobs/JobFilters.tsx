@@ -1,6 +1,6 @@
 "use client";
 
-import { Job, JobFilters } from "@/types/job";
+import { JobFilters } from "@/types/job";
 import { SlidersHorizontal, RotateCcw } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -13,8 +13,8 @@ import {
 } from "@/components/ui/select";
 
 interface JobFiltersProps {
-  filters: JobFilters;
-  onChange: (filters: JobFilters) => void;
+  filters: any;
+  onChange: (filters: any) => void;
   onApply: () => void;
   onReset: () => void;
 }
@@ -25,23 +25,25 @@ export default function JobFiltersPanel({
   onApply,
   onReset,
 }: JobFiltersProps) {
-  const update = <K extends keyof JobFilters>(key: K, value: JobFilters[K]) => {
+  const update = <K extends string>(key: K, value: any) => {
     onChange({ ...filters, [key]: value });
   };
 
   return (
-    <div className="flex flex-col h-full overflow-y-auto bg-[#F8F9FA] border-r border-slate-200">
+    <div className="flex flex-col h-full bg-background border-r border-border">
       {/* Header */}
-      <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200 bg-white">
-        <div className="flex items-center gap-2">
-          <SlidersHorizontal size={16} className="text-slate-700" />
-          <h2 className="font-semibold text-sm text-slate-900">
+      <div className="flex items-center justify-between px-6 py-5 border-b border-border bg-background/50 backdrop-blur-md sticky top-0 z-10">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-lg bg-slate-900 dark:bg-white flex items-center justify-center text-white dark:text-slate-900 shadow-sm">
+            <SlidersHorizontal size={14} />
+          </div>
+          <h2 className="font-bold text-sm text-foreground tracking-tight">
             Filtrlər
           </h2>
         </div>
         <button
           onClick={onReset}
-          className="flex items-center gap-1 text-xs px-2 py-1 rounded-md text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+          className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest px-2.5 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
         >
           <RotateCcw size={12} />
           Sıfırla
@@ -49,14 +51,14 @@ export default function JobFiltersPanel({
       </div>
 
       {/* Filter fields */}
-      <div className="flex flex-col gap-6 p-5">
+      <div className="flex-1 flex flex-col gap-6 p-6 overflow-y-auto custom-scrollbar">
         {/* Job Title */}
         <FilterField label="Vəzifə">
           <Input
             placeholder="məs. Frontend mühəndis"
             value={filters.title}
             onChange={(e) => update("title", e.target.value)}
-            className="bg-white"
+            className="bg-card border-border h-11 rounded-xl"
           />
         </FilterField>
 
@@ -65,13 +67,13 @@ export default function JobFiltersPanel({
           <Select
             value={filters.locationType}
             onValueChange={(value) =>
-              update("locationType", value as JobFilters["locationType"])
+              update("locationType", value)
             }
           >
-            <SelectTrigger className="bg-white">
+            <SelectTrigger className="bg-card border-border h-11 rounded-xl">
               <SelectValue placeholder="İş növünü seçin" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="rounded-xl border-border">
               <SelectItem value="any">İstənilən</SelectItem>
               <SelectItem value="in-office">Ofisdə</SelectItem>
               <SelectItem value="hybrid">Hibrid</SelectItem>
@@ -86,24 +88,22 @@ export default function JobFiltersPanel({
             placeholder="məs. Bakı, Gəncə"
             value={filters.city}
             onChange={(e) => update("city", e.target.value)}
-            className="bg-white"
+            className="bg-card border-border h-11 rounded-xl"
           />
         </FilterField>
-
-
 
         {/* Job Type */}
         <FilterField label="İş Rejimi">
           <Select
             value={filters.jobType}
             onValueChange={(value) =>
-              update("jobType", value as JobFilters["jobType"])
+              update("jobType", value)
             }
           >
-            <SelectTrigger className="bg-white">
+            <SelectTrigger className="bg-card border-border h-11 rounded-xl">
               <SelectValue placeholder="İş rejimi seçin" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="rounded-xl border-border">
               <SelectItem value="any">İstənilən</SelectItem>
               <SelectItem value="full-time">Tam iş günü</SelectItem>
               <SelectItem value="part-time">Yarımştat</SelectItem>
@@ -118,13 +118,13 @@ export default function JobFiltersPanel({
           <Select
             value={filters.experienceLevel}
             onValueChange={(value) =>
-              update("experienceLevel", value as JobFilters["experienceLevel"])
+              update("experienceLevel", value)
             }
           >
-            <SelectTrigger className="bg-white">
+            <SelectTrigger className="bg-card border-border h-11 rounded-xl">
               <SelectValue placeholder="Səviyyə seçin" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="rounded-xl border-border">
               <SelectItem value="any">İstənilən</SelectItem>
               <SelectItem value="junior">Junior</SelectItem>
               <SelectItem value="mid">Mid</SelectItem>
@@ -133,9 +133,10 @@ export default function JobFiltersPanel({
             </SelectContent>
           </Select>
         </FilterField>
+      </div>
 
-        {/* Filter button */}
-        <Button onClick={onApply} className="w-full mt-2 bg-slate-900 hover:bg-slate-800 text-white">
+      <div className="p-6 border-t border-border bg-background/80 backdrop-blur-md">
+        <Button onClick={onApply} className="w-full h-11 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold shadow-lg shadow-slate-900/10 dark:shadow-white/5 active:scale-95 transition-all">
           <SlidersHorizontal size={15} className="mr-2" />
           Filtrləri Tətbiq Et
         </Button>
@@ -152,8 +153,8 @@ function FilterField({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-2">
-      <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+    <div className="flex flex-col gap-2.5">
+      <label className="text-[10px] font-black uppercase tracking-[0.15em] text-muted-foreground/70 ml-1">
         {label}
       </label>
       {children}

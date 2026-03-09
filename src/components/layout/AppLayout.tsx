@@ -5,6 +5,7 @@ import { Menu } from "lucide-react";
 import Sidebar from "@/components/layout/Sidebar";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/utils/cn";
+import { ModeToggle } from "@/components/ModeToggle";
 
 export default function DashboardLayout({
   children,
@@ -15,53 +16,61 @@ export default function DashboardLayout({
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   return (
-    <div className="min-h-screen flex bg-[#F8F9FA]">
+    <div className="h-screen flex overflow-hidden bg-background">
       {/* Desktop Sidebar */}
-      <div 
+      <aside 
         className={cn(
-          "hidden lg:flex flex-col fixed inset-y-0 z-50 transition-all duration-300",
-          isCollapsed ? "w-[80px]" : "w-[260px]"
+          "hidden lg:flex flex-col fixed inset-y-0 z-50 transition-all duration-300 ease-in-out border-r border-border h-full",
+          isCollapsed ? "w-[72px]" : "w-[260px]"
         )}
       >
         <Sidebar isCollapsed={isCollapsed} onToggle={() => setIsCollapsed(!isCollapsed)} />
-      </div>
+      </aside>
 
-      {/* Main content */}
+      {/* Main content area */}
       <div 
         className={cn(
-          "flex-1 flex flex-col min-h-screen transition-all duration-300",
-          isCollapsed ? "lg:pl-[80px]" : "lg:pl-[260px]"
+          "flex-1 flex flex-col h-screen transition-all duration-300 ease-in-out overflow-hidden",
+          isCollapsed ? "lg:pl-[72px]" : "lg:pl-[260px]"
         )}
       >
-        {/* Top bar (Common for both mobile and desktop desktop toggle) */}
-        <header className="sticky top-0 z-30 flex items-center gap-3 px-5 py-3 bg-white border-b border-slate-200 shadow-sm">
-          {/* Mobile Menu Trigger */}
-          <div className="lg:hidden flex items-center gap-3">
-            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-              <SheetTrigger className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors">
-                <Menu size={18} />
-              </SheetTrigger>
-              <SheetContent side="left" className="p-0 w-[260px] border-r-0">
-                <Sidebar onNavigate={() => setMobileMenuOpen(false)} />
-              </SheetContent>
-            </Sheet>
+        {/* Top bar (Header) */}
+        <header className="shrink-0 h-[65px] flex items-center justify-between px-6 bg-background/80 backdrop-blur-xl border-b border-border z-40">
+          <div className="flex items-center gap-4">
+            {/* Mobile Menu Trigger */}
+            <div className="lg:hidden">
+              <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+                <SheetTrigger className="w-10 h-10 flex items-center justify-center rounded-xl bg-card border border-border text-muted-foreground hover:text-foreground transition-all shadow-sm outline-none cursor-pointer active:scale-95">
+                  <Menu size={20} />
+                </SheetTrigger>
+                <SheetContent side="left" className="p-0 w-[260px] border-r border-border">
+                  <Sidebar onNavigate={() => setMobileMenuOpen(false)} />
+                </SheetContent>
+              </Sheet>
+            </div>
+
+            {/* Desktop Collapse Trigger */}
+            <button 
+              onClick={() => setIsCollapsed(!isCollapsed)}
+              className="hidden lg:flex w-10 h-10 items-center justify-center rounded-xl bg-card border border-border text-muted-foreground hover:text-foreground transition-all shadow-sm active:scale-95"
+            >
+              <Menu size={20} className={cn("transition-transform duration-300", isCollapsed && "rotate-90")} />
+            </button>
+
+            <h1 className="text-lg font-black text-foreground tracking-tighter hidden sm:block">
+              WDS JOBS
+            </h1>
           </div>
 
-          {/* Desktop Collapse Trigger (Visible only on desktop) */}
-          <button 
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            className="hidden lg:flex w-8 h-8 items-center justify-center rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors"
-          >
-            <Menu size={18} />
-          </button>
-
-          <span className="text-sm font-bold text-slate-900">
-            WDS Jobs
-          </span>
+          <div className="flex items-center gap-3">
+            <ModeToggle />
+          </div>
         </header>
 
-        {/* Page content */}
-        <main className="flex-1 overflow-x-hidden">{children}</main>
+        {/* Page content - This will be scrollable depending on children (like JobBoardPage) */}
+        <main className="flex-1 overflow-hidden">
+          {children}
+        </main>
       </div>
     </div>
   );

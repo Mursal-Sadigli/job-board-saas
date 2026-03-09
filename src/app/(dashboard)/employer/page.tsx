@@ -1,72 +1,80 @@
 "use client";
 
 import { Building2, BarChart3, Users, Plus } from "lucide-react";
+import { cn } from "@/utils/cn";
 
 export default function EmployerPage() {
   return (
-    <div className="h-full overflow-y-auto px-6 py-8 bg-[#F8F9FA]">
-      <div className="mb-8">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center shadow-sm">
-              <Building2 size={20} className="text-slate-900" />
+    <div className="h-full min-h-[calc(100vh-65px)] overflow-y-auto px-4 sm:px-8 py-6 sm:py-8 bg-background">
+      <div className="max-w-6xl mx-auto">
+        <div className="mb-10">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-slate-900 dark:bg-white flex items-center justify-center shadow-lg shadow-slate-900/10 dark:shadow-white/5 transition-all">
+                <Building2 size={24} className="text-white dark:text-slate-900" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-foreground tracking-tight sm:text-3xl">
+                  İşəgötürən Paneli
+                </h1>
+                <p className="text-sm text-muted-foreground mt-1 max-w-md">
+                  Vakansiyalarınızı və namizədləri vahid paneldən idarə edin.
+                </p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-xl font-bold text-slate-900 tracking-tight">
-                İşəgötürən Paneli
-              </h1>
-              <p className="text-sm text-slate-500 mt-0.5">
-                İş elanlarınızı və müraciətlərinizi idarə edin (Şəhər və ya Rayon üzrə)
-              </p>
-            </div>
+            <button className="inline-flex items-center justify-center gap-2 h-11 px-6 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-sm font-bold hover:bg-slate-800 dark:hover:bg-slate-100 transition-all shadow-xl shadow-slate-900/10 dark:shadow-white/5 active:scale-95 group">
+              <Plus size={18} className="group-hover:rotate-90 transition-transform duration-300" />
+              İş Elanı Paylaş
+            </button>
           </div>
-          <button className="inline-flex items-center justify-center gap-2 h-10 px-5 rounded-xl bg-slate-900 text-white text-sm font-semibold hover:bg-slate-800 transition-all shadow-sm active:scale-[0.98]">
-            <Plus size={16} />
-            İş Elanı Paylaş
+        </div>
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-10">
+          {[
+            { label: "Aktiv İşlər", value: "0", icon: <Building2 size={20} />, color: "text-blue-500", bg: "bg-blue-500/10" },
+            { label: "Cəmi Müraciətlər", value: "0", icon: <Users size={20} />, color: "text-purple-500", bg: "bg-purple-500/10" },
+            { label: "Baxış Sayı", value: "0", icon: <BarChart3 size={20} />, color: "text-emerald-500", bg: "bg-emerald-500/10" },
+          ].map((stat) => (
+            <div
+              key={stat.label}
+              className="bg-card rounded-3xl p-6 border border-border shadow-sm/5 hover:shadow-md transition-all duration-300 group"
+            >
+              <div className="flex items-start justify-between mb-5">
+                <div className={cn("w-11 h-11 rounded-2xl flex items-center justify-center shadow-sm transition-transform group-hover:scale-110 duration-300", stat.bg, stat.color)}>
+                  {stat.icon}
+                </div>
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">
+                  Dashboard
+                </span>
+              </div>
+              <div className="space-y-1">
+                <p className="text-4xl font-black text-foreground tracking-tight">
+                  {stat.value}
+                </p>
+                <p className="text-xs font-bold text-muted-foreground">
+                  {stat.label}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Empty state & Dashboard Body */}
+        <div className="bg-card/50 backdrop-blur-sm rounded-[2.5rem] border border-dashed border-border p-12 text-center flex flex-col items-center justify-center shadow-inner mt-12 transition-colors">
+          <div className="w-20 h-20 rounded-3xl bg-muted/30 flex items-center justify-center mb-6">
+            <Building2 size={36} className="text-muted-foreground/40" />
+          </div>
+          <h3 className="text-xl font-bold text-foreground mb-3">
+            Hələ heç bir iş elanı yoxdur
+          </h3>
+          <p className="text-sm text-muted-foreground max-w-sm mx-auto mb-10 leading-relaxed font-medium">
+            Müraciətləri və baxışları təqib etmək üçün ilk vakansiyanızı dərhal əlavə edin.
+          </p>
+          <button className="h-11 px-8 rounded-2xl border border-border bg-background text-sm font-bold text-foreground hover:bg-muted/50 transition-all active:scale-95 shadow-sm">
+            Yeni elan yarat
           </button>
         </div>
-      </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
-        {[
-          { label: "Aktiv İşlər", value: "0", icon: <Building2 size={18} />, iconBg: "bg-blue-50", iconColor: "text-blue-600" },
-          { label: "Cəmi Müraciətlər", value: "0", icon: <Users size={18} />, iconBg: "bg-purple-50", iconColor: "text-purple-600" },
-          { label: "Baxış Sayı", value: "0", icon: <BarChart3 size={18} />, iconBg: "bg-emerald-50", iconColor: "text-emerald-600" },
-        ].map((stat) => (
-          <div
-            key={stat.label}
-            className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm"
-          >
-            <div className="flex items-center gap-3 mb-3">
-              <div className={`w-9 h-9 rounded-lg ${stat.iconBg} flex items-center justify-center shadow-sm`}>
-                <span className={stat.iconColor}>{stat.icon}</span>
-              </div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-                {stat.label}
-              </span>
-            </div>
-            <p className="text-3xl font-bold text-slate-900 tracking-tight">
-              {stat.value}
-            </p>
-          </div>
-        ))}
-      </div>
-
-      {/* Empty state */}
-      <div className="bg-white rounded-3xl border border-dashed border-slate-300 p-12 text-center flex flex-col items-center justify-center">
-        <div className="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center mb-4">
-          <Building2 size={28} className="text-slate-300" />
-        </div>
-        <h3 className="text-lg font-bold text-slate-900 mb-2">
-          Hələ heç bir iş elanı yoxdur
-        </h3>
-        <p className="text-sm text-slate-500 max-w-xs mx-auto mb-6 leading-relaxed">
-          Müraciətləri almağa başlamaq üçün ilk iş elanınızı paylaşın
-        </p>
-        <button className="h-10 px-6 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-900 hover:bg-slate-50 transition-all">
-          Yeni elan yarat
-        </button>
       </div>
     </div>
   );
