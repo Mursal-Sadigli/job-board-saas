@@ -112,11 +112,11 @@
 
 @layer utilities {
   .glass {
-    @apply bg-white/70 dark:bg-slate-900/70 backdrop-blur-md border border-white/20 dark:border-slate-800/20 shadow-xl;
+    @apply bg-white dark:bg-slate-900 border border-border/50 shadow-xl;
   }
   
   .glass-card {
-    @apply bg-white/40 dark:bg-slate-900/40 backdrop-blur-sm border border-white/10 dark:border-slate-800/10;
+    @apply bg-white dark:bg-slate-900 border border-border/30;
   }
 
   .text-gradient {

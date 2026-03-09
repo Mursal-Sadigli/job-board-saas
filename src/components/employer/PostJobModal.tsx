@@ -53,7 +53,7 @@ export function PostJobModal({ children }: { children?: React.ReactElement }) {
           </button>
         )}
       />
-      <DialogContent className="max-w-[420px] p-0 overflow-hidden rounded-xl border border-border bg-background">
+      <DialogContent className="max-w-[420px] w-[calc(100vw-2rem)] sm:w-full p-0 overflow-hidden rounded-xl border border-border bg-background">
         <DialogHeader className="px-5 pt-5 pb-2">
           <DialogTitle className="text-lg font-bold tracking-tight text-foreground">Müraciət</DialogTitle>
           <DialogDescription className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
@@ -95,7 +95,7 @@ export function PostJobModal({ children }: { children?: React.ReactElement }) {
             onClick={() => setOpen(false)}
             className="w-full h-10 rounded-md bg-foreground text-background hover:opacity-90 font-semibold text-sm transition-all active:scale-[0.98]"
           >
-            Müraciət Et
+            Əlavə Et
           </Button>
         </DialogFooter>
       </DialogContent>

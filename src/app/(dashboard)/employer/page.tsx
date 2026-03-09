@@ -65,7 +65,7 @@ export default function EmployerPage() {
         </div>
 
         {/* Empty state & Dashboard Body */}
-        <div className="bg-card/50 backdrop-blur-sm rounded-[2.5rem] border border-dashed border-border p-12 text-center flex flex-col items-center justify-center shadow-inner mt-12 transition-colors">
+        <div className="bg-card/50 rounded-[2.5rem] border border-dashed border-border p-12 text-center flex flex-col items-center justify-center shadow-inner mt-12 transition-colors">
           <div className="w-20 h-20 rounded-3xl bg-muted/30 flex items-center justify-center mb-6">
             <Building2 size={36} className="text-muted-foreground/40" />
           </div>

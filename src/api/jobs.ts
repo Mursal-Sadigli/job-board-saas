@@ -12,9 +12,11 @@ export const MOCK_JOBS: Job[] = [
     state: "CA",
     jobType: "full-time",
     experienceLevel: "junior",
+    salary: "$120,000",
     postedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
     featured: true,
     isNew: true,
+    description: `<h2>Vəzifə haqqında</h2><p>Amazon DynamoDB komandasında Front End Engineer kimi iştirak edəcəksiniz. Siz AWS konsolunun müxtəlif hissələrini React ilə inkişaf etdirəcəksiniz.</p><h2>Minimum tələblər</h2><ul><li>React və TypeScript üzrə 2+ il təcrübə</li><li>AWS xidmətlərini başa düşmək</li><li>RESTful API inteqrasiyaları</li><li>Unit test yazma bacarığı (Jest, RTL)</li></ul><h2>Üstünlük verilir</h2><ul><li>AWS DynamoDB və ya digər NoSQL verilənlər bazaları ilə iş təcrübəsi</li><li>Böyük miqyaslı veb tətbiqlər üzərindəki iş təcrübəsi</li><li>Performans optimizasiyası bacarıqları</li></ul>`,
   },
   {
     id: "2",
@@ -31,6 +33,7 @@ export const MOCK_JOBS: Job[] = [
     postedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
     featured: true,
     isNew: false,
+    description: `<h2>Vəzifə haqqında</h2><p>Google-un Android XR komandasına UX Engineer kimi qoşulun. Genişləndirilmiş reallıq (XR) platforması üçün yeni nəsil istifadəçi interfeyslərini dizayn edin və həyata keçirin.</p><h2>Minimum tələblər</h2><ul><li>Bachelor dərəcəsi və ya ekvivalent praktiki təcrübə</li><li>Front-end inkişafı üzrə 4+ il təcrübə, texniki UX dizayn</li><li>Android UI prototipləşdirmə təcrübəsi</li><li>Android Compose bilikləri</li></ul><h2>Üstünlük verilir</h2><ul><li>Native, clean Android tətbiqləri üzrə 5+ il iş təcrübəsi</li><li>XR proqram inkişafı: Unity/Unreal mühərriklərindən istifadə</li><li>Jetpack Compose, Material Design sistemləri</li></ul>`,
   },
   {
     id: "3",
@@ -47,6 +50,7 @@ export const MOCK_JOBS: Job[] = [
     postedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
     featured: false,
     isNew: false,
+    description: `<h2>Vəzifə haqqında</h2><p>Google Chrome komandasında Software Engineer III kimi çalışacaqsınız. Milyardlarla istifadəçi tərəfindən istifadə edilən brauzer mühərrikini inkişaf etdirəcəksiniz.</p><h2>Minimum tələblər</h2><ul><li>C++, Java, Python və ya JavaScript ilə 3+ il təcrübə</li><li>Veb standartları və brauzer memarlığı haqqında bilgi</li><li>Yayımlanan məhsullarda iş təcrübəsi</li></ul><h2>Üstünlük verilir</h2><ul><li>Açıq mənbəli layihələrə töhfə vermək</li><li>Chromium layihəsi ilə tanışlıq</li><li>Performans profilləşdirmə alətləri</li></ul>`,
   },
   {
     id: "4",
@@ -63,6 +67,7 @@ export const MOCK_JOBS: Job[] = [
     postedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
     featured: false,
     isNew: false,
+    description: `<h2>Vəzifə haqqında</h2><p>Gemini Cloud Assist komandasında Staff Software Engineer olaraq AI əsaslı bulud köməkçisi platformasının front-end arxitekturasını aparacaqsınız.</p><h2>Minimum tələblər</h2><ul><li>Frontend mühəndisliyi üzrə 8+ il təcrübə</li><li>React, Angular və ya Vue.js ilə böyük miqyaslı tətbiqlər qurma</li><li>Texniki liderlik və mentor olmaq bacarığı</li><li>AI/ML məhsulları üzərindəki iş təcrübəsi</li></ul><h2>Üstünlük verilir</h2><ul><li>Google Cloud Platform xidmətləri ilə tanışlıq</li><li>Dizayn sistemlərinin qurulması təcrübəsi</li><li>Açıq mənbəli layihə liderliyi</li></ul>`,
   },
   {
     id: "5",
@@ -79,6 +84,7 @@ export const MOCK_JOBS: Job[] = [
     postedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
     featured: false,
     isNew: false,
+    description: `<h2>Vəzifə haqqında</h2><p>Meta-da Senior React Developer kimi Facebook, Instagram və WhatsApp-ın istifadəçiyə dönük funksiyaları üzərində işləyəcəksiniz.</p><h2>Minimum tələblər</h2><ul><li>React ilə 5+ il iş təcrübəsi</li><li>Redux, MobX və ya Zustand kimi state idarəetmə həlləri</li><li>GraphQL API inteqrasiyası</li><li>Yüksək trafik mühitlərində performans optimizasiyası</li></ul><h2>Üstünlük verilir</h2><ul><li>React Native ilə mobil tətbiq inkişafı</li><li>A/B testləri aparma təcrübəsi</li><li>Açıq mənbəli töhfələr</li></ul>`,
   },
   {
     id: "6",
@@ -95,6 +101,7 @@ export const MOCK_JOBS: Job[] = [
     postedAt: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
     featured: false,
     isNew: true,
+    description: `<h2>Vəzifə haqqında</h2><p>Figma-da Design Systems komandasına qoşulun. Bütün dünyada dizaynerlər tərəfindən istifadə edilən komponent kitabxanalarını qurun və inkişaf etdirin.</p><h2>Minimum tələblər</h2><ul><li>Frontend mühəndisliyi üzrə 3+ il təcrübə</li><li>Dizayn sistemləri qurma təcrübəsi</li><li>CSS güclü bilgiisi: CSS-in-JS, CSS Modules</li><li>Accessibility standartları (WCAG) ilə iş</li></ul><h2>Üstünlük verilir</h2><ul><li>Figma plugin inkişafı</li><li>Storybook və ya oxşar komponent izahnamə alətləri</li><li>Açıq mənbəli dizayn kitabxanalarına töhfə</li></ul>`,
   },
   {
     id: "7",
@@ -111,6 +118,6 @@ export const MOCK_JOBS: Job[] = [
     postedAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString(),
     featured: false,
     isNew: false,
+    description: `<h2>Vəzifə haqqında</h2><p>Stripe-da Junior Frontend Developer kimi ödəniş interfeyslərini inkişaf etdirəcəksiniz. Dünya üzrə milyonlarla iş sahibi Stripe-dan asılıdır.</p><h2>Minimum tələblər</h2><ul><li>HTML, CSS, JavaScript üzrə güclü əsas bilik</li><li>React və ya Vue.js ilə iş təcrübəsi</li><li>RESTful API-lar haqqında anlayış</li><li>Git versiya nəzarəti</li></ul><h2>Üstünlük verilir</h2><ul><li>Ödəniş sistemləri ilə tanışlıq</li><li>TypeScript bilikləri</li><li>İnteqrasiya testləri yazma bacarığı</li></ul>`,
   },
 ];
-

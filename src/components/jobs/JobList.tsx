@@ -6,9 +6,11 @@ import { Briefcase, SearchX } from "lucide-react";
 
 interface JobListProps {
   jobs: Job[];
+  selectedJobId?: string | null;
+  onSelect?: (job: Job) => void;
 }
 
-export default function JobList({ jobs }: JobListProps) {
+export default function JobList({ jobs, selectedJobId, onSelect }: JobListProps) {
   if (jobs.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-4 bg-card rounded-[2.5rem] border border-dashed border-border shadow-inner">
@@ -28,9 +30,9 @@ export default function JobList({ jobs }: JobListProps) {
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-3">
       {/* Count Header */}
-      <div className="flex items-center justify-between mb-2 px-1">
+      <div className="flex items-center justify-between mb-1 px-1">
         <div className="flex items-center gap-2.5">
           <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
             <Briefcase size={14} className="text-primary" />
@@ -42,12 +44,16 @@ export default function JobList({ jobs }: JobListProps) {
       </div>
 
       {/* Cards */}
-      {jobs.map((job, i) => (
+      {jobs.map((job) => (
         <div
           key={job.id}
-          className="animate-in fade-in slide-in-from-bottom-2 duration-500 fill-mode-both"
+          className="animate-in fade-in slide-in-from-bottom-2 duration-300 fill-mode-both"
         >
-          <JobCard job={job} />
+          <JobCard
+            job={job}
+            isSelected={selectedJobId === job.id}
+            onClick={() => onSelect?.(job)}
+          />
         </div>
       ))}
     </div>

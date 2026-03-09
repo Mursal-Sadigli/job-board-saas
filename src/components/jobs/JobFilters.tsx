@@ -32,7 +32,7 @@ export default function JobFiltersPanel({
   return (
     <div className="flex flex-col h-full bg-background border-r border-border">
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-5 border-b border-border bg-background/50 backdrop-blur-md sticky top-0 z-10">
+      <div className="flex items-center justify-between px-6 py-5 border-b border-border bg-background sticky top-0 z-10">
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-lg bg-slate-900 dark:bg-white flex items-center justify-center text-white dark:text-slate-900 shadow-sm">
             <SlidersHorizontal size={14} />
@@ -135,7 +135,7 @@ export default function JobFiltersPanel({
         </FilterField>
       </div>
 
-      <div className="p-6 border-t border-border bg-background/80 backdrop-blur-md">
+      <div className="p-6 border-t border-border bg-background">
         <Button onClick={onApply} className="w-full h-11 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold shadow-lg shadow-slate-900/10 dark:shadow-white/5 active:scale-95 transition-all">
           <SlidersHorizontal size={15} className="mr-2" />
           Filtrləri Tətbiq Et

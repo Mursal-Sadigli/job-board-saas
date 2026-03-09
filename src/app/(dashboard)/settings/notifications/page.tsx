@@ -27,30 +27,30 @@ export default function NotificationsPage() {
   };
 
   return (
-    <div className="h-full overflow-y-auto px-6 py-6 bg-[#F8F9FA]">
+    <div className="h-full overflow-y-auto px-6 py-6 bg-background">
       {/* Page header */}
       <div className="mb-6">
         <div className="flex items-center gap-2 mb-1">
-          <Bell size={20} className="text-slate-700" />
-          <h1 className="text-xl font-bold text-slate-900">
+          <Bell size={20} className="text-foreground/70" />
+          <h1 className="text-xl font-bold text-foreground">
             Bildirişlər
           </h1>
         </div>
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-muted-foreground">
           İş xəbərdarlığı seçimlərini idarə edin
         </p>
       </div>
 
       {/* Container */}
-      <div className="rounded-xl p-6 max-w-xl bg-white border border-slate-200 shadow-sm">
+      <div className="rounded-xl p-6 max-w-xl bg-card border border-border shadow-sm">
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
           {/* Daily Email Toggle */}
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-semibold text-slate-900">
+              <p className="text-sm font-semibold text-foreground">
                 Gündəlik E-poçt Bildirişləri
               </p>
-              <p className="text-xs mt-0.5 text-slate-500">
+              <p className="text-xs mt-0.5 text-muted-foreground">
                 Sizə uyğun yeni işlərin gündəlik xülasəsini əldə edin
               </p>
             </div>
@@ -61,21 +61,21 @@ export default function NotificationsPage() {
           </div>
 
           {/* Divider */}
-          <div className="border-t border-slate-200" />
+          <div className="border-t border-border" />
 
           {/* Filter Prompt */}
           <div className="flex flex-col gap-2">
-            <label className="text-sm font-semibold text-slate-900">
+            <label className="text-sm font-semibold text-foreground">
               Filtrləmə Mətni (Prompt)
             </label>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-muted-foreground">
               Axtardığınız iş növünü təsvir edin (AI tərəfindən bildirişləri filtrləmək üçün istifadə olunur)
             </p>
             <Textarea
               {...register("filterPrompt")}
               placeholder="məs. Bakıda və ya uzaqdan işləmək üçün senior frontend mühəndis rolu..."
               rows={4}
-              className="resize-none bg-white"
+              className="resize-none bg-card"
             />
             {errors.filterPrompt && (
               <p className="text-xs text-rose-500">
@@ -85,7 +85,7 @@ export default function NotificationsPage() {
           </div>
 
           {/* Save button */}
-          <Button type="submit" className="w-full bg-slate-900 hover:bg-slate-800 text-white mt-2">
+          <Button type="submit" className="w-full bg-foreground text-background hover:opacity-90 mt-2">
             {saved ? (
               <>
                 <CheckCircle size={16} className="mr-2" />
@@ -103,3 +103,4 @@ export default function NotificationsPage() {
     </div>
   );
 }
+

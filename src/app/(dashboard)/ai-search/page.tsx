@@ -42,7 +42,7 @@ export default function AISearchPage() {
 
         {/* Coming Soon Card */}
         <div className="glass-card rounded-[2.5rem] px-8 py-8 w-full border border-border/50 text-left overflow-hidden relative group hover:border-primary/30 transition-colors">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-primary/10 transition-colors" />
+          <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 group-hover:bg-primary/10 transition-colors" />
           <p className="text-[10px] font-black uppercase tracking-[0.3em] mb-4 text-primary bg-primary/10 w-fit px-3 py-1 rounded-full">
             Yaxında
           </p>

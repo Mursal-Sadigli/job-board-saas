@@ -35,7 +35,7 @@ export default function DashboardLayout({
         )}
       >
         {/* Top bar (Header) */}
-        <header className="shrink-0 h-[65px] flex items-center justify-between px-6 bg-background/80 backdrop-blur-xl border-b border-border z-40">
+        <header className="shrink-0 h-[65px] flex items-center justify-between px-6 bg-background border-b border-border z-40">
           <div className="flex items-center gap-4">
             {/* Mobile Menu Trigger */}
             <div className="lg:hidden">

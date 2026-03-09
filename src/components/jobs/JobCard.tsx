@@ -17,6 +17,8 @@ import {
 
 interface JobCardProps {
   job: Job;
+  onClick?: () => void;
+  isSelected?: boolean;
 }
 
 const locationTypeConfig = {
@@ -42,7 +44,7 @@ const expLevelConfig: Record<string, string> = {
   any: "İstənilən",
 };
 
-export default function JobCard({ job }: JobCardProps) {
+export default function JobCard({ job, onClick, isSelected }: JobCardProps) {
   const [logoError, setLogoError] = useState(false);
   const locConfig = locationTypeConfig[job.locationType] || locationTypeConfig.any;
   const expLabel = expLevelConfig[job.experienceLevel] || expLevelConfig.any;
@@ -51,16 +53,22 @@ export default function JobCard({ job }: JobCardProps) {
 
   return (
     <div 
+      onClick={onClick}
       className={cn(
-        "border border-border rounded-2xl p-4 sm:p-6 cursor-pointer group transition-all duration-300 relative overflow-hidden",
+        "border rounded-2xl p-4 sm:p-5 cursor-pointer group transition-all duration-200 relative overflow-hidden",
         job.featured 
-          ? "bg-white dark:bg-[#1e1424] border-purple-500/20 shadow-lg shadow-purple-500/5 hover:border-purple-500/40" 
-          : "bg-card hover:border-primary/20 hover:shadow-md"
+          ? "bg-white dark:bg-[#1e1424] shadow-lg shadow-purple-500/5" 
+          : "bg-card",
+        isSelected
+          ? "border-primary ring-2 ring-primary/20 shadow-md"
+          : job.featured
+            ? "border-purple-500/20 hover:border-purple-500/40"
+            : "border-border hover:border-primary/20 hover:shadow-sm"
       )}
     >
       {/* Background Glow for Featured */}
       {job.featured && (
-        <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 blur-3xl rounded-full -mr-16 -mt-16 pointer-events-none" />
+        <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 rounded-full -mr-16 -mt-16 pointer-events-none" />
       )}
 
       <div className="flex items-start gap-4 sm:gap-6 relative z-10">

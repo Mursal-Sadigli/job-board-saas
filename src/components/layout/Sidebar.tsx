@@ -101,7 +101,7 @@ export default function Sidebar({
   return (
     <div className="flex w-full flex-col h-full overflow-hidden bg-background border-r border-border shadow-sm/5">
       {/* Header */}
-      <div className="flex items-center h-[65px] px-4 border-b border-border bg-background/50 backdrop-blur-md">
+      <div className="flex items-center h-[65px] px-4 border-b border-border bg-background">
         <div className="flex items-center gap-3 overflow-hidden">
           <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-lg shadow-slate-900/10 dark:shadow-white/5 transition-all">
             <MenuSquare size={16} />
@@ -210,7 +210,7 @@ export default function Sidebar({
       </nav>
 
       {/* User section */}
-      <div className="p-4 border-t border-border bg-background/50 backdrop-blur-md">
+      <div className="p-4 border-t border-border bg-background">
         <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
           <DropdownMenuTrigger 
             className={cn(
