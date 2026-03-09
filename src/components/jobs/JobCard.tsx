@@ -6,11 +6,11 @@ import {
   MapPin,
   Briefcase,
   Clock,
-  DollarSign,
   Award,
-  Monitor,
-  Wifi,
-  Users,
+  Building,
+  Globe,
+  Network,
+  Banknote,
 } from "lucide-react";
 
 interface JobCardProps {
@@ -18,10 +18,10 @@ interface JobCardProps {
 }
 
 const locationTypeConfig = {
-  "in-office": { label: "Ofisdə", icon: <Monitor size={12} /> },
-  hybrid: { label: "Hibrid", icon: <Users size={12} /> },
-  remote: { label: "Uzaqdan", icon: <Wifi size={12} /> },
-  any: { label: "Fərqi yoxdur", icon: <MapPin size={12} /> },
+  "in-office": { label: "Ofisdə", icon: <Building size={12} /> },
+  hybrid: { label: "Hibrid", icon: <Network size={12} /> },
+  remote: { label: "Uzaqdan", icon: <Globe size={12} /> },
+  any: { label: "İstənilən", icon: <MapPin size={12} /> },
 };
 
 const jobTypeConfig: Record<string, string> = {
@@ -29,7 +29,7 @@ const jobTypeConfig: Record<string, string> = {
   "part-time": "Yarımştat",
   contract: "Müqavilə",
   internship: "Təcrübəçi",
-  any: "Fərqi yoxdur",
+  any: "İstənilən",
 };
 
 const expLevelConfig: Record<string, string> = {
@@ -37,7 +37,7 @@ const expLevelConfig: Record<string, string> = {
   mid: "Orta",
   senior: "Peşəkar",
   lead: "Rəhbər",
-  any: "Fərqi yoxdur",
+  any: "İstənilən",
 };
 
 export default function JobCard({ job }: JobCardProps) {
@@ -134,7 +134,7 @@ export default function JobCard({ job }: JobCardProps) {
             {/* Salary */}
             {job.salary && (
               <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium bg-slate-50 text-slate-600 border border-slate-200">
-                <DollarSign size={12} className="text-slate-400" />
+                <Banknote size={12} className="text-slate-400" />
                 {job.salary}
               </span>
             )}

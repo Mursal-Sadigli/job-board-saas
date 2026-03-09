@@ -37,17 +37,17 @@ export default function ResumePage() {
   };
 
   return (
-    <div className="h-full overflow-y-auto px-6 py-6 bg-slate-50">
+    <div className="h-full overflow-y-auto px-6 py-6 bg-[#F8F9FA]">
       {/* Page header */}
       <div className="mb-6">
         <div className="flex items-center gap-2 mb-1">
           <FileText size={20} className="text-slate-700" />
           <h1 className="text-xl font-bold text-slate-900">
-            Tərcümeyi-hal
+            CV
           </h1>
         </div>
         <p className="text-sm text-slate-500">
-          İş müraciətləri üçün CV / tərcümeyi-halınızı yükləyin
+          İş müraciətləri üçün CV yükləyin
         </p>
       </div>
 
@@ -98,7 +98,7 @@ export default function ResumePage() {
         {resumes.length > 0 && (
           <div className="rounded-xl overflow-hidden bg-white border border-slate-200 shadow-sm">
             <div className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500 border-b border-slate-200 bg-slate-50/50">
-              Yüklənmiş Tərcümeyi-hallar ({resumes.length})
+              Yüklənmiş CV-lər ({resumes.length})
             </div>
             <div className="divide-y divide-slate-100">
               {resumes.map((resume) => (
@@ -157,7 +157,7 @@ export default function ResumePage() {
               <div className="flex items-center gap-2">
                 <FileText size={18} className="text-slate-700" />
                 <span className="font-semibold text-slate-900">
-                  Tərcümeyi-hal Önizləməsi
+                  CV Önizləməsi
                 </span>
               </div>
               <div className="flex items-center gap-3">

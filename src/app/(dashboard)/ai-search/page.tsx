@@ -4,71 +4,42 @@ import { Sparkles, Bot, Search } from "lucide-react";
 
 export default function AISearchPage() {
   return (
-    <div
-      className="h-full flex flex-col items-center justify-center px-6 py-10"
-      style={{ background: "hsl(var(--background))" }}
-    >
+    <div className="h-full flex flex-col items-center justify-center px-6 py-10 bg-[#F8F9FA]">
       <div className="flex flex-col items-center gap-5 max-w-md w-full text-center">
-        <div
-          className="w-16 h-16 rounded-2xl flex items-center justify-center"
-          style={{
-            background: "linear-gradient(135deg, rgba(99,102,241,0.2), rgba(0,184,255,0.2))",
-            border: "1px solid rgba(99,102,241,0.25)",
-          }}
-        >
-          <Sparkles size={28} style={{ color: "hsl(var(--primary))" }} />
+        <div className="w-16 h-16 rounded-2xl flex items-center justify-center bg-indigo-50 border border-indigo-100 shadow-sm">
+          <Sparkles size={28} className="text-slate-900" />
         </div>
         <div>
-          <h1
-            className="text-2xl font-bold mb-2"
-            style={{
-              fontFamily: "var(--font-outfit)",
-              color: "hsl(var(--foreground))",
-            }}
-          >
-            AI Job Search
+          <h1 className="text-2xl font-bold mb-2 text-slate-900 tracking-tight">
+            AI İş Axtarışı
           </h1>
-          <p className="text-sm" style={{ color: "hsl(var(--foreground-muted))" }}>
-            Describe what you're looking for in natural language and let AI
-            find the perfect jobs for you.
+          <p className="text-sm text-slate-500 leading-relaxed">
+            Nə axtardığınızı təbii dildə təsvir edin və AI sizin üçün ən uyğun işləri tapsın.
           </p>
         </div>
 
-        <div className="w-full relative">
+        <div className="w-full relative group">
           <Search
             size={16}
-            className="absolute left-3.5 top-1/2 -translate-y-1/2"
-            style={{ color: "hsl(var(--foreground-subtle))" }}
+            className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-slate-600 transition-colors"
           />
           <input
-            className="input-base pl-10"
-            placeholder="e.g. Senior React roles at startups, remote, $150k+"
+            className="w-full h-11 pl-10 pr-4 rounded-xl border border-slate-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/5 focus:border-slate-900 transition-all placeholder:text-slate-400"
+            placeholder="məs. Startaplarda Senior React rolları, uzaqdan, 150k+ $"
           />
         </div>
 
-        <button className="btn-primary">
+        <button className="flex items-center justify-center gap-2 w-full h-11 rounded-xl bg-slate-900 text-white text-sm font-semibold hover:bg-slate-800 transition-all shadow-sm active:scale-[0.98]">
           <Bot size={16} />
-          Search with AI
+          AI ilə Axtar
         </button>
 
-        <div
-          className="rounded-xl px-5 py-4 w-full"
-          style={{
-            background: "hsl(var(--surface))",
-            border: "1px solid hsl(var(--border-subtle))",
-          }}
-        >
-          <p
-            className="text-xs font-semibold uppercase tracking-wider mb-3"
-            style={{ color: "hsl(var(--foreground-subtle))" }}
-          >
-            Coming Soon
+        <div className="rounded-2xl px-6 py-5 w-full bg-white border border-slate-100 shadow-[0_2px_10px_-3px_rgba(0,0,0,0.07)]">
+          <p className="text-[10px] font-bold uppercase tracking-widest mb-2.5 text-slate-400">
+            Tezliklə
           </p>
-          <p
-            className="text-sm"
-            style={{ color: "hsl(var(--foreground-muted))" }}
-          >
-            AI-powered semantic job matching, personalized recommendations based on your resume, and smart salary insights.
+          <p className="text-sm text-slate-600 leading-relaxed">
+            AI dəstəkli semantik iş uyğunlaşdırması, CV-nizə əsaslanan fərdi tövsiyələr və ağıllı maaş anlayışları.
           </p>
         </div>
       </div>

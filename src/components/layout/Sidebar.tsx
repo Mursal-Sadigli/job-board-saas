@@ -40,7 +40,7 @@ const mainNavItems: NavItem[] = [
     icon: <Briefcase size={18} />,
   },
   {
-    label: "Süni İntellekt",
+    label: "AI",
     href: ROUTES.aiSearch,
     icon: <Sparkles size={18} />,
   },
@@ -58,7 +58,7 @@ const settingsItems: NavItem[] = [
     icon: <Bell size={16} />,
   },
   {
-    label: "Tərcümeyi-hal",
+    label: "CV",
     href: ROUTES.settings.resume,
     icon: <FileText size={16} />,
   },
@@ -71,7 +71,11 @@ const MOCK_USER = {
   email: "alex.johnson@gmail.com",
 };
 
-export default function Sidebar() {
+interface SidebarProps {
+  onNavigate?: () => void;
+}
+
+export default function Sidebar({ onNavigate }: SidebarProps = {}) {
   const pathname = usePathname();
   const { settingsExpanded, toggleSettings } = useSidebar();
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -88,7 +92,7 @@ export default function Sidebar() {
             <MenuSquare size={16} />
           </div>
           <span className="font-bold text-base tracking-tight text-slate-900">
-            WDS İşlər
+            WDS Jobs
           </span>
         </div>
       </div>
@@ -101,6 +105,7 @@ export default function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
+              onClick={() => onNavigate?.()}
               className={cn(
                 "flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors",
                 isActive
@@ -154,6 +159,7 @@ export default function Sidebar() {
                   <Link
                     key={item.href}
                     href={item.href}
+                    onClick={() => onNavigate?.()}
                     className={cn(
                       "flex items-center gap-3 px-3 py-1.5 rounded-md text-sm font-medium transition-colors",
                       isSubActive

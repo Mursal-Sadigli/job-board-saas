@@ -27,7 +27,7 @@ export default function NotificationsPage() {
   };
 
   return (
-    <div className="h-full overflow-y-auto px-6 py-6 bg-slate-50">
+    <div className="h-full overflow-y-auto px-6 py-6 bg-[#F8F9FA]">
       {/* Page header */}
       <div className="mb-6">
         <div className="flex items-center gap-2 mb-1">
@@ -69,7 +69,7 @@ export default function NotificationsPage() {
               Filtrləmə Mətni (Prompt)
             </label>
             <p className="text-xs text-slate-500">
-              Axtardığınız iş növünü təsvir edin (Süni İntellekt tərəfindən bildirişləri filtrləmək üçün istifadə olunur)
+              Axtardığınız iş növünü təsvir edin (AI tərəfindən bildirişləri filtrləmək üçün istifadə olunur)
             </p>
             <Textarea
               {...register("filterPrompt")}

@@ -18,9 +18,9 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "WDS Jobs – Find Your Dream Job",
+  title: "WDS Jobs – Xəyalınızdakı İşi Tapın",
   description:
-    "The modern job board powered by AI. Find the best tech jobs matched to your skills and preferences.",
+    "AI ilə dəstəklənən müasir iş elanları platforması. Bacarıq və seçimlərinizə uyğun ən yaxşı texnoloji işləri tapın.",
 };
 
 export default function RootLayout({
@@ -29,8 +29,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={cn("font-sans", geist.variable)}>
-      <body className={`${inter.variable} ${outfit.variable} antialiased`}>
+    <html lang="az" className={cn("font-sans", geist.variable)}>
+      <body className={`${inter.variable} ${outfit.variable} antialiased bg-[#F8F9FA]`}>
         {children}
       </body>
     </html>

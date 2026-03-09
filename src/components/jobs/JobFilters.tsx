@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/select";
 
 const US_STATES = [
-  "Fərqi yoxdur", "AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA",
+  "İstənilən", "AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA",
   "HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI",
   "MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND",
   "OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA",
@@ -38,7 +38,7 @@ export default function JobFiltersPanel({
   };
 
   return (
-    <div className="flex flex-col h-full overflow-y-auto bg-slate-50 border-r border-slate-200">
+    <div className="flex flex-col h-full overflow-y-auto bg-[#F8F9FA] border-r border-slate-200">
       {/* Header */}
       <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200 bg-white">
         <div className="flex items-center gap-2">
@@ -80,7 +80,7 @@ export default function JobFiltersPanel({
               <SelectValue placeholder="İş növünü seçin" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="any">Fərqi yoxdur</SelectItem>
+              <SelectItem value="any">İstənilən</SelectItem>
               <SelectItem value="in-office">Ofisdə</SelectItem>
               <SelectItem value="hybrid">Hibrid</SelectItem>
               <SelectItem value="remote">Uzaqdan</SelectItem>
@@ -109,7 +109,7 @@ export default function JobFiltersPanel({
             </SelectTrigger>
             <SelectContent>
               {US_STATES.map((state) => (
-                <SelectItem key={state} value={state === "Fərqi yoxdur" || state === "Any" ? "any" : state}>
+                <SelectItem key={state} value={state === "İstənilən" || state === "Any" ? "any" : state}>
                   {state}
                 </SelectItem>
               ))}
@@ -129,7 +129,7 @@ export default function JobFiltersPanel({
               <SelectValue placeholder="İş rejimi seçin" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="any">Fərqi yoxdur</SelectItem>
+              <SelectItem value="any">İstənilən</SelectItem>
               <SelectItem value="full-time">Tam iş günü</SelectItem>
               <SelectItem value="part-time">Yarımştat</SelectItem>
               <SelectItem value="contract">Müqavilə</SelectItem>
@@ -150,7 +150,7 @@ export default function JobFiltersPanel({
               <SelectValue placeholder="Səviyyə seçin" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="any">Fərqi yoxdur</SelectItem>
+              <SelectItem value="any">İstənilən</SelectItem>
               <SelectItem value="junior">Başlanğıc</SelectItem>
               <SelectItem value="mid">Orta</SelectItem>
               <SelectItem value="senior">Peşəkar</SelectItem>

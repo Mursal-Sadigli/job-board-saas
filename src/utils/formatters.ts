@@ -6,10 +6,10 @@ export function formatRelativeTime(dateString: string): string {
   const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
   const diffMinutes = Math.floor(diffMs / (1000 * 60));
 
-  if (diffMinutes < 60) return `${diffMinutes}m ago`;
-  if (diffHours < 24) return `${diffHours}h ago`;
-  if (diffDays < 7) return `${diffDays}d ago`;
-  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  if (diffMinutes < 60) return `${diffMinutes} dəqiqə əvvəl`;
+  if (diffHours < 24) return `${diffHours} saat əvvəl`;
+  if (diffDays < 7) return `${diffDays} gün əvvəl`;
+  return date.toLocaleDateString("az-AZ", { month: "short", day: "numeric" });
 }
 
 export function formatSalary(salary?: string): string {
