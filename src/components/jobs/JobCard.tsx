@@ -85,7 +85,7 @@ export default function JobCard({ job }: JobCardProps) {
           {/* Top row */}
           <div className="flex items-start justify-between gap-3 mb-3 sm:mb-4">
             <div className="space-y-0.5 sm:space-y-1">
-              <h3 className="font-bold text-base sm:text-xl leading-snug text-foreground tracking-tight group-hover:text-primary transition-colors truncate">
+              <h3 className="font-semibold text-base sm:text-lg leading-snug text-foreground tracking-tight group-hover:text-primary transition-colors truncate">
                 {job.title}
               </h3>
               <p className="text-[11px] sm:text-sm text-muted-foreground font-semibold tracking-wide">
