@@ -105,43 +105,43 @@ export default function JobCard({ job }: JobCardProps) {
             </div>
           </div>
 
-          {/* Tags Grid - 2 columns on mobile, flex on desktop */}
-          <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-2.5">
+          {/* Tags - Flex wrap on all screens, small on mobile to fit one row */}
+          <div className="flex flex-wrap gap-1.5 sm:gap-2.5">
             {job.featured && (
-              <span className="inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-wider bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 col-span-2 sm:col-auto">
-                <Award size={12} className="shrink-0" />
+              <span className="inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-wider bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20">
+                <Award size={11} className="shrink-0" />
                 Önə çıxan
               </span>
             )}
 
             {/* Location */}
-            <span className="inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-xs font-semibold bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
-              <MapPin size={12} className="shrink-0" />
-              <span className="truncate">{job.location || job.city}</span>
+            <span className="inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[9px] sm:text-xs font-semibold bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
+              <MapPin size={11} className="shrink-0" />
+              <span className="truncate max-w-[80px] sm:max-w-none">{job.location || job.city}</span>
             </span>
 
             {/* Location type */}
-            <span className="inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-xs font-semibold bg-slate-500/10 text-slate-600 dark:text-slate-400 border border-slate-500/20">
-              <span className="shrink-0">{locConfig.icon}</span>
+            <span className="inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[9px] sm:text-xs font-semibold bg-slate-500/10 text-slate-600 dark:text-slate-400 border border-slate-500/20">
+              <span className="shrink-0 scale-90 sm:scale-100">{locConfig.icon}</span>
               <span className="truncate">{locConfig.label}</span>
             </span>
 
             {/* Job type */}
-            <span className="inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-xs font-semibold bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20">
-              <Briefcase size={12} className="shrink-0" />
+            <span className="inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[9px] sm:text-xs font-semibold bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20">
+              <Briefcase size={11} className="shrink-0" />
               <span className="truncate">{jobTypeConfig[job.jobType] || jobTypeConfig.any}</span>
             </span>
 
             {/* Experience */}
-            <span className="inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-              <Clock size={12} className="shrink-0" />
+            <span className="inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[9px] sm:text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+              <Clock size={11} className="shrink-0" />
               <span className="truncate">{expLabel}</span>
             </span>
 
             {/* Salary */}
             {job.salary && (
-              <span className="inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-xs font-bold bg-muted/40 text-foreground border border-border">
-                <Banknote size={12} className="shrink-0 text-muted-foreground" />
+              <span className="inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[9px] sm:text-xs font-bold bg-muted/40 text-foreground border border-border">
+                <Banknote size={11} className="shrink-0 text-muted-foreground" />
                 <span className="truncate">{job.salary}</span>
               </span>
             )}
