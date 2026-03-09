@@ -73,9 +73,15 @@ const MOCK_USER = {
 
 interface SidebarProps {
   onNavigate?: () => void;
+  isCollapsed?: boolean;
+  onToggle?: () => void;
 }
 
-export default function Sidebar({ onNavigate }: SidebarProps = {}) {
+export default function Sidebar({ 
+  onNavigate, 
+  isCollapsed = false, 
+  onToggle 
+}: SidebarProps) {
   const pathname = usePathname();
   const { settingsExpanded, toggleSettings } = useSidebar();
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -86,14 +92,16 @@ export default function Sidebar({ onNavigate }: SidebarProps = {}) {
   return (
     <div className="flex w-full flex-col h-full overflow-hidden bg-white border-r border-slate-200">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-4 border-b border-slate-200">
-        <div className="flex items-center gap-2.5">
+      <div className="flex items-center h-[65px] px-4 border-b border-slate-200">
+        <div className="flex items-center gap-2.5 overflow-hidden">
           <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-slate-900 text-white">
             <MenuSquare size={16} />
           </div>
-          <span className="font-bold text-base tracking-tight text-slate-900">
-            WDS Jobs
-          </span>
+          {!isCollapsed && (
+            <span className="font-bold text-base tracking-tight text-slate-900 truncate">
+              WDS Jobs
+            </span>
+          )}
         </div>
       </div>
 
@@ -107,16 +115,17 @@ export default function Sidebar({ onNavigate }: SidebarProps = {}) {
               href={item.href}
               onClick={() => onNavigate?.()}
               className={cn(
-                "flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors",
+                "flex items-center rounded-md text-sm font-medium transition-colors h-10",
+                isCollapsed ? "justify-center px-0" : "px-3 gap-3",
                 isActive
                   ? "bg-slate-100 text-slate-900"
                   : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
               )}
             >
-              <div className={cn(isActive ? "text-slate-900" : "text-slate-400")}>
+              <div className={cn("shrink-0", isActive ? "text-slate-900" : "text-slate-400")}>
                 {item.icon}
               </div>
-              <span>{item.label}</span>
+              {!isCollapsed && <span className="truncate">{item.label}</span>}
             </Link>
           );
         })}
@@ -126,84 +135,100 @@ export default function Sidebar({ onNavigate }: SidebarProps = {}) {
           <button
             onClick={toggleSettings}
             className={cn(
-              "w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors",
+              "w-full flex items-center rounded-md text-sm font-medium transition-colors h-10",
+              isCollapsed ? "justify-center px-0" : "px-3 gap-3",
               isSettingsActive
                 ? "text-slate-900"
                 : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
             )}
           >
-            <div className={cn(isSettingsActive ? "text-slate-900" : "text-slate-400")}>
+            <div className={cn("shrink-0", isSettingsActive ? "text-slate-900" : "text-slate-400")}>
               <Settings size={18} />
             </div>
-            <span className="flex-1 text-left">Tənzimləmələr</span>
-            <ChevronRight
-              size={14}
-              className={cn(
-                "transition-transform duration-200 text-slate-400",
-                settingsExpanded && "rotate-90"
-              )}
-            />
+            {!isCollapsed && (
+              <>
+                <span className="flex-1 text-left truncate">Tənzimləmələr</span>
+                <ChevronRight
+                  size={14}
+                  className={cn(
+                    "transition-transform duration-200 text-slate-400",
+                    settingsExpanded && "rotate-90"
+                  )}
+                />
+              </>
+            )}
           </button>
 
           {/* Settings sub-items */}
-          <div
-            className={cn(
-              "overflow-hidden transition-all duration-300",
-              settingsExpanded ? "max-h-24 opacity-100" : "max-h-0 opacity-0"
-            )}
-          >
-            <div className="mt-1 ml-5 pl-4 flex flex-col gap-1 border-l border-slate-200">
-              {settingsItems.map((item) => {
-                const isSubActive = pathname === item.href;
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={() => onNavigate?.()}
-                    className={cn(
-                      "flex items-center gap-3 px-3 py-1.5 rounded-md text-sm font-medium transition-colors",
-                      isSubActive
-                        ? "bg-slate-100 text-slate-900"
-                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
-                    )}
-                  >
-                    <div className={cn(isSubActive ? "text-slate-900" : "text-slate-400")}>
-                      {item.icon}
-                    </div>
-                    <span>{item.label}</span>
-                  </Link>
-                );
-              })}
+          {!isCollapsed && (
+            <div
+              className={cn(
+                "overflow-hidden transition-all duration-300",
+                settingsExpanded ? "max-h-24 opacity-100" : "max-h-0 opacity-0"
+              )}
+            >
+              <div className="mt-1 ml-5 pl-4 flex flex-col gap-1 border-l border-slate-200">
+                {settingsItems.map((item) => {
+                  const isSubActive = pathname === item.href;
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => onNavigate?.()}
+                      className={cn(
+                        "flex items-center gap-3 px-3 py-1.5 rounded-md text-sm font-medium transition-colors",
+                        isSubActive
+                          ? "bg-slate-100 text-slate-900"
+                          : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                      )}
+                    >
+                      <div className={cn(isSubActive ? "text-slate-900" : "text-slate-400")}>
+                        {item.icon}
+                      </div>
+                      <span>{item.label}</span>
+                    </Link>
+                  );
+                })}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </nav>
 
       {/* User section */}
       <div className="p-3 border-t border-slate-200">
         <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
-          <DropdownMenuTrigger className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-100 transition-colors group outline-none">
+          <DropdownMenuTrigger 
+            className={cn(
+              "w-full flex items-center rounded-lg hover:bg-slate-100 transition-colors group outline-none h-12",
+              isCollapsed ? "justify-center px-0" : "px-3 gap-3"
+            )}
+          >
             {/* Avatar */}
             <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-sm font-bold bg-slate-900 text-white">
               {MOCK_USER.firstName[0]}
               {MOCK_USER.lastName[0]}
             </div>
             {/* Info */}
-            <div className="flex-1 text-left min-w-0">
-              <p className="text-sm font-semibold text-slate-900 truncate">
-                {MOCK_USER.firstName} {MOCK_USER.lastName}
-              </p>
-              <p className="text-xs text-slate-500 truncate">
-                {MOCK_USER.email}
-              </p>
-            </div>
-            <ChevronDown
-              size={14}
-              className={cn(
-                "transition-transform duration-200 shrink-0 text-slate-400",
-                dropdownOpen && "rotate-180"
-              )}
-            />
+            {!isCollapsed && (
+              <>
+                <div className="flex-1 text-left min-w-0">
+                  <p className="text-sm font-semibold text-slate-900 truncate">
+                    {MOCK_USER.firstName} {MOCK_USER.lastName}
+                  </p>
+                  <p className="text-xs text-slate-500 truncate">
+                    {MOCK_USER.email}
+                  </p>
+                </div>
+                <ChevronDown
+                  size={14}
+                  className={cn(
+                    "transition-transform duration-200 shrink-0 text-slate-400",
+                    dropdownOpen && "rotate-180"
+                  )}
+                />
+              </>
+            )}
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-[230px]">
             <DropdownMenuItem className="cursor-pointer gap-2" onClick={() => setDropdownOpen(false)}>
