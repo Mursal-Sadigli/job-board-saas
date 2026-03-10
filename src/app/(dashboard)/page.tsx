@@ -59,7 +59,9 @@ export default function JobBoardPage() {
 
   const handleSelectJob = (job: Job) => {
     setSelectedJob(job);
-    setIsDetailOpen(true);
+    if (window.innerWidth < 1024) {
+      setIsDetailOpen(true);
+    }
   };
 
   const handleApply = () => {
@@ -159,7 +161,7 @@ export default function JobBoardPage() {
       <Sheet open={isDetailOpen} onOpenChange={setIsDetailOpen}>
         <SheetContent 
           side="bottom" 
-          className="p-0 h-[90vh]! max-h-[90vh]! rounded-t-4xl overflow-hidden border-none"
+          className="p-0 h-[90vh]! max-h-[90vh]! rounded-t-4xl overflow-hidden border-none lg:hidden"
           showCloseButton={false}
         >
           {selectedJob && (

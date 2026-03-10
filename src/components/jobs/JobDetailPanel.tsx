@@ -54,103 +54,87 @@ export default function JobDetailPanel({ job, onClose, onApply }: JobDetailPanel
 
   return (
     <div className="flex flex-col h-full bg-card border-l border-border relative overflow-hidden">
-      {/* Scrollable Content Container */}
+      {/* Scrollable Content Area */}
       <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar">
-        {/* Header */}
-        <div
-          className={cn(
-            "px-4 sm:px-6 pt-5 sm:pt-6 pb-6 relative border-b border-border/50",
-            job.featured ? "bg-card" : "bg-card"
-          )}
-        >
-          {/* Close button (mobile) - Adjusted for better visibility and touch target */}
+        {/* Header Section */}
+        <div className="px-6 pt-8 pb-6 relative border-b border-border/40">
+          {/* Minimalist Close button */}
           {onClose && (
             <button
               onClick={onClose}
-              className="absolute top-4 right-4 z-20 p-2 rounded-full bg-background/80 backdrop-blur-md border border-border shadow-sm hover:bg-muted transition-colors text-muted-foreground hover:text-foreground active:scale-95"
+              className="absolute top-6 right-6 p-2 rounded-xl hover:bg-muted transition-all text-muted-foreground/30 hover:text-foreground active:scale-90 z-10 bg-background/50"
             >
-              <X size={20} />
+              <X size={20} strokeWidth={2} />
             </button>
           )}
 
           {/* Company + Title */}
-          <div className="flex items-start gap-3 sm:gap-4 mb-5">
-            <div className="shrink-0 w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-card border border-border overflow-hidden flex items-center justify-center shadow-sm">
+          <div className="flex items-start gap-4 mb-6">
+            <div className="shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-card border border-border/60 overflow-hidden flex items-center justify-center shadow-sm group">
               {showLogo ? (
                 <img
                   src={job.companyLogo}
                   alt={job.company}
-                  className="w-full h-full object-contain p-2 sm:p-3"
+                  className="w-full h-full object-contain p-2.5 sm:p-3 transition-transform group-hover:scale-110"
                   onError={() => setLogoError(true)}
                 />
               ) : (
-                <span className="font-black text-xl sm:text-2xl text-muted-foreground/30">
+                <span className="font-black text-2xl text-muted-foreground/20">
                   {job.company[0]}
                 </span>
               )}
             </div>
-            <div className="flex-1 min-w-0 pr-6 sm:pr-0">
-              <h2 className="text-lg sm:text-2xl font-bold leading-tight tracking-tight text-foreground wrap-break-word">
+            <div className="flex-1 min-w-0 pr-10">
+              <h2 className="text-xl sm:text-2xl font-bold leading-tight tracking-tight text-foreground wrap-break-word">
                 {job.title}
               </h2>
-              <p className="text-sm sm:text-base font-semibold mt-1 text-muted-foreground">
+              <p className="text-sm sm:text-base font-semibold mt-1 text-muted-foreground/80">
                 {job.company}
               </p>
             </div>
           </div>
 
           {/* Date */}
-          <p className="text-[10px] sm:text-[11px] font-semibold mb-4 text-muted-foreground/60">
+          <p className="text-[10px] sm:text-[11px] font-semibold mb-5 text-muted-foreground/40 uppercase tracking-widest">
             {formatRelativeTime(job.postedAt)}
           </p>
 
-          {/* Badges */}
-          <div className="flex flex-wrap gap-1.5 sm:gap-2">
+          {/* Badges Stack */}
+          <div className="flex flex-wrap gap-2 sm:gap-2.5">
             {job.featured && (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 sm:px-3 sm:py-1 rounded-lg text-[9px] sm:text-[10px] font-black uppercase tracking-wider bg-purple-500/10 text-purple-600 border border-purple-500/20">
-                <Award size={11} />
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider bg-purple-500/10 text-purple-600 border border-purple-500/20 shadow-sm shadow-purple-500/5">
+                <Award size={12} />
                 Önə çıxan
               </span>
             )}
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-bold border bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20">
+              <MapPin size={12} />
+              {job.location || job.city}
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-bold border bg-slate-500/5 text-slate-600 dark:text-slate-400 border-border/50">
+              <span className="shrink-0">{locConfig.icon}</span>
+              {locConfig.label}
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-bold border bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20">
+              <Briefcase size={12} />
+              {jobTypeConfig[job.jobType] || jobTypeConfig.any}
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-bold border bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20">
+              <Clock size={12} />
+              {expLabel}
+            </span>
             {job.salary && (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 sm:px-3 sm:py-1 rounded-lg text-[9px] sm:text-[10px] font-bold border bg-muted/40 text-foreground border-border">
-                <Banknote size={11} />
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-bold border bg-card text-foreground border-border shadow-sm">
+                <Banknote size={12} className="text-muted-foreground/60" />
                 {job.salary}
               </span>
             )}
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 sm:px-3 sm:py-1 rounded-lg text-[9px] sm:text-[10px] font-bold border bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20">
-              <MapPin size={11} />
-              {job.location || job.city}
-            </span>
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 sm:px-3 sm:py-1 rounded-lg text-[9px] sm:text-[10px] font-bold border bg-slate-500/10 text-slate-600 dark:text-slate-400 border-slate-500/20">
-              <span className="shrink-0 scale-90">{locConfig.icon}</span>
-              {locConfig.label}
-            </span>
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 sm:px-3 sm:py-1 rounded-lg text-[9px] sm:text-[10px] font-bold border bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20">
-              <Briefcase size={11} />
-              {jobTypeConfig[job.jobType] || jobTypeConfig.any}
-            </span>
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 sm:px-3 sm:py-1 rounded-lg text-[9px] sm:text-[10px] font-bold border bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20">
-              <Clock size={11} />
-              {expLabel}
-            </span>
           </div>
-
-          {/* Top Apply Button (Visible on desktop) */}
-          {job.featured && (
-            <div className="hidden sm:block mt-6">
-              <PostJobModal onSuccess={onApply}>
-                <button className="px-6 py-2.5 rounded-xl bg-foreground text-background text-sm font-bold hover:opacity-90 transition-all active:scale-95 shadow-lg shadow-black/10">
-                  Müraciət Et
-                </button>
-              </PostJobModal>
-            </div>
-          )}
         </div>
 
-        {/* Description Area */}
-        <div className="px-4 sm:px-6 py-6 sm:py-8 pb-24">
-          <h3 className="text-xs sm:text-sm font-black uppercase tracking-[0.2em] text-muted-foreground/50 mb-5 sm:mb-6">İş haqqında</h3>
+        {/* Description Section */}
+        <div className="px-6 py-10 pb-28">
+          <h3 className="text-[11px] font-black uppercase tracking-[0.25em] text-muted-foreground/30 mb-8">İş haqqında məlumat</h3>
           {job.description ? (
             <div
               className="prose prose-sm dark:prose-invert max-w-none
@@ -173,10 +157,10 @@ export default function JobDetailPanel({ job, onClose, onApply }: JobDetailPanel
         </div>
       </div>
 
-      {/* Fixed Bottom Apply Button Container */}
-      <div className="shrink-0 px-4 sm:px-6 py-4 border-t border-border bg-card/95 backdrop-blur-md">
+      {/* Apply Button Footer */}
+      <div className="shrink-0 p-4 sm:p-6 border-t border-border bg-card">
         <PostJobModal onSuccess={onApply}>
-          <button className="w-full h-12 rounded-xl bg-foreground text-background font-bold text-sm hover:opacity-90 transition-all active:scale-[0.98] shadow-xl">
+          <button className="w-full h-12 rounded-2xl bg-foreground text-background font-bold text-sm hover:opacity-90 transition-all active:scale-[0.98] shadow-lg shadow-black/5">
             Müraciət Et
           </button>
         </PostJobModal>
