@@ -16,8 +16,9 @@ export default function JobBoardPage() {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
 
   // Resizable logic
-  const [leftWidth, setLeftWidth] = useState(420);
+  const [leftWidth, setLeftWidth] = useState(480);
   const isResizing = useRef(false);
+  const requestRef = useRef<number | null>(null);
 
   const startResizing = useCallback(() => {
     isResizing.current = true;
@@ -34,11 +35,17 @@ export default function JobBoardPage() {
   const resize = useCallback((e: MouseEvent) => {
     if (!isResizing.current) return;
     
-    // Calculate new width: mouse X - filter panel width (256px)
-    const newWidth = e.clientX - 256;
-    if (newWidth > 300 && newWidth < 800) {
-      setLeftWidth(newWidth);
+    if (requestRef.current !== null) {
+      cancelAnimationFrame(requestRef.current);
     }
+
+    requestRef.current = requestAnimationFrame(() => {
+      // Calculate new width: mouse X - filter panel width (256px)
+      const newWidth = e.clientX - 256;
+      if (newWidth > 400 && newWidth < 900) {
+        setLeftWidth(newWidth);
+      }
+    });
   }, []);
 
   useEffect(() => {
@@ -125,10 +132,14 @@ export default function JobBoardPage() {
       {selectedJob && (
         <div
           onMouseDown={startResizing}
-          className="hidden lg:flex w-2 hover:w-2 group cursor-col-resize items-center justify-center bg-border/20 hover:bg-primary/20 transition-all border-x border-border/50"
+          className="hidden lg:flex w-1.5 hover:w-1.5 group cursor-col-resize items-center justify-center bg-transparent transition-all relative z-30"
         >
-          <div className="p-0.5 rounded-md bg-card border border-border shadow-sm group-hover:bg-primary group-hover:text-white transition-colors">
-            <GripVertical size={12} />
+          {/* Visual line */}
+          <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-px bg-border group-hover:bg-primary group-hover:w-[2px] transition-all" />
+          
+          {/* Handle indicator */}
+          <div className="hidden group-hover:flex absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-8 rounded-full bg-primary items-center justify-center text-white shadow-lg shadow-primary/20 pointer-events-none transition-all scale-110">
+            <GripVertical size={10} strokeWidth={3} />
           </div>
         </div>
       )}
@@ -146,7 +157,11 @@ export default function JobBoardPage() {
 
       {/* Mobile: Detail panel as Sheet */}
       <Sheet open={isDetailOpen} onOpenChange={setIsDetailOpen}>
-        <SheetContent side="bottom" className="p-0 h-[90vh] rounded-t-2xl border-t border-border lg:hidden overflow-hidden">
+        <SheetContent 
+          side="bottom" 
+          className="p-0 h-[90vh]! max-h-[90vh]! rounded-t-4xl overflow-hidden border-none"
+          showCloseButton={false}
+        >
           {selectedJob && (
             <JobDetailPanel
               job={selectedJob}

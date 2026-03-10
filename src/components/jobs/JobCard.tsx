@@ -71,7 +71,7 @@ export default function JobCard({ job, onClick, isSelected }: JobCardProps) {
         <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 rounded-full -mr-16 -mt-16 pointer-events-none" />
       )}
 
-      <div className="flex items-start gap-4 sm:gap-6 relative z-10">
+      <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6 relative z-10">
         {/* Company Logo */}
         <div className="shrink-0 flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-[1.25rem] bg-background border border-border overflow-hidden shadow-sm group-hover:scale-105 transition-transform duration-500">
           {showLogo ? (
@@ -89,11 +89,11 @@ export default function JobCard({ job, onClick, isSelected }: JobCardProps) {
         </div>
 
         {/* Content */}
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 w-full min-w-0">
           {/* Top row */}
-          <div className="flex items-start justify-between gap-3 mb-3 sm:mb-4">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 sm:gap-4 mb-3 sm:mb-4">
             <div className="space-y-0.5 sm:space-y-1">
-              <h3 className="font-semibold text-base sm:text-lg leading-snug text-foreground tracking-tight group-hover:text-primary transition-colors truncate">
+              <h3 className="font-bold text-base sm:text-lg leading-snug text-foreground tracking-tight group-hover:text-primary transition-colors line-clamp-2">
                 {job.title}
               </h3>
               <p className="text-[11px] sm:text-sm text-muted-foreground font-semibold tracking-wide">
@@ -101,61 +101,48 @@ export default function JobCard({ job, onClick, isSelected }: JobCardProps) {
               </p>
             </div>
             {/* Time + New badge */}
-            <div className="flex flex-col items-end gap-1.5 sm:gap-2.5 shrink-0">
+            <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-2 shrink-0">
               <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">
                 {formatRelativeTime(job.postedAt)}
               </span>
               {job.isNew && (
-                <span className="inline-flex items-center px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-[8px] sm:text-[9px] font-black uppercase tracking-[0.25em] bg-foreground text-background shadow-xl">
+                <span className="inline-flex items-center px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-[8px] sm:text-[9px] font-black uppercase tracking-[0.15em] bg-foreground text-background shadow-sm">
                   Yeni
                 </span>
               )}
             </div>
           </div>
 
-          {/* Tags - Flex wrap on all screens, small on mobile to fit one row */}
-          <div className="flex flex-wrap gap-1.5 sm:gap-2.5">
+          {/* Tags */}
+          <div className="flex flex-wrap gap-1.5 sm:gap-2">
             {job.featured && (
-              <span className="inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-wider bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20">
-                <Award size={11} className="shrink-0" />
+              <span className="inline-flex items-center gap-1 sm:gap-1.5 px-2 py-0.5 sm:px-3 sm:py-1.5 rounded-lg text-[9px] sm:text-[10px] font-black uppercase tracking-wider bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20">
+                < Award size={11} className="shrink-0" />
                 Önə çıxan
               </span>
             )}
-
-            {/* Location */}
-            <span className="inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[9px] sm:text-xs font-semibold bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 sm:px-3 sm:py-1.5 rounded-lg text-[9px] sm:text-xs font-semibold bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
               <MapPin size={11} className="shrink-0" />
-              <span className="truncate max-w-[80px] sm:max-w-none">{job.location || job.city}</span>
+              {job.location || job.city}
             </span>
-
-            {/* Location type */}
-            <span className="inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[9px] sm:text-xs font-semibold bg-slate-500/10 text-slate-600 dark:text-slate-400 border border-slate-500/20">
-              <span className="shrink-0 scale-90 sm:scale-100">{locConfig.icon}</span>
-              <span className="truncate">{locConfig.label}</span>
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 sm:px-3 sm:py-1.5 rounded-lg text-[9px] sm:text-xs font-semibold bg-slate-500/10 text-slate-600 dark:text-slate-400 border border-slate-500/20">
+              <span className="shrink-0 scale-90">{locConfig.icon}</span>
+              {locConfig.label}
             </span>
-
-            {/* Job type */}
-            <span className="inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[9px] sm:text-xs font-semibold bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 sm:px-3 sm:py-1.5 rounded-lg text-[9px] sm:text-xs font-semibold bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20">
               <Briefcase size={11} className="shrink-0" />
-              <span className="truncate">{jobTypeConfig[job.jobType] || jobTypeConfig.any}</span>
+              {jobTypeConfig[job.jobType] || jobTypeConfig.any}
             </span>
-
-            {/* Experience */}
-            <span className="inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[9px] sm:text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-              <Clock size={11} className="shrink-0" />
-              <span className="truncate">{expLabel}</span>
-            </span>
-
-            {/* Salary */}
             {job.salary && (
-              <span className="inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[9px] sm:text-xs font-bold bg-muted/40 text-foreground border border-border">
-                <Banknote size={11} className="shrink-0 text-muted-foreground" />
-                <span className="truncate">{job.salary}</span>
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 sm:px-3 sm:py-1.5 rounded-lg text-[9px] sm:text-xs font-bold bg-muted/40 text-foreground border border-border">
+                <Banknote size={11} className="shrink-0" />
+                {job.salary}
               </span>
             )}
           </div>
         </div>
       </div>
+
     </div>
   );
 }
