@@ -51,6 +51,7 @@ export type JobFormData = {
   locationType: "remote" | "hybrid" | "in-office"
   jobType: "full-time" | "part-time" | "contract" | "internship"
   experienceLevel: "junior" | "mid" | "senior" | "lead"
+  deadline?: string
 }
 
 const defaultForm: JobFormData = {
@@ -64,6 +65,7 @@ const defaultForm: JobFormData = {
   locationType: "in-office",
   jobType: "full-time",
   experienceLevel: "mid",
+  deadline: "",
 }
 
 export function PostJobModal({ 
@@ -241,6 +243,17 @@ export function PostJobModal({
                 { value: "senior", label: "Senior" },
                 { value: "lead", label: "Lead" },
               ]}
+            />
+          </div>
+
+          {/* Deadline */}
+          <div className="space-y-1">
+            <label className="text-xs font-semibold text-foreground">Son Müraciət Tarixi</label>
+            <Input
+              type="date"
+              value={form.deadline || ""}
+              onChange={e => set("deadline", e.target.value)}
+              className="h-9 w-full sm:w-1/2 text-sm rounded-md bg-muted/30 border-border focus-visible:ring-ring/30"
             />
           </div>
 

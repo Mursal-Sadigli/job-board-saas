@@ -1,9 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Building2,
-  BarChart3,
   Users,
   Plus,
   Pencil,
@@ -19,9 +18,17 @@ import {
   Building,
   ChevronDown,
   ChevronUp,
+  MoreHorizontal,
+  User,
 } from "lucide-react";
 import { cn } from "@/utils/cn";
 import { PostJobModal, type JobFormData } from "@/components/employer/PostJobModal";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 // ------- Types -------
 type Applicant = {
@@ -58,18 +65,18 @@ const stageLabels: Record<Stage, string> = {
 };
 
 const stageColors: Record<Stage, string> = {
-  applied: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
-  screening: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
-  interview: "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20",
-  offer: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
-  hired: "bg-green-500/15 text-green-600 dark:text-green-400 border-green-500/20",
-  rejected: "bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20",
+  applied: "text-foreground", 
+  screening: "text-amber-500",
+  interview: "text-purple-500",
+  offer: "text-emerald-500",
+  hired: "text-green-500",
+  rejected: "text-red-500",
 };
 
 const locationTypeConfig: Record<string, { label: string; icon: React.ReactNode }> = {
-  "in-office": { label: "Ofisdə", icon: <Building size={11} /> },
-  hybrid: { label: "Hibrid", icon: <Network size={11} /> },
-  remote: { label: "Uzaqdan", icon: <Globe size={11} /> },
+  "in-office": { label: "Ofisdə", icon: <Building size={12} /> },
+  hybrid: { label: "Hibrid", icon: <Network size={12} /> },
+  remote: { label: "Uzaqdan", icon: <Globe size={12} /> },
 };
 
 const jobTypeLabels: Record<string, string> = {
@@ -81,8 +88,68 @@ const jobTypeLabels: Record<string, string> = {
 
 // ------- Mock applicants -------
 const mockApplicants: Applicant[] = [
-  { id: "1", name: "Əli Əliyev", initials: "ƏƏ", color: "bg-blue-500", stage: "interview", rating: 4, appliedAt: "2025-06-02" },
-  { id: "2", name: "Nigar Həsənova", initials: "NH", color: "bg-purple-500", stage: "applied", rating: 3, appliedAt: "2025-06-05" },
+  { id: "1", name: "Sally Smith", initials: "SS", color: "bg-[#8B5CF6]", stage: "applied", rating: 4, appliedAt: "2025-06-02" },
+  { id: "2", name: "Kyle Cook", initials: "KC", color: "bg-slate-500", stage: "applied", rating: 4, appliedAt: "2025-06-05" },
+];
+
+const MOCK_JOBS: Job[] = [
+  {
+    id: "3",
+    title: "UX Engineer, Android XR",
+    locationType: "remote",
+    jobType: "full-time",
+    salary: "$225 / hr",
+    description: `<p><strong>Minimum qualifications:</strong></p><ul><li>Bachelor's degree or equivalent practical experience.</li><li>4 years of experience with front-end development, technical UX design, or prototyping.</li><li>Experience with Android UI prototyping or development.</li><li>Experience with Android Compose.</li></ul><p><strong>Preferred qualifications:</strong></p><ul><li>5 years of experience developing native, clean, and compatible Android applications.</li><li>3 years of experience as a front-end developer, UX Engineer, creative or design technologist, or in a prototyping design environment.</li><li>Experience with XR software development using unity/unreal or other engines.</li></ul>`,
+    isActive: true,
+    isFeatured: true,
+    applicants: mockApplicants,
+    city: "New York",
+    district: "NY",
+    experienceLevel: "mid",
+  },
+  {
+    id: "1",
+    title: "Software Engineer III, Full Stack",
+    locationType: "in-office",
+    jobType: "full-time",
+    salary: "$150k - $200k",
+    description: "<p>We are looking for a Software Engineer III to join our team in New York.</p>",
+    isActive: true,
+    isFeatured: false,
+    applicants: [],
+    city: "New York",
+    district: "NY",
+    experienceLevel: "senior",
+  },
+  {
+    id: "2",
+    title: "Staff Software Engineer, Frontend",
+    locationType: "hybrid",
+    jobType: "full-time",
+    salary: "$200k+",
+    description: "<p>Join our frontend architecture team.</p>",
+    isActive: true,
+    isFeatured: false,
+    applicants: [],
+    city: "Los Gatos",
+    district: "CA",
+    experienceLevel: "lead",
+  },
+  {
+    id: "4",
+    title: "Product Designer",
+    locationType: "hybrid",
+    jobType: "part-time",
+    salary: "$90 / hr",
+    description: "Looking for a UI/UX expert.",
+    isActive: true,
+    isFeatured: true,
+    applicants: mockApplicants,
+    city: "Baku",
+    district: "",
+    experienceLevel: "mid",
+    deadline: "2026-12-31" /* adding a mock deadline to test */
+  }
 ];
 
 // ------- Star Rating -------
@@ -100,17 +167,17 @@ function StarRating({
         <button
           key={s}
           type="button"
-          className="p-0.5 transition-transform hover:scale-110"
+          className="p-0 transition-transform hover:scale-110 focus:outline-none"
           onMouseEnter={() => setHovered(s)}
           onMouseLeave={() => setHovered(0)}
           onClick={() => onChange?.(s)}
         >
           <Star
-            size={15}
+            size={14}
             className={cn(
               "transition-colors",
               (hovered || value) >= s
-                ? "fill-amber-400 text-amber-400"
+                ? "fill-foreground text-foreground"
                 : "fill-none text-muted-foreground/30"
             )}
           />
@@ -120,101 +187,156 @@ function StarRating({
   );
 }
 
+export type SortField = "name" | "stage" | "rating" | "appliedAt";
+export type SortOrder = "asc" | "desc";
+
 // ------- Applications Section -------
 function ApplicationsSection({ applicants, jobId }: { applicants: Applicant[]; jobId: string }) {
   const [list, setList] = useState(applicants);
+  
+  // Filters
   const [stageFilter, setStageFilter] = useState<Stage | "all">("all");
   const [ratingFilter, setRatingFilter] = useState<number | "all">("all");
+  
+  // Sorting
+  const [sortField, setSortField] = useState<SortField>("appliedAt");
+  const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
 
   const updateApplicant = (id: string, patch: Partial<Applicant>) => {
     setList((prev) => prev.map((a) => (a.id === id ? { ...a, ...patch } : a)));
   };
 
-  const filtered = list.filter((a) => {
-    if (stageFilter !== "all" && a.stage !== stageFilter) return false;
-    if (ratingFilter !== "all" && a.rating !== ratingFilter) return false;
-    return true;
-  });
+  const handleSort = (field: SortField) => {
+    if (sortField === field) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortField(field);
+      setSortOrder("desc");
+    }
+  };
+
+  const filteredAndSorted = list
+    .filter((a) => {
+      if (stageFilter !== "all" && a.stage !== stageFilter) return false;
+      if (ratingFilter !== "all" && a.rating !== ratingFilter) return false;
+      return true;
+    })
+    .sort((a, b) => {
+      let comparison = 0;
+      switch (sortField) {
+        case "name":
+          comparison = a.name.localeCompare(b.name);
+          break;
+        case "stage":
+          comparison = stageLabels[a.stage].localeCompare(stageLabels[b.stage]);
+          break;
+        case "rating":
+          comparison = a.rating - b.rating;
+          break;
+        case "appliedAt":
+          comparison = new Date(a.appliedAt).getTime() - new Date(b.appliedAt).getTime();
+          break;
+      }
+      return sortOrder === "asc" ? comparison : -comparison;
+    });
+
+  const SortIcon = ({ field }: { field: SortField }) => {
+    if (sortField !== field) return <ChevronDown size={12} className="text-muted-foreground/30 opacity-0 group-hover:opacity-100 transition-opacity" />;
+    return <ChevronDown size={12} className={cn("text-foreground transition-transform", sortOrder === "asc" && "rotate-180")} />;
+  };
 
   return (
-    <div className="mt-6 border-t border-border pt-6">
-      <h3 className="text-base font-bold text-foreground mb-4 flex items-center gap-2">
-        <Users size={16} className="text-muted-foreground" />
+    <div className="mt-8 border-t border-border pt-8">
+      <h3 className="text-xl font-bold text-foreground mb-6">
         Müraciətlər
-        <span className="ml-1 inline-flex items-center justify-center w-5 h-5 rounded-full bg-muted text-[10px] font-bold text-muted-foreground">
-          {list.length}
-        </span>
       </h3>
 
       {/* Filters */}
-      <div className="flex items-center gap-2 mb-4 flex-wrap">
-        <select
-          className="h-8 rounded-lg border border-border bg-muted/30 px-3 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
-          value={stageFilter}
-          onChange={(e) => setStageFilter(e.target.value as Stage | "all")}
-        >
-          <option value="all">Bütün Mərhələlər</option>
-          {Object.entries(stageLabels).map(([v, l]) => (
-            <option key={v} value={v} className="bg-card">{l}</option>
-          ))}
-        </select>
-        <select
-          className="h-8 rounded-lg border border-border bg-muted/30 px-3 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
-          value={ratingFilter}
-          onChange={(e) =>
-            setRatingFilter(e.target.value === "all" ? "all" : Number(e.target.value))
-          }
-        >
-          <option value="all">Bütün Reytinqlər</option>
-          {[5, 4, 3, 2, 1].map((r) => (
-            <option key={r} value={r} className="bg-card">{"⭐".repeat(r)}</option>
-          ))}
-        </select>
+      <div className="flex items-center gap-2 mb-4">
+        <div className="relative">
+          <select
+            value={stageFilter}
+            onChange={(e) => setStageFilter(e.target.value as Stage | "all")}
+            className="h-8 rounded-lg border border-border bg-card px-3 pr-8 text-xs font-semibold text-foreground appearance-none shadow-sm hover:bg-muted/50 transition-colors focus:outline-none focus:ring-1 focus:ring-ring cursor-pointer"
+          >
+            <option value="all">Bütün Mərhələlər ({list.length})</option>
+            {Object.entries(stageLabels).map(([v, l]) => (
+              <option key={v} value={v} className="bg-card text-foreground">{l}</option>
+            ))}
+          </select>
+          <ChevronDown size={12} className="text-muted-foreground absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+        </div>
+        
+        <div className="relative">
+          <select
+             value={ratingFilter}
+             onChange={(e) => setRatingFilter(e.target.value === "all" ? "all" : Number(e.target.value))}
+             className="h-8 rounded-lg border border-border bg-card px-3 pr-8 text-xs font-semibold text-foreground appearance-none shadow-sm hover:bg-muted/50 transition-colors focus:outline-none focus:ring-1 focus:ring-ring cursor-pointer"
+          >
+             <option value="all">Bütün Reytinqlər</option>
+             {[5,4,3,2,1].map(r => (
+               <option key={r} value={r} className="bg-card text-foreground">{r} Ulduz</option>
+             ))}
+          </select>
+          <ChevronDown size={12} className="text-muted-foreground absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+        </div>
       </div>
 
-      {filtered.length === 0 ? (
-        <div className="py-10 text-center rounded-xl border border-dashed border-border">
+      {filteredAndSorted.length === 0 ? (
+        <div className="py-10 text-center rounded-2xl border border-dashed border-border bg-card/30">
           <Users size={28} className="mx-auto text-muted-foreground/20 mb-2" />
           <p className="text-sm text-muted-foreground">Müraciət tapılmadı</p>
         </div>
       ) : (
-        <div className="rounded-xl border border-border overflow-hidden">
+        <div className="rounded-2xl border border-border bg-card overflow-hidden">
           {/* Table header */}
-          <div className="grid grid-cols-[2fr_1.5fr_1.5fr_1fr] gap-2 px-4 py-2.5 bg-muted/30 border-b border-border text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-            <span>Ad</span>
-            <span>Mərhələ</span>
-            <span>Reytinq</span>
-            <span>Müraciət tarixi</span>
+          <div className="grid grid-cols-[2fr_1.5fr_1.5fr_1fr_auto] gap-4 px-5 py-3 border-b border-border bg-muted/20 text-xs font-bold text-muted-foreground select-none">
+            <button onClick={() => handleSort("name")} className="flex items-center gap-1.5 hover:text-foreground transition-colors group text-left">
+               Ad <SortIcon field="name" />
+            </button>
+            <button onClick={() => handleSort("stage")} className="flex items-center gap-1.5 hover:text-foreground transition-colors group text-left w-fit">
+               Mərhələ <SortIcon field="stage" />
+            </button>
+            <button onClick={() => handleSort("rating")} className="flex items-center gap-1.5 hover:text-foreground transition-colors group text-left w-fit">
+               Reytinq <SortIcon field="rating" />
+            </button>
+            <button onClick={() => handleSort("appliedAt")} className="flex items-center gap-1.5 hover:text-foreground transition-colors group text-left w-fit">
+               Müraciət Tarixi <SortIcon field="appliedAt" />
+            </button>
+            <span className="w-10"></span>
           </div>
           {/* Rows */}
           <div className="divide-y divide-border">
-            {filtered.map((app) => (
+            {filteredAndSorted.map((app) => (
               <div
                 key={app.id}
-                className="grid grid-cols-[2fr_1.5fr_1.5fr_1fr] gap-2 items-center px-4 py-3 hover:bg-muted/20 transition-colors"
+                className="grid grid-cols-[2fr_1.5fr_1.5fr_1fr_auto] gap-4 items-center px-5 py-3.5 hover:bg-muted/30 transition-colors"
               >
                 {/* Name */}
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <div className={cn("w-8 h-8 rounded-full flex items-center justify-center text-white text-[11px] font-bold shrink-0", app.color)}>
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className={cn("w-7 h-7 rounded-full flex items-center justify-center text-white text-[10px] font-bold shrink-0", app.color)}>
                     {app.initials}
                   </div>
                   <span className="text-sm font-medium text-foreground truncate">{app.name}</span>
                 </div>
 
                 {/* Stage */}
-                <div>
-                  <select
-                    className={cn(
-                      "text-[11px] font-bold border rounded-lg px-2 py-1 focus:outline-none focus:ring-1 focus:ring-ring bg-transparent cursor-pointer",
-                      stageColors[app.stage]
-                    )}
-                    value={app.stage}
-                    onChange={(e) => updateApplicant(app.id, { stage: e.target.value as Stage })}
-                  >
-                    {Object.entries(stageLabels).map(([v, l]) => (
-                      <option key={v} value={v} className="bg-card text-foreground">{l}</option>
-                    ))}
-                  </select>
+                <div className="flex items-center gap-1.5">
+                  <div className="relative group">
+                    <select
+                      className={cn(
+                        "text-sm font-medium focus:outline-none bg-transparent cursor-pointer appearance-none pr-4",
+                        stageColors[app.stage]
+                      )}
+                      value={app.stage}
+                      onChange={(e) => updateApplicant(app.id, { stage: e.target.value as Stage })}
+                    >
+                      {Object.entries(stageLabels).map(([v, l]) => (
+                        <option key={v} value={v} className="bg-card text-foreground">{l}</option>
+                      ))}
+                    </select>
+                    <ChevronDown size={12} className="text-muted-foreground absolute top-1/2 right-0 -translate-y-1/2 pointer-events-none" />
+                  </div>
                 </div>
 
                 {/* Rating */}
@@ -224,15 +346,54 @@ function ApplicationsSection({ applicants, jobId }: { applicants: Applicant[]; j
                 />
 
                 {/* Date */}
-                <span className="text-xs text-muted-foreground">
-                  {new Date(app.appliedAt).toLocaleDateString("az-AZ", {
+                <span className="text-sm text-foreground">
+                  {new Date(app.appliedAt).toLocaleDateString("en-US", {
+                    month: "numeric",
                     day: "numeric",
-                    month: "short",
                     year: "numeric",
                   })}
                 </span>
+
+                {/* Actions */}
+                <div className="flex justify-end min-w-10">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors outline-none cursor-pointer">
+                      <MoreHorizontal size={14} />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48 rounded-xl shadow-xl dark:bg-[#1C1F26] border border-border">
+                      <DropdownMenuItem className="cursor-pointer text-sm font-medium py-2.5 px-3 rounded-lg focus:bg-slate-100 dark:focus:bg-white/5">
+                        CV-ə Bax
+                      </DropdownMenuItem>
+                      <DropdownMenuItem disabled className="text-sm font-medium text-muted-foreground py-2.5 px-3 rounded-lg">
+                        Əhatə Məktubu Yoxdur
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               </div>
             ))}
+            {/* Pagination footer */}
+            <div className="px-5 py-3 flex items-center justify-end gap-6 text-xs font-semibold text-muted-foreground">
+               <div className="flex items-center gap-2">
+                 Səhifəbaşına Sətir
+                 <div className="relative">
+                   <select className="bg-transparent font-medium text-foreground focus:outline-none cursor-pointer border rounded-md px-2 py-1 appearance-none pr-6">
+                     <option value="10">10</option>
+                     <option value="20">20</option>
+                   </select>
+                   <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
+                 </div>
+               </div>
+               <div>
+                 Səhifə 1 (Cəmi 1)
+               </div>
+               <div className="flex items-center gap-1">
+                  <button className="w-6 h-6 flex items-center justify-center rounded-md hover:bg-muted transition-colors disabled:opacity-50">«</button>
+                  <button className="w-6 h-6 flex items-center justify-center rounded-md hover:bg-muted transition-colors disabled:opacity-50">‹</button>
+                  <button className="w-6 h-6 flex items-center justify-center rounded-md hover:bg-muted transition-colors disabled:opacity-50">›</button>
+                  <button className="w-6 h-6 flex items-center justify-center rounded-md hover:bg-muted transition-colors disabled:opacity-50">»</button>
+               </div>
+            </div>
           </div>
         </div>
       )}
@@ -240,10 +401,8 @@ function ApplicationsSection({ applicants, jobId }: { applicants: Applicant[]; j
   );
 }
 
-// ------- Job Card -------
-const DESCRIPTION_TRUNCATE = 300;
-
-function JobCard({
+// ------- Job Detail -------
+function EmployerJobDetail({
   job,
   onEdit,
   onDelist,
@@ -257,178 +416,147 @@ function JobCard({
   onDelete: (id: string) => void;
 }) {
   const [expanded, setExpanded] = useState(false);
-  const [showApps, setShowApps] = useState(false);
-
+  
   const locConfig = locationTypeConfig[job.locationType];
   const jobTypeLabel = jobTypeLabels[job.jobType];
+  
   const descText = job.description.replace(/<[^>]*>/g, "");
-  const isLong = descText.length > DESCRIPTION_TRUNCATE;
+  const isLong = descText.length > 500; // expanded slightly
 
   return (
-    <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden transition-all hover:shadow-md">
-      {/* Card Header - always visible */}
-      <div className="px-5 pt-5 pb-4">
-        {/* Title + actions */}
-        <div className="flex items-start justify-between gap-3 mb-3">
-          <div className="flex-1 min-w-0">
-            <h3 className="text-base font-bold text-foreground leading-tight">{job.title}</h3>
-            <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-              {/* Status badge */}
-              <span className={cn(
-                "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border",
-                job.isActive
-                  ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
-                  : "bg-muted text-muted-foreground border-border"
-              )}>
-                <span className={cn("w-1.5 h-1.5 rounded-full", job.isActive ? "bg-emerald-500" : "bg-muted-foreground/40")} />
-                {job.isActive ? "Aktiv" : "Deaktiv"}
+    <div className="max-w-[1000px] w-full mx-auto">
+      <div className="flex flex-col xl:flex-row xl:items-start justify-between gap-6 mb-8">
+        <div className="flex-1 min-w-0">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-4 leading-tight">
+            {job.title}
+          </h1>
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className={cn(
+              "inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border",
+              job.isActive
+                ? "bg-slate-100 dark:bg-white text-slate-900 dark:text-slate-900 border-border"
+                : "bg-muted text-muted-foreground border-border"
+            )}>
+              {job.isActive ? "Aktiv" : "Deaktiv"}
+            </span>
+            {job.isFeatured && (
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-[#8B5CF6] text-white">
+                Önə Çıxarılmış
               </span>
-              {/* Featured badge */}
-              {job.isFeatured && (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
-                  <Star size={9} className="fill-amber-500 text-amber-500" />
-                  Önə Çıxan
-                </span>
-              )}
-              {/* Location type */}
-              {locConfig && (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
-                  {locConfig.icon}
-                  {locConfig.label}
-                </span>
-              )}
-              {/* Job type */}
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20">
-                <Briefcase size={9} />
-                {jobTypeLabel}
+            )}
+            {job.salary && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border border-border bg-card">
+                <Banknote size={12} className="text-muted-foreground" />
+                {job.salary}
               </span>
-              {/* Location */}
-              {(job.city || job.district) && (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-500/5 text-slate-600 dark:text-slate-400 border border-border">
-                  <MapPin size={9} />
-                  {[job.district, job.city].filter(Boolean).join(", ")}
-                </span>
-              )}
-              {/* Salary */}
-              {job.salary && (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-card text-foreground border border-border">
-                  <Banknote size={9} className="text-muted-foreground/60" />
-                  {job.salary}
-                </span>
-              )}
-            </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex items-center gap-1 shrink-0">
-            {/* Edit */}
-            <button
-              onClick={() => onEdit(job)}
-              className="w-8 h-8 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-              title="Redaktə et"
-            >
-              <Pencil size={14} />
-            </button>
-            {/* Delist / Relist */}
-            <button
-              onClick={() => onDelist(job.id!)}
-              className={cn(
-                "w-8 h-8 flex items-center justify-center rounded-lg transition-colors",
-                job.isActive
-                  ? "text-muted-foreground hover:text-amber-600 hover:bg-amber-500/10"
-                  : "text-emerald-600 hover:text-emerald-700 hover:bg-emerald-500/10"
-              )}
-              title={job.isActive ? "Deaktiv et" : "Aktiv et"}
-            >
-              {job.isActive ? <EyeOff size={14} /> : <Eye size={14} />}
-            </button>
-            {/* Featured toggle */}
-            <button
-              onClick={() => onToggleFeatured(job.id!)}
-              className={cn(
-                "w-8 h-8 flex items-center justify-center rounded-lg transition-colors",
-                job.isFeatured
-                  ? "text-amber-500 hover:text-amber-600 hover:bg-amber-500/10"
-                  : "text-muted-foreground hover:text-amber-500 hover:bg-amber-500/10"
-              )}
-              title={job.isFeatured ? "Önə çıxmanı ləğv et" : "Önə çıxar"}
-            >
-              <Star size={14} className={cn(job.isFeatured && "fill-amber-500")} />
-            </button>
-            {/* Delete */}
-            <button
-              onClick={() => onDelete(job.id!)}
-              className="w-8 h-8 flex items-center justify-center rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-colors"
-              title="Sil"
-            >
-              <Trash2 size={14} />
-            </button>
-          </div>
-        </div>
-
-        {/* Description */}
-        {descText && (
-          <div className="mt-2">
-            {isLong && !expanded ? (
-              <>
-                <div
-                  className="text-sm text-muted-foreground leading-relaxed **:text-muted-foreground prose prose-sm dark:prose-invert max-w-none line-clamp-4"
-                  dangerouslySetInnerHTML={{ __html: job.description }}
-                />
-                <button
-                  onClick={() => setExpanded(true)}
-                  className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-foreground hover:text-foreground/80 transition-colors"
-                >
-                  Daha çox oxu
-                  <ChevronDown size={13} />
-                </button>
-              </>
-            ) : (
-              <>
-                <div
-                  className="text-sm text-muted-foreground leading-relaxed **:text-muted-foreground prose prose-sm dark:prose-invert max-w-none"
-                  dangerouslySetInnerHTML={{ __html: job.description }}
-                />
-                {isLong && (
-                  <button
-                    onClick={() => setExpanded(false)}
-                    className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-foreground hover:text-foreground/80 transition-colors"
-                  >
-                    Daha az göstər
-                    <ChevronUp size={13} />
-                  </button>
-                )}
-              </>
+            )}
+            {(job.city || job.district) && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border border-border bg-card">
+                <MapPin size={12} className="text-muted-foreground" />
+                {[job.city, job.district].filter(Boolean).join(", ")}
+              </span>
+            )}
+            {locConfig && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border border-border bg-card">
+                {locConfig.icon}
+                {locConfig.label === "Uzaqdan" ? "Remote" : locConfig.label}
+              </span>
+            )}
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border border-border bg-card">
+              <Briefcase size={12} className="text-muted-foreground" />
+              {jobTypeLabel === "Tam iş günü" ? "Full Time" : jobTypeLabel}
+            </span>
+            {job.experienceLevel && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border border-border bg-card text-foreground">
+                <User size={12} className="text-muted-foreground" />
+                {job.experienceLevel === "junior" ? "Junior" : 
+                 job.experienceLevel === "mid" ? "Mid Level" : 
+                 job.experienceLevel === "senior" ? "Senior" : "Lead"}
+              </span>
+            )}
+            {job.deadline && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border border-red-500/20 bg-red-500/10 text-red-600 dark:text-red-400">
+                 Son Tarix: {new Date(job.deadline).toLocaleDateString("az-AZ")}
+              </span>
             )}
           </div>
-        )}
+        </div>
 
-        {/* Toggle Applications */}
-        <button
-          onClick={() => setShowApps(!showApps)}
-          className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors"
-        >
-          <Users size={13} />
-          Müraciətlər ({job.applicants.length})
-          {showApps ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
-        </button>
+        <div className="flex items-center gap-2 shrink-0 flex-wrap">
+          <button
+            onClick={() => onEdit(job)}
+            className="h-9 px-4 inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-card hover:bg-muted text-sm font-semibold text-foreground transition-colors shadow-sm"
+          >
+            <Pencil size={14} className="text-muted-foreground" />
+            Redaktə Et
+          </button>
+          <button
+            onClick={() => onDelist(job.id!)}
+            className="h-9 px-4 inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-card hover:bg-muted text-sm font-semibold text-foreground transition-colors shadow-sm"
+          >
+            {job.isActive ? <EyeOff size={14} className="text-muted-foreground" /> : <Eye size={14} className="text-emerald-500" />}
+            {job.isActive ? "Deaktiv Et" : "Aktivləşdir"}
+          </button>
+          <button
+            onClick={() => onToggleFeatured(job.id!)}
+            className="h-9 px-4 inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-card hover:bg-muted text-sm font-semibold text-foreground transition-colors shadow-sm"
+          >
+            <Star size={14} className={cn(job.isFeatured ? "fill-[#8B5CF6] text-[#8B5CF6]" : "text-muted-foreground")} />
+            {job.isFeatured ? "Önə Çıxmanı Ləğv Et" : "Önə Çıxart"}
+          </button>
+          <button
+            onClick={() => onDelete(job.id!)}
+            className="h-9 px-4 inline-flex items-center justify-center gap-1.5 rounded-lg border border-red-500/20 bg-red-500/10 text-red-600 dark:text-red-400 hover:bg-red-500 hover:text-white dark:hover:text-white dark:hover:bg-red-500 text-sm font-semibold transition-colors shadow-sm"
+          >
+            <Trash2 size={14} />
+            Sil
+          </button>
+        </div>
       </div>
 
-      {/* Applications section */}
-      {showApps && (
-        <div className="px-5 pb-5">
-          <ApplicationsSection applicants={job.applicants} jobId={job.id!} />
-        </div>
-      )}
+      <div className="mb-8">
+         <div 
+           className={cn(
+             "text-sm leading-relaxed prose prose-sm dark:prose-invert max-w-none text-foreground/80",
+             "**:text-foreground/80 **:marker:text-foreground/80 prose-p:my-2 prose-ul:my-2 prose-li:my-0.5",
+             !expanded && isLong && "line-clamp-6"
+           )} 
+           dangerouslySetInnerHTML={{ __html: job.description }} 
+         />
+         {isLong && (
+           <button
+             onClick={() => setExpanded(!expanded)}
+             className="mt-3 text-sm font-bold text-foreground hover:underline underline-offset-4"
+           >
+             {expanded ? "Daha az göstər" : "Daha çox oxuyun"}
+           </button>
+         )}
+      </div>
+
+      <ApplicationsSection applicants={job.applicants} jobId={job.id!} />
     </div>
   );
 }
 
 // ------- Main Employer Page -------
 export default function EmployerPage() {
-  const [jobs, setJobs] = useState<Job[]>([]);
+  const [jobs, setJobs] = useState<Job[]>(MOCK_JOBS);
   const [editingJob, setEditingJob] = useState<Job | null>(null);
   const [editOpen, setEditOpen] = useState(false);
+  
+  const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
+  const [activeExpanded, setActiveExpanded] = useState(true);
+  const [delistedExpanded, setDelistedExpanded] = useState(true);
+
+  const activeJobs = jobs.filter(j => j.isActive);
+  const delistedJobs = jobs.filter(j => !j.isActive);
+  const selectedJob = jobs.find(j => j.id === selectedJobId) || jobs.find(j => j.isActive) || jobs[0] || null;
+
+  useEffect(() => {
+    if (!selectedJobId && jobs.length > 0) {
+      setSelectedJobId(jobs[0].id!);
+    }
+  }, [jobs, selectedJobId]);
 
   const addJob = (data: JobFormData) => {
     const newJob: Job = {
@@ -445,6 +573,9 @@ export default function EmployerPage() {
       }
       return [newJob, ...prev];
     });
+    if (!data.id) {
+       setSelectedJobId(newJob.id);
+    }
   };
 
   const handleEdit = (job: Job) => {
@@ -468,102 +599,132 @@ export default function EmployerPage() {
 
   const handleDelete = (id: string) => {
     setJobs((prev) => prev.filter((j) => j.id !== id));
+    if (selectedJobId === id) {
+       setSelectedJobId(null);
+    }
   };
 
-  const activeCount = jobs.filter((j) => j.isActive).length;
-  const totalApplicants = jobs.reduce((sum, j) => sum + j.applicants.length, 0);
-
   return (
-    <div className="h-full min-h-[calc(100vh-65px)] overflow-y-auto px-4 sm:px-8 py-6 sm:py-8 bg-background">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-slate-900 dark:bg-white flex items-center justify-center shadow-lg shadow-slate-900/10 dark:shadow-white/5 transition-all">
-                <Building2 size={24} className="text-white dark:text-slate-900" />
-              </div>
+    <div className="flex bg-background h-full min-h-[calc(100vh-65px)] lg:h-[calc(100vh-65px)] overflow-hidden">
+      {/* Left Sidebar */}
+      <div className="w-[300px] shrink-0 border-r border-border bg-slate-50 dark:bg-[#0B0F19] flex-col hidden lg:flex">
+         <div className="pt-6 pb-4 px-6 flex items-center justify-between">
+           <div className="p-0">
+             <h2 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest font-mono mb-1.5">WDS Jobs</h2>
+             <span className="text-sm font-bold text-slate-900 dark:text-foreground">İş Elanları</span>
+           </div>
+           <PostJobModal onSuccess={addJob}>
+             <button className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-slate-200 dark:hover:bg-white/10 text-muted-foreground transition-colors group">
+               <Plus size={16} className="group-hover:text-slate-900 dark:group-hover:text-white" />
+             </button>
+           </PostJobModal>
+         </div>
+
+         <div className="flex-1 overflow-y-auto w-full custom-scrollbar py-2">
+            {/* Active Group */}
+            <div className="mb-4">
+               <button 
+                 onClick={() => setActiveExpanded(!activeExpanded)}
+                 className="flex items-center justify-between w-full px-6 py-2 text-xs font-bold text-muted-foreground hover:text-slate-900 dark:hover:text-white mb-1"
+               >
+                  <span>Aktiv</span>
+                  <ChevronDown size={14} className={cn("transition-transform", !activeExpanded && "-rotate-90")} />
+               </button>
+               {activeExpanded && activeJobs.map(job => (
+                 <button
+                   key={job.id}
+                   onClick={() => setSelectedJobId(job.id!)}
+                   className={cn(
+                     "w-full flex items-center justify-between px-6 py-2.5 text-sm text-left truncate transition-colors border-l-2",
+                     selectedJobId === job.id 
+                       ? "bg-slate-200/70 dark:bg-white/5 border-slate-900 dark:border-white text-slate-900 dark:text-white font-medium shadow-sm" 
+                       : "border-transparent text-muted-foreground hover:bg-slate-200/50 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white"
+                   )}
+                 >
+                   <span className="truncate pr-3 pl-1">{job.title}</span>
+                   {job.applicants.length > 0 && (
+                     <span className={cn(
+                       "shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded-md",
+                       selectedJobId === job.id
+                        ? "bg-slate-900 text-white dark:bg-white/20 dark:text-white"
+                        : "bg-slate-200 text-slate-500 dark:bg-white/10 dark:text-white/50"
+                     )}>
+                       {job.applicants.length}
+                     </span>
+                   )}
+                 </button>
+               ))}
+            </div>
+
+            {/* Delisted Group */}
+            {delistedJobs.length > 0 && (
               <div>
-                <h1 className="text-2xl font-bold text-foreground tracking-tight sm:text-3xl">
-                  İşəgötürən Paneli
-                </h1>
-                <p className="text-sm text-muted-foreground mt-1 max-w-md">
-                  Vakansiyalarınızı və namizədləri vahid paneldən idarə edin.
-                </p>
+                 <button 
+                   onClick={() => setDelistedExpanded(!delistedExpanded)}
+                   className="flex items-center justify-between w-full px-6 py-2 text-xs font-bold text-muted-foreground hover:text-slate-900 dark:hover:text-white mb-1"
+                 >
+                    <span>Deaktivlər</span>
+                    <ChevronDown size={14} className={cn("transition-transform", !delistedExpanded && "-rotate-90")} />
+                 </button>
+                 {delistedExpanded && delistedJobs.map(job => (
+                   <button
+                     key={job.id}
+                     onClick={() => setSelectedJobId(job.id!)}
+                     className={cn(
+                       "w-full flex items-center justify-between px-6 py-2.5 text-sm text-left truncate transition-colors border-l-2",
+                       selectedJobId === job.id 
+                         ? "bg-slate-200/70 dark:bg-white/5 border-slate-900 dark:border-white text-slate-900 dark:text-white font-medium shadow-sm" 
+                         : "border-transparent text-muted-foreground hover:bg-slate-200/50 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white"
+                     )}
+                   >
+                     <span className="truncate pr-3 pl-1">{job.title}</span>
+                     {job.applicants.length > 0 && (
+                       <span className={cn(
+                         "shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded-md",
+                         selectedJobId === job.id
+                          ? "bg-slate-900 text-white dark:bg-white/20 dark:text-white"
+                          : "bg-slate-200 text-slate-500 dark:bg-white/10 dark:text-white/50"
+                       )}>
+                         {job.applicants.length}
+                       </span>
+                     )}
+                   </button>
+                 ))}
               </div>
-            </div>
-
-            <PostJobModal onSuccess={addJob}>
-              <button className="inline-flex items-center justify-center gap-2 h-11 px-6 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-sm font-bold hover:bg-slate-800 dark:hover:bg-slate-100 transition-all shadow-xl shadow-slate-900/10 dark:shadow-white/5 active:scale-95 group">
-                <Plus size={18} className="group-hover:rotate-90 transition-transform duration-300" />
-                İş Elanı Paylaş
-              </button>
-            </PostJobModal>
-          </div>
-        </div>
-
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-          {[
-            { label: "Aktiv Elanlar", value: activeCount, icon: <Building2 size={18} />, color: "text-blue-500", bg: "bg-blue-500/10" },
-            { label: "Cəmi Müraciətlər", value: totalApplicants, icon: <Users size={18} />, color: "text-purple-500", bg: "bg-purple-500/10" },
-            { label: "Cəmi Elanlar", value: jobs.length, icon: <BarChart3 size={18} />, color: "text-emerald-500", bg: "bg-emerald-500/10" },
-          ].map((stat) => (
-            <div
-              key={stat.label}
-              className="bg-card rounded-2xl p-5 border border-border shadow-sm hover:shadow-md transition-all duration-300 group"
-            >
-              <div className="flex items-start justify-between mb-3">
-                <div className={cn("w-10 h-10 rounded-2xl flex items-center justify-center shadow-sm transition-transform group-hover:scale-110 duration-300", stat.bg, stat.color)}>
-                  {stat.icon}
-                </div>
-              </div>
-              <p className="text-3xl font-black text-foreground tracking-tight">{stat.value}</p>
-              <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider mt-1">{stat.label}</p>
-            </div>
-          ))}
-        </div>
-
-        {/* Job Listings */}
-        {jobs.length === 0 ? (
-          <div className="bg-card/50 rounded-[2.5rem] border border-dashed border-border p-12 text-center flex flex-col items-center justify-center shadow-inner transition-colors">
-            <div className="w-20 h-20 rounded-3xl bg-muted/30 flex items-center justify-center mb-6">
-              <Building2 size={36} className="text-muted-foreground/40" />
-            </div>
-            <h3 className="text-xl font-bold text-foreground mb-3">
-              Hələ heç bir iş elanı yoxdur
-            </h3>
-            <p className="text-sm text-muted-foreground max-w-sm mx-auto mb-8 leading-relaxed font-medium">
-              Müraciətləri və baxışları təqib etmək üçün ilk vakansiyanızı dərhal əlavə edin.
-            </p>
-            <PostJobModal onSuccess={addJob}>
-              <button className="h-11 px-8 rounded-2xl border border-border bg-background text-sm font-bold text-foreground hover:bg-muted/50 transition-all active:scale-95 shadow-sm">
-                Yeni elan yarat
-              </button>
-            </PostJobModal>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between mb-2">
-              <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-wider">
-                İş Elanları ({jobs.length})
-              </h2>
-            </div>
-            {jobs.map((job) => (
-              <JobCard
-                key={job.id}
-                job={job}
-                onEdit={handleEdit}
-                onDelist={handleDelist}
-                onToggleFeatured={handleToggleFeatured}
-                onDelete={handleDelete}
-              />
-            ))}
-          </div>
-        )}
+            )}
+         </div>
       </div>
 
-      {/* Edit Modal – controlled */}
+      {/* Right Detail Pane */}
+      <div className="flex-1 overflow-y-auto bg-background p-6 lg:p-10 custom-scrollbar border-l border-border/50">
+         {selectedJob ? (
+           <EmployerJobDetail 
+             job={selectedJob}
+             onEdit={handleEdit}
+             onDelist={handleDelist}
+             onToggleFeatured={handleToggleFeatured}
+             onDelete={handleDelete}
+           />
+         ) : (
+           <div className="h-full flex flex-col items-center justify-center text-center max-w-sm mx-auto">
+             <div className="w-20 h-20 rounded-3xl bg-muted/50 flex items-center justify-center mb-6 shadow-sm">
+               <Building2 size={40} className="text-muted-foreground/40" />
+             </div>
+             <h3 className="text-2xl font-bold text-foreground mb-3">İş elanı tapılmadı</h3>
+             <p className="text-sm text-muted-foreground mb-8 font-medium leading-relaxed">
+               Detalları görmək üçün siyahıdan birinə klikləyin və ya başlamaq üçün yeni bir elan yaradın.
+             </p>
+             <PostJobModal onSuccess={addJob}>
+               <button className="h-11 px-8 flex items-center gap-2 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-sm font-bold shadow-lg shadow-slate-900/10 dark:shadow-white/5 active:scale-95 transition-all">
+                 <Plus size={16} />
+                 İş Elanı Paylaş
+               </button>
+             </PostJobModal>
+           </div>
+         )}
+      </div>
+
+      {/* Edit Modal */}
       {editingJob && (
         <PostJobModal
           key={editingJob.id}
