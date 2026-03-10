@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Filter } from "lucide-react";
+import { useState, useCallback, useEffect, useRef } from "react";
+import { Filter, GripVertical } from "lucide-react";
 import { useJobs } from "@/hooks/useJobs";
 import { Job } from "@/types/job";
 import JobFiltersPanel from "@/components/jobs/JobFilters";
@@ -15,9 +15,49 @@ export default function JobBoardPage() {
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
 
+  // Resizable logic
+  const [leftWidth, setLeftWidth] = useState(420);
+  const isResizing = useRef(false);
+
+  const startResizing = useCallback(() => {
+    isResizing.current = true;
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+  }, []);
+
+  const stopResizing = useCallback(() => {
+    isResizing.current = false;
+    document.body.style.cursor = "default";
+    document.body.style.userSelect = "auto";
+  }, []);
+
+  const resize = useCallback((e: MouseEvent) => {
+    if (!isResizing.current) return;
+    
+    // Calculate new width: mouse X - filter panel width (256px)
+    const newWidth = e.clientX - 256;
+    if (newWidth > 300 && newWidth < 800) {
+      setLeftWidth(newWidth);
+    }
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener("mousemove", resize);
+    window.addEventListener("mouseup", stopResizing);
+    return () => {
+      window.removeEventListener("mousemove", resize);
+      window.removeEventListener("mouseup", stopResizing);
+    };
+  }, [resize, stopResizing]);
+
   const handleSelectJob = (job: Job) => {
     setSelectedJob(job);
     setIsDetailOpen(true);
+  };
+
+  const handleApply = () => {
+    setSelectedJob(null);
+    setIsDetailOpen(false);
   };
 
   return (
@@ -58,9 +98,10 @@ export default function JobBoardPage() {
 
       {/* Middle: Job list */}
       <main
+        style={{ width: selectedJob ? `${leftWidth}px` : "100%" }}
         className={`
           h-full overflow-y-auto bg-muted/5 transition-all duration-300
-          ${selectedJob ? "lg:w-[380px] xl:w-[420px] lg:shrink-0" : "flex-1"}
+          ${selectedJob ? "lg:shrink-0" : "flex-1"}
           px-4 py-5
         `}
       >
@@ -80,12 +121,25 @@ export default function JobBoardPage() {
         />
       </main>
 
+      {/* Resizer Handle */}
+      {selectedJob && (
+        <div
+          onMouseDown={startResizing}
+          className="hidden lg:flex w-2 hover:w-2 group cursor-col-resize items-center justify-center bg-border/20 hover:bg-primary/20 transition-all border-x border-border/50"
+        >
+          <div className="p-0.5 rounded-md bg-card border border-border shadow-sm group-hover:bg-primary group-hover:text-white transition-colors">
+            <GripVertical size={12} />
+          </div>
+        </div>
+      )}
+
       {/* Desktop: Right detail panel */}
       {selectedJob && (
         <div className="hidden lg:flex flex-1 h-full overflow-hidden">
           <JobDetailPanel
             job={selectedJob}
             onClose={() => setSelectedJob(null)}
+            onApply={handleApply}
           />
         </div>
       )}
@@ -97,10 +151,13 @@ export default function JobBoardPage() {
             <JobDetailPanel
               job={selectedJob}
               onClose={() => setIsDetailOpen(false)}
+              onApply={handleApply}
             />
           )}
         </SheetContent>
       </Sheet>
+
     </div>
   );
 }
+

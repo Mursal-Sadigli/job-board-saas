@@ -38,13 +38,25 @@ const quillFormats = [
   'blockquote', 'link'
 ]
 
-export function PostJobModal({ children }: { children?: React.ReactElement }) {
+export function PostJobModal({ 
+  children, 
+  onSuccess 
+}: { 
+  children?: React.ReactElement;
+  onSuccess?: () => void;
+}) {
   const [open, setOpen] = useState(false)
   const [title, setTitle] = useState("")
   const [coverLetter, setCoverLetter] = useState("")
 
+  const handleSubmit = () => {
+    setOpen(false)
+    onSuccess?.()
+  }
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
+
       <DialogTrigger
         render={children || (
           <button className="inline-flex items-center justify-center gap-2 h-11 px-6 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-sm font-bold hover:bg-slate-800 dark:hover:bg-slate-100 transition-all shadow-xl shadow-slate-900/10 dark:shadow-white/5 active:scale-95 group">
@@ -92,12 +104,13 @@ export function PostJobModal({ children }: { children?: React.ReactElement }) {
 
         <DialogFooter className="px-5 pt-2 pb-5">
           <Button 
-            onClick={() => setOpen(false)}
+            onClick={handleSubmit}
             className="w-full h-10 rounded-md bg-foreground text-background hover:opacity-90 font-semibold text-sm transition-all active:scale-[0.98]"
           >
             Əlavə Et
           </Button>
         </DialogFooter>
+
       </DialogContent>
     </Dialog>
   )

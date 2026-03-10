@@ -20,6 +20,7 @@ import { PostJobModal } from "@/components/employer/PostJobModal";
 interface JobDetailPanelProps {
   job: Job;
   onClose?: () => void;
+  onApply?: () => void;
 }
 
 const locationTypeConfig = {
@@ -45,7 +46,7 @@ const expLevelConfig: Record<string, string> = {
   any: "İstənilən",
 };
 
-export default function JobDetailPanel({ job, onClose }: JobDetailPanelProps) {
+export default function JobDetailPanel({ job, onClose, onApply }: JobDetailPanelProps) {
   const [logoError, setLogoError] = useState(false);
   const locConfig = locationTypeConfig[job.locationType] || locationTypeConfig.any;
   const expLabel = expLevelConfig[job.experienceLevel] || expLevelConfig.any;
@@ -56,9 +57,9 @@ export default function JobDetailPanel({ job, onClose }: JobDetailPanelProps) {
       {/* Header */}
       <div
         className={cn(
-          "px-6 pt-6 pb-5 shrink-0 relative",
+          "px-6 pt-6 pb-5 shrink-0 relative border-b border-border",
           job.featured
-            ? "bg-[#1a1025] dark:bg-[#1a1025]"
+            ? "bg-card"
             : "bg-card"
         )}
       >
@@ -66,15 +67,16 @@ export default function JobDetailPanel({ job, onClose }: JobDetailPanelProps) {
         {onClose && (
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 p-1.5 rounded-lg hover:bg-white/10 transition-colors text-white/60 hover:text-white"
+            className="absolute top-4 right-4 p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
           >
             <X size={18} />
           </button>
         )}
 
+
         {/* Company + Title */}
         <div className="flex items-start gap-4 mb-4">
-          <div className="shrink-0 w-14 h-14 rounded-xl bg-white/10 border border-white/10 overflow-hidden flex items-center justify-center shadow-lg">
+          <div className="shrink-0 w-14 h-14 rounded-xl bg-card border border-border overflow-hidden flex items-center justify-center shadow-lg">
             {showLogo ? (
               <img
                 src={job.companyLogo}
@@ -83,7 +85,7 @@ export default function JobDetailPanel({ job, onClose }: JobDetailPanelProps) {
                 onError={() => setLogoError(true)}
               />
             ) : (
-              <span className="font-black text-2xl text-white/40">
+              <span className="font-black text-2xl text-muted-foreground/30">
                 {job.company[0]}
               </span>
             )}
@@ -91,13 +93,13 @@ export default function JobDetailPanel({ job, onClose }: JobDetailPanelProps) {
           <div className="flex-1 min-w-0">
             <h2 className={cn(
               "text-xl font-bold leading-snug tracking-tight truncate",
-              job.featured ? "text-white" : "text-foreground"
+              "text-foreground"
             )}>
               {job.title}
             </h2>
             <p className={cn(
               "text-sm font-semibold mt-0.5",
-              job.featured ? "text-white/60" : "text-muted-foreground"
+              "text-muted-foreground"
             )}>
               {job.company}
             </p>
@@ -107,15 +109,16 @@ export default function JobDetailPanel({ job, onClose }: JobDetailPanelProps) {
         {/* Date */}
         <p className={cn(
           "text-[11px] font-semibold mb-3",
-          job.featured ? "text-white/40" : "text-muted-foreground/60"
+          "text-muted-foreground/60"
         )}>
           {formatRelativeTime(job.postedAt)}
         </p>
 
+
         {/* Badges */}
         <div className="flex flex-wrap gap-2">
           {job.featured && (
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider bg-purple-500/20 text-purple-300 border border-purple-500/30">
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider bg-purple-500/10 text-purple-600 border border-purple-500/20">
               <Award size={11} />
               Önə çıxan
             </span>
@@ -123,9 +126,7 @@ export default function JobDetailPanel({ job, onClose }: JobDetailPanelProps) {
           {job.salary && (
             <span className={cn(
               "inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold border",
-              job.featured
-                ? "bg-white/10 text-white border-white/20"
-                : "bg-muted/40 text-foreground border-border"
+              "bg-muted/40 text-foreground border-border"
             )}>
               <Banknote size={11} />
               {job.salary}
@@ -133,36 +134,28 @@ export default function JobDetailPanel({ job, onClose }: JobDetailPanelProps) {
           )}
           <span className={cn(
             "inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold border",
-            job.featured
-              ? "bg-blue-500/20 text-blue-300 border-blue-500/30"
-              : "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20"
+            "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20"
           )}>
             <MapPin size={11} />
             {job.location || job.city}
           </span>
           <span className={cn(
             "inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold border",
-            job.featured
-              ? "bg-white/10 text-white/80 border-white/20"
-              : "bg-slate-500/10 text-slate-600 dark:text-slate-400 border-slate-500/20"
+            "bg-slate-500/10 text-slate-600 dark:text-slate-400 border-slate-500/20"
           )}>
             <span className="shrink-0 scale-90">{locConfig.icon}</span>
             {locConfig.label}
           </span>
           <span className={cn(
             "inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold border",
-            job.featured
-              ? "bg-white/10 text-white/80 border-white/20"
-              : "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20"
+            "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20"
           )}>
             <Briefcase size={11} />
             {jobTypeConfig[job.jobType] || jobTypeConfig.any}
           </span>
           <span className={cn(
             "inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold border",
-            job.featured
-              ? "bg-white/10 text-white/80 border-white/20"
-              : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
+            "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
           )}>
             <Clock size={11} />
             {expLabel}
@@ -172,8 +165,8 @@ export default function JobDetailPanel({ job, onClose }: JobDetailPanelProps) {
         {/* Apply button in header for featured */}
         {job.featured && (
           <div className="mt-4">
-            <PostJobModal>
-              <button className="px-5 py-2 rounded-lg bg-white text-slate-900 text-sm font-bold hover:bg-white/90 transition-all active:scale-95 shadow-lg shadow-black/20">
+            <PostJobModal onSuccess={onApply}>
+              <button className="px-5 py-2 rounded-lg bg-foreground text-background text-sm font-bold hover:opacity-90 transition-all active:scale-95 shadow-lg shadow-black/10">
                 Müraciət Et
               </button>
             </PostJobModal>
@@ -206,12 +199,13 @@ export default function JobDetailPanel({ job, onClose }: JobDetailPanelProps) {
 
       {/* Bottom Apply Button */}
       <div className="shrink-0 px-6 py-4 border-t border-border bg-card">
-        <PostJobModal>
+        <PostJobModal onSuccess={onApply}>
           <button className="w-full h-11 rounded-xl bg-foreground text-background font-bold text-sm hover:opacity-90 transition-all active:scale-[0.98] shadow-lg">
             Müraciət Et
           </button>
         </PostJobModal>
       </div>
+
     </div>
   );
 }
