@@ -6,7 +6,7 @@ import Sidebar from "@/components/layout/Sidebar";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/utils/cn";
 import { ModeToggle } from "@/components/ModeToggle";
-import { UserButton } from "@clerk/nextjs";
+import { UserButton, useAuth, SignInButton, SignUpButton } from "@clerk/nextjs";
 
 export default function DashboardLayout({
   children,
@@ -15,6 +15,7 @@ export default function DashboardLayout({
 }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const { isLoaded, isSignedIn } = useAuth();
 
   return (
     <div className="h-screen flex overflow-hidden bg-background">
@@ -65,7 +66,26 @@ export default function DashboardLayout({
 
           <div className="flex items-center gap-3">
             <ModeToggle />
-            <UserButton />
+            {isLoaded && (
+              <>
+                {isSignedIn ? (
+                  <UserButton />
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <SignInButton mode="modal">
+                      <button className="h-9 px-4 rounded-lg bg-card border border-border text-xs font-bold hover:bg-muted transition-all">
+                        Giriş
+                      </button>
+                    </SignInButton>
+                    <SignUpButton mode="modal">
+                      <button className="h-9 px-4 rounded-lg bg-slate-900 text-white dark:bg-white dark:text-slate-900 text-xs font-bold hover:opacity-90 transition-all">
+                        Qeydiyyat
+                      </button>
+                    </SignUpButton>
+                  </div>
+                )}
+              </>
+            )}
           </div>
         </header>
 

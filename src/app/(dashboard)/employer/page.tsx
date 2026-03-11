@@ -496,8 +496,17 @@ function EmployerJobDetail({
             onClick={() => onDelist(job.id!)}
             className="h-9 px-4 inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-card hover:bg-muted text-sm font-semibold text-foreground transition-colors shadow-sm"
           >
-            {job.isActive ? <EyeOff size={14} className="text-muted-foreground" /> : <Eye size={14} className="text-emerald-500" />}
-            {job.isActive ? "Deaktiv Et" : "Aktivləşdir"}
+            {job.isActive ? (
+              <>
+                <EyeOff size={14} className="text-muted-foreground" />
+                Deaktiv Et
+              </>
+            ) : (
+              <>
+                <Eye size={14} className="text-emerald-500" />
+                Yayımla
+              </>
+            )}
           </button>
           {job.isFeatured ? (
             <button

@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useTheme } from "next-themes";
 import { Switch } from "@/components/ui/switch";
+import { useUser, SignOutButton } from "@clerk/nextjs";
 
 interface NavItem {
   label: string;
@@ -68,11 +69,11 @@ const settingsItems: NavItem[] = [
   },
 ];
 
-// Mock user for demo
-const MOCK_USER = {
-  firstName: "Alex",
-  lastName: "Johnson",
-  email: "alex.johnson@gmail.com",
+// Mock user for fallback
+const FALLBACK_USER = {
+  firstName: "Qonaq",
+  lastName: "",
+  email: "giriş edilməyib",
 };
 
 interface SidebarProps {
@@ -86,6 +87,7 @@ export default function Sidebar({
   isCollapsed = false, 
   onToggle 
 }: SidebarProps) {
+  const { isLoaded, user } = useUser();
   const pathname = usePathname();
   const { theme, setTheme } = useTheme();
   const { settingsExpanded, toggleSettings } = useSidebar();
@@ -97,6 +99,10 @@ export default function Sidebar({
   const toggleTheme = () => {
     setTheme(theme === "dark" ? "light" : "dark");
   };
+
+  const displayName = user ? `${user.firstName}${user.lastName ? " " + user.lastName : ""}` : FALLBACK_USER.firstName;
+  const displayEmail = user?.primaryEmailAddress?.emailAddress || FALLBACK_USER.email;
+  const initials = user ? `${user.firstName?.[0] || ""}${user.lastName?.[0] || ""}` : "??";
 
   return (
     <div className="flex w-full flex-col h-full overflow-hidden bg-background border-r border-border shadow-sm/5">
@@ -210,80 +216,83 @@ export default function Sidebar({
       </nav>
 
       {/* User section */}
-      <div className="p-4 border-t border-border bg-background">
-        <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
-          <DropdownMenuTrigger 
-            className={cn(
-              "w-full flex items-center rounded-xl focus:bg-slate-100 dark:focus:bg-slate-900 hover:bg-slate-100/50 dark:hover:bg-slate-900/50 transition-all group outline-none h-14 border border-transparent hover:border-border cursor-pointer",
-              isCollapsed ? "justify-center px-0" : "px-2.5 gap-3"
-            )}
-          >
-            {/* Avatar */}
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-sm font-bold bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-md">
-              {MOCK_USER.firstName[0]}
-              {MOCK_USER.lastName[0]}
-            </div>
-            {/* Info */}
-            {!isCollapsed && (
-              <>
-                <div className="flex-1 text-left min-w-0">
-                  <p className="text-[13px] font-bold text-foreground truncate uppercase tracking-tight">
-                    {MOCK_USER.firstName} {MOCK_USER.lastName}
-                  </p>
-                  <p className="text-xs text-muted-foreground truncate font-medium">
-                    {MOCK_USER.email}
-                  </p>
-                </div>
-                <ChevronDown
-                  size={14}
-                  className={cn(
-                    "transition-transform duration-300 shrink-0 text-muted-foreground/60 group-hover:text-foreground",
-                    dropdownOpen && "rotate-180"
-                  )}
-                />
-              </>
-            )}
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-[240px] rounded-2xl p-2 border-border shadow-2xl bg-white dark:bg-slate-950 isolate z-100">
-            <div className="px-2 py-1.5 mb-2 sm:hidden">
-               <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Hesab</p>
-            </div>
-            <DropdownMenuItem className="cursor-pointer gap-2.5 px-3 py-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-900 transition-all font-medium" onClick={() => setDropdownOpen(false)}>
-              <User size={16} className="text-slate-400" />
-              <span>Profil</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem className="cursor-pointer gap-2.5 px-3 py-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-900 transition-all font-medium" onClick={() => {
-              setDropdownOpen(false);
-              toggleSettings();
-            }}>
-              <Settings size={16} className="text-slate-400" />
-              <span>Tənzimləmələr</span>
-            </DropdownMenuItem>
-            
-            <DropdownMenuSeparator className="my-2 bg-border/50" />
-            
-            {/* Theme Toggle - User Request */}
-            <div className="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-900 transition-all group">
-              <div className="flex items-center gap-2.5 font-medium">
-                {theme === "dark" ? <Moon size={16} className="text-indigo-400" /> : <Sun size={16} className="text-amber-500" />}
-                <span className="text-sm">Tünd Rejim</span>
+      {user && (
+        <div className="p-4 border-t border-border bg-background">
+          <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
+            <DropdownMenuTrigger 
+              className={cn(
+                "w-full flex items-center rounded-xl focus:bg-slate-100 dark:focus:bg-slate-900 hover:bg-slate-100/50 dark:hover:bg-slate-900/50 transition-all group outline-none h-14 border border-transparent hover:border-border cursor-pointer",
+                isCollapsed ? "justify-center px-0" : "px-2.5 gap-3"
+              )}
+            >
+              {/* Avatar */}
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-sm font-bold bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-md uppercase">
+                {initials}
               </div>
-              <Switch 
-                checked={theme === "dark"} 
-                onCheckedChange={toggleTheme}
-                size="sm"
-              />
-            </div>
+              {/* Info */}
+              {!isCollapsed && (
+                <>
+                  <div className="flex-1 text-left min-w-0">
+                    <p className="text-[13px] font-bold text-foreground truncate uppercase tracking-tight">
+                      {displayName}
+                    </p>
+                    <p className="text-xs text-muted-foreground truncate font-medium">
+                      {displayEmail}
+                    </p>
+                  </div>
+                  <ChevronDown
+                    size={14}
+                    className={cn(
+                      "transition-transform duration-300 shrink-0 text-muted-foreground/60 group-hover:text-foreground",
+                      dropdownOpen && "rotate-180"
+                    )}
+                  />
+                </>
+              )}
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-[240px] rounded-2xl p-2 border-border shadow-2xl bg-white dark:bg-slate-950 isolate z-100">
+              <div className="px-2 py-1.5 mb-2 sm:hidden">
+                 <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Hesab</p>
+              </div>
+              <DropdownMenuItem className="cursor-pointer gap-2.5 px-3 py-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-900 transition-all font-medium" onClick={() => setDropdownOpen(false)}>
+                <User size={16} className="text-slate-400" />
+                <span>Profil</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer gap-2.5 px-3 py-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-900 transition-all font-medium" onClick={() => {
+                setDropdownOpen(false);
+                toggleSettings();
+              }}>
+                <Settings size={16} className="text-slate-400" />
+                <span>Tənzimləmələr</span>
+              </DropdownMenuItem>
+              
+              <DropdownMenuSeparator className="my-2 bg-border/50" />
+              
+              {/* Theme Toggle - User Request */}
+              <div className="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-900 transition-all group">
+                <div className="flex items-center gap-2.5 font-medium">
+                  {theme === "dark" ? <Moon size={16} className="text-indigo-400" /> : <Sun size={16} className="text-amber-500" />}
+                  <span className="text-sm">Tünd Rejim</span>
+                </div>
+                <Switch 
+                  checked={theme === "dark"} 
+                  onCheckedChange={toggleTheme}
+                  size="sm"
+                />
+              </div>
 
-            <DropdownMenuSeparator className="my-2 bg-border/50" />
-            
-            <DropdownMenuItem className="cursor-pointer gap-2.5 px-3 py-2.5 rounded-xl text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-all font-semibold" onClick={() => setDropdownOpen(false)}>
-              <LogOut size={16} />
-              <span>Çıxış</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+              <DropdownMenuSeparator className="my-2 bg-border/50" />
+              
+              <SignOutButton>
+                <DropdownMenuItem className="cursor-pointer gap-2.5 px-3 py-2.5 rounded-xl text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-all font-semibold" onClick={() => setDropdownOpen(false)}>
+                  <LogOut size={16} />
+                  <span>Çıxış</span>
+                </DropdownMenuItem>
+              </SignOutButton>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      )}
     </div>
   );
 }
