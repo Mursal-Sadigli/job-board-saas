@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Briefcase,
   Sparkles,
@@ -9,13 +9,16 @@ import {
   Bell,
   FileText,
   ChevronDown,
-  User,
   Settings,
   LogOut,
   ChevronRight,
   MenuSquare,
+  Users,
+  CreditCard,
+  ArrowLeftRight,
+  User,
   Moon,
-  Sun
+  Sun,
 } from "lucide-react";
 import { useSidebar } from "@/hooks/useSidebar";
 import { ROUTES } from "@/routes/paths";
@@ -30,7 +33,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useTheme } from "next-themes";
 import { Switch } from "@/components/ui/switch";
-import { useUser, SignOutButton } from "@clerk/nextjs";
+import { useUser, SignOutButton, OrganizationSwitcher } from "@clerk/nextjs";
+import { X } from "lucide-react";
 
 interface NavItem {
   label: string;
@@ -49,11 +53,6 @@ const mainNavItems: NavItem[] = [
     href: ROUTES.aiSearch,
     icon: <Sparkles size={18} />,
   },
-  {
-    label: "İşəgötürən Paneli",
-    href: ROUTES.employer,
-    icon: <Building2 size={18} />,
-  },
 ];
 
 const settingsItems: NavItem[] = [
@@ -69,7 +68,6 @@ const settingsItems: NavItem[] = [
   },
 ];
 
-// Mock user for fallback
 const FALLBACK_USER = {
   firstName: "Qonaq",
   lastName: "",
@@ -82,34 +80,48 @@ interface SidebarProps {
   onToggle?: () => void;
 }
 
-export default function Sidebar({ 
-  onNavigate, 
-  isCollapsed = false, 
-  onToggle 
+export default function Sidebar({
+  onNavigate,
+  isCollapsed = false,
+  onToggle,
 }: SidebarProps) {
-  const { isLoaded, user } = useUser();
+  const { user } = useUser();
   const pathname = usePathname();
+  const router = useRouter();
   const { theme, setTheme } = useTheme();
   const { settingsExpanded, toggleSettings } = useSidebar();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [orgSwitcherOpen, setOrgSwitcherOpen] = useState(false);
 
-  const isSettingsActive =
-    pathname.startsWith("/settings") || settingsExpanded;
+  const isSettingsActive = pathname.startsWith("/settings") || settingsExpanded;
 
-  const toggleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark");
+  // Determine if this is an employer account via Clerk publicMetadata OR specific email
+  const userEmail = user?.primaryEmailAddress?.emailAddress;
+  const isEmployer = user?.publicMetadata?.role === "employer" || userEmail === "msadigli2025@gmail.com";
+
+  const displayName = user
+    ? `${user.firstName}${user.lastName ? " " + user.lastName : ""}`
+    : FALLBACK_USER.firstName;
+  const displayEmail =
+    user?.primaryEmailAddress?.emailAddress || FALLBACK_USER.email;
+  const initials = user
+    ? `${user.firstName?.[0] || ""}${user.lastName?.[0] || ""}`
+    : "??";
+
+  const handleNavigate = (href: string) => {
+    setDropdownOpen(false);
+    onNavigate?.();
+    router.push(href);
   };
 
-  const displayName = user ? `${user.firstName}${user.lastName ? " " + user.lastName : ""}` : FALLBACK_USER.firstName;
-  const displayEmail = user?.primaryEmailAddress?.emailAddress || FALLBACK_USER.email;
-  const initials = user ? `${user.firstName?.[0] || ""}${user.lastName?.[0] || ""}` : "??";
+  const toggleTheme = () => setTheme(theme === "dark" ? "light" : "dark");
 
   return (
     <div className="flex w-full flex-col h-full overflow-hidden bg-background border-r border-border shadow-sm/5">
       {/* Header */}
       <div className="flex items-center h-[65px] px-4 border-b border-border bg-background">
         <div className="flex items-center gap-3 overflow-hidden">
-          <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-lg shadow-slate-900/10 dark:shadow-white/5 transition-all">
+          <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-lg transition-all">
             <MenuSquare size={16} />
           </div>
           {!isCollapsed && (
@@ -137,7 +149,14 @@ export default function Sidebar({
                   : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900"
               )}
             >
-              <div className={cn("shrink-0 transition-colors", isActive ? "text-inherit" : "text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white")}>
+              <div
+                className={cn(
+                  "shrink-0 transition-colors",
+                  isActive
+                    ? "text-inherit"
+                    : "text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white"
+                )}
+              >
                 {item.icon}
               </div>
               {!isCollapsed && <span className="truncate">{item.label}</span>}
@@ -162,12 +181,21 @@ export default function Sidebar({
                 : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900"
             )}
           >
-            <div className={cn("shrink-0 transition-colors", isSettingsActive ? "text-slate-900 dark:text-white" : "text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white")}>
+            <div
+              className={cn(
+                "shrink-0 transition-colors",
+                isSettingsActive
+                  ? "text-slate-900 dark:text-white"
+                  : "text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white"
+              )}
+            >
               <Settings size={18} />
             </div>
             {!isCollapsed && (
               <>
-                <span className="flex-1 text-left truncate font-medium">Tənzimləmələr</span>
+                <span className="flex-1 text-left truncate font-medium">
+                  Tənzimləmələr
+                </span>
                 <ChevronRight
                   size={14}
                   className={cn(
@@ -179,12 +207,13 @@ export default function Sidebar({
             )}
           </button>
 
-          {/* Settings sub-items */}
           {!isCollapsed && (
             <div
               className={cn(
                 "overflow-hidden transition-all duration-500 ease-in-out",
-                settingsExpanded ? "max-h-[200px] opacity-100 mt-1" : "max-h-0 opacity-0"
+                settingsExpanded
+                  ? "max-h-[200px] opacity-100 mt-1"
+                  : "max-h-0 opacity-0"
               )}
             >
               <div className="ml-5 pl-4 flex flex-col gap-1 border-l border-border/60">
@@ -202,7 +231,14 @@ export default function Sidebar({
                           : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-900/30"
                       )}
                     >
-                      <div className={cn("shrink-0 transition-colors", isSubActive ? "text-slate-900 dark:text-white" : "text-slate-400")}>
+                      <div
+                        className={cn(
+                          "shrink-0",
+                          isSubActive
+                            ? "text-slate-900 dark:text-white"
+                            : "text-slate-400"
+                        )}
+                      >
                         {item.icon}
                       </div>
                       <span>{item.label}</span>
@@ -219,17 +255,15 @@ export default function Sidebar({
       {user && (
         <div className="p-4 border-t border-border bg-background">
           <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
-            <DropdownMenuTrigger 
+            <DropdownMenuTrigger
               className={cn(
-                "w-full flex items-center rounded-xl focus:bg-slate-100 dark:focus:bg-slate-900 hover:bg-slate-100/50 dark:hover:bg-slate-900/50 transition-all group outline-none h-14 border border-transparent hover:border-border cursor-pointer",
+                "w-full flex items-center rounded-xl hover:bg-slate-100/50 dark:hover:bg-slate-900/50 transition-all group outline-none h-14 border border-transparent hover:border-border cursor-pointer",
                 isCollapsed ? "justify-center px-0" : "px-2.5 gap-3"
               )}
             >
-              {/* Avatar */}
               <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-sm font-bold bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-md uppercase">
                 {initials}
               </div>
-              {/* Info */}
               {!isCollapsed && (
                 <>
                   <div className="flex-1 text-left min-w-0">
@@ -250,47 +284,168 @@ export default function Sidebar({
                 </>
               )}
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-[240px] rounded-2xl p-2 border-border shadow-2xl bg-white dark:bg-slate-950 isolate z-100">
-              <div className="px-2 py-1.5 mb-2 sm:hidden">
-                 <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Hesab</p>
-              </div>
-              <DropdownMenuItem className="cursor-pointer gap-2.5 px-3 py-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-900 transition-all font-medium" onClick={() => setDropdownOpen(false)}>
-                <User size={16} className="text-slate-400" />
-                <span>Profil</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer gap-2.5 px-3 py-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-900 transition-all font-medium" onClick={() => {
-                setDropdownOpen(false);
-                toggleSettings();
-              }}>
-                <Settings size={16} className="text-slate-400" />
-                <span>Tənzimləmələr</span>
-              </DropdownMenuItem>
-              
-              <DropdownMenuSeparator className="my-2 bg-border/50" />
-              
-              {/* Theme Toggle - User Request */}
-              <div className="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-900 transition-all group">
-                <div className="flex items-center gap-2.5 font-medium">
-                  {theme === "dark" ? <Moon size={16} className="text-indigo-400" /> : <Sun size={16} className="text-amber-500" />}
-                  <span className="text-sm">Tünd Rejim</span>
+
+            <DropdownMenuContent
+              align="end"
+              sideOffset={8}
+              className="w-[260px] rounded-2xl p-2 border-border shadow-2xl bg-white dark:bg-slate-950 isolate z-100"
+            >
+              {/* Header: avatar + name/email */}
+              <div className="flex items-center gap-3 px-3 py-3 mb-1">
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-sm font-bold bg-slate-900 dark:bg-white text-white dark:text-slate-900 uppercase shadow-sm">
+                  {initials}
                 </div>
-                <Switch 
-                  checked={theme === "dark"} 
-                  onCheckedChange={toggleTheme}
-                  size="sm"
-                />
+                <div className="min-w-0">
+                  <p className="text-[13px] font-bold text-foreground truncate uppercase tracking-tight">
+                    {displayName}
+                  </p>
+                  <p className="text-xs text-muted-foreground truncate">
+                    {displayEmail}
+                  </p>
+                </div>
               </div>
 
-              <DropdownMenuSeparator className="my-2 bg-border/50" />
-              
-              <SignOutButton>
-                <DropdownMenuItem className="cursor-pointer gap-2.5 px-3 py-2.5 rounded-xl text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-all font-semibold" onClick={() => setDropdownOpen(false)}>
-                  <LogOut size={16} />
-                  <span>Çıxış</span>
-                </DropdownMenuItem>
-              </SignOutButton>
+              <DropdownMenuSeparator className="my-1 bg-border/50" />
+
+              {isEmployer ? (
+                /* ── EMPLOYER MENU ── */
+                <>
+                  <DropdownMenuItem
+                    className="cursor-pointer gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-900 transition-all font-medium text-sm"
+                    onClick={() => handleNavigate(ROUTES.employer)}
+                  >
+                    <Building2 size={16} className="text-slate-400 shrink-0" />
+                    <span>Təşkilatı İdarə Et</span>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem
+                    className="cursor-pointer gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-900 transition-all font-medium text-sm"
+                    onClick={() => handleNavigate(ROUTES.settings.notifications)}
+                  >
+                    <Users size={16} className="text-slate-400 shrink-0" />
+                    <span>İstifadəçi Parametrləri</span>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem
+                    className="cursor-pointer gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-900 transition-all font-medium text-sm"
+                    onClick={() => handleNavigate("/upgrade")}
+                  >
+                    <CreditCard size={16} className="text-slate-400 shrink-0" />
+                    <span>Planı Dəyiş</span>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem
+                    className="cursor-pointer gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-900 transition-all font-medium text-sm"
+                    onClick={() => {
+                      setDropdownOpen(false);
+                      setOrgSwitcherOpen(true);
+                    }}
+                  >
+                    <ArrowLeftRight size={16} className="text-slate-400 shrink-0" />
+                    <span>Təşkilatı Dəyiş</span>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuSeparator className="my-1 bg-border/50" />
+
+                  <SignOutButton>
+                    <DropdownMenuItem
+                      className="cursor-pointer gap-3 px-3 py-2.5 rounded-xl text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-all font-semibold text-sm"
+                      onClick={() => setDropdownOpen(false)}
+                    >
+                      <LogOut size={16} className="shrink-0" />
+                      <span>Çıxış</span>
+                    </DropdownMenuItem>
+                  </SignOutButton>
+                </>
+              ) : (
+                /* ── REGULAR USER MENU ── */
+                <>
+                  <DropdownMenuItem
+                    className="cursor-pointer gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-900 transition-all font-medium text-sm"
+                    onClick={() => setDropdownOpen(false)}
+                  >
+                    <User size={16} className="text-slate-400 shrink-0" />
+                    <span>Profil</span>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuSeparator className="my-1 bg-border/50" />
+
+                  <DropdownMenuItem
+                    className="cursor-pointer gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-900 transition-all font-medium text-sm"
+                    onClick={() => {
+                      setDropdownOpen(false);
+                      handleNavigate(ROUTES.settings.notifications); 
+                    }}
+                  >
+                    <Settings size={16} className="text-slate-400 shrink-0" />
+                    <span>Tənzimləmələr</span>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuSeparator className="my-1 bg-border/50" />
+
+                  {/* Theme toggle */}
+                  <div className="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-900 transition-all">
+                    <div className="flex items-center gap-3 text-sm font-medium">
+                      {theme === "dark" ? (
+                        <Moon size={16} className="text-indigo-400" />
+                      ) : (
+                        <Sun size={16} className="text-amber-500" />
+                      )}
+                      <span>Tünd Rejim</span>
+                    </div>
+                    <Switch
+                      checked={theme === "dark"}
+                      onCheckedChange={toggleTheme}
+                      size="sm"
+                    />
+                  </div>
+
+                  <DropdownMenuSeparator className="my-1 bg-border/50" />
+
+                  <SignOutButton>
+                    <DropdownMenuItem
+                      className="cursor-pointer gap-3 px-3 py-2.5 rounded-xl text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-all font-semibold text-sm"
+                      onClick={() => setDropdownOpen(false)}
+                    >
+                      <LogOut size={16} className="shrink-0 text-red-600" />
+                      <span>Çıxış</span>
+                    </DropdownMenuItem>
+                  </SignOutButton>
+                </>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
+        </div>
+      )}
+      {/* Organization Switcher Modal */}
+      {orgSwitcherOpen && (
+        <div className="fixed inset-0 z-200 flex items-center justify-center">
+          <div
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={() => setOrgSwitcherOpen(false)}
+          />
+          <div className="relative bg-white dark:bg-[#1C1F26] rounded-3xl shadow-2xl border border-border p-6 z-10 min-w-[320px]">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-base font-bold text-foreground">Təşkilatı Dəyiş</h3>
+              <button
+                onClick={() => setOrgSwitcherOpen(false)}
+                className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-muted transition-colors text-muted-foreground"
+              >
+                <X size={16} />
+              </button>
+            </div>
+            <OrganizationSwitcher
+              appearance={{
+                elements: {
+                  rootBox: "w-full",
+                  organizationSwitcherTrigger: "w-full",
+                },
+              }}
+              hidePersonal={false}
+              afterSelectOrganizationUrl={ROUTES.employer}
+              afterSelectPersonalUrl={ROUTES.jobBoard}
+            />
+          </div>
         </div>
       )}
     </div>

@@ -1,106 +1,120 @@
 "use client";
 
 import { useState } from "react";
-import { Bell, Save, CheckCircle } from "lucide-react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  notificationSchema,
-  NotificationFormData,
-} from "@/validators/notificationSchema";
-import { Button } from "@/components/ui/button";
+import { Save, CheckCircle, Star } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
-import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+function StarRating({ count }: { count: number }) {
+  return (
+    <span className="flex items-center gap-0.5">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <Star
+          key={i}
+          size={13}
+          className={
+            i < count
+              ? "fill-amber-400 text-amber-400"
+              : "text-muted-foreground/25"
+          }
+        />
+      ))}
+    </span>
+  );
+}
 
 export default function NotificationsPage() {
   const [saved, setSaved] = useState(false);
-  const [daily, setDaily] = useState(false);
+  const [daily, setDaily] = useState(true);
+  const [minRating, setMinRating] = useState("any");
 
-  const { register, handleSubmit, formState: { errors } } = useForm<NotificationFormData>({
-    resolver: zodResolver(notificationSchema),
-    defaultValues: { dailyEmailEnabled: false, filterPrompt: "" },
-  });
-
-  const onSubmit = (_data: NotificationFormData) => {
+  const handleSave = () => {
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
   };
 
   return (
-    <div className="h-full overflow-y-auto px-6 py-6 bg-background">
-      {/* Page header */}
-      <div className="mb-6">
-        <div className="flex items-center gap-2 mb-1">
-          <Bell size={20} className="text-foreground/70" />
-          <h1 className="text-xl font-bold text-foreground">
-            Bildirişlər
-          </h1>
-        </div>
-        <p className="text-sm text-muted-foreground">
-          İş xəbərdarlığı seçimlərini idarə edin
-        </p>
-      </div>
+    <div className="h-full overflow-y-auto px-6 sm:px-10 py-10 bg-background">
+      <h1 className="text-2xl font-black text-foreground mb-8">
+        Notification Settings
+      </h1>
 
-      {/* Container */}
-      <div className="rounded-xl p-6 max-w-xl bg-card border border-border shadow-sm">
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
-          {/* Daily Email Toggle */}
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-semibold text-foreground">
-                Gündəlik E-poçt Bildirişləri
-              </p>
-              <p className="text-xs mt-0.5 text-muted-foreground">
-                Sizə uyğun yeni işlərin gündəlik xülasəsini əldə edin
-              </p>
-            </div>
-            <Switch
-              checked={daily}
-              onCheckedChange={setDaily}
-            />
-          </div>
+      <div className="max-w-2xl rounded-2xl border border-border bg-card p-6 sm:p-8 space-y-6 shadow-sm">
 
-          {/* Divider */}
-          <div className="border-t border-border" />
-
-          {/* Filter Prompt */}
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-semibold text-foreground">
-              Filtrləmə Mətni (Prompt)
-            </label>
-            <p className="text-xs text-muted-foreground">
-              Axtardığınız iş növünü təsvir edin (AI tərəfindən bildirişləri filtrləmək üçün istifadə olunur)
+        {/* Daily Email Notifications */}
+        <div className="flex items-start justify-between gap-6">
+          <div className="space-y-1">
+            <p className="text-sm font-semibold text-foreground">
+              Daily Email Notifications
             </p>
-            <Textarea
-              {...register("filterPrompt")}
-              placeholder="məs. Bakıda və ya uzaqdan işləmək üçün senior frontend mühəndis rolu..."
-              rows={4}
-              className="resize-none bg-card"
-            />
-            {errors.filterPrompt && (
-              <p className="text-xs text-rose-500">
-                {errors.filterPrompt.message}
-              </p>
-            )}
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Receive summary emails of all new job listing applications
+            </p>
           </div>
+          <Switch
+            checked={daily}
+            onCheckedChange={setDaily}
+            className="shrink-0 mt-0.5"
+          />
+        </div>
 
-          {/* Save button */}
-          <Button type="submit" className="w-full bg-foreground text-background hover:opacity-90 mt-2">
-            {saved ? (
-              <>
-                <CheckCircle size={16} className="mr-2" />
-                Yadda saxlanıldı!
-              </>
-            ) : (
-              <>
-                <Save size={16} className="mr-2" />
-                Bildiriş Ayarlarını Yadda Saxla
-              </>
-            )}
-          </Button>
-        </form>
+        <div className="h-px bg-border" />
+
+        {/* Minimum Rating */}
+        <div className="space-y-3">
+          <p className="text-sm font-semibold text-foreground">
+            Minimum Rating
+          </p>
+          <Select value={minRating} onValueChange={(v) => setMinRating(v ?? "any")}>
+            <SelectTrigger className="w-[200px] bg-card border-border text-foreground">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="bg-card border-border">
+              <SelectItem value="any">
+                <span className="text-muted-foreground text-sm font-medium">
+                  Any Rating
+                </span>
+              </SelectItem>
+              {[1, 2, 3, 4, 5].map((n) => (
+                <SelectItem key={n} value={String(n)}>
+                  <StarRating count={n} />
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <p className="text-xs text-muted-foreground leading-relaxed max-w-md">
+            Only receive notifications for candidates that meet or exceed this
+            rating. Candidates 3-5 stars should meet all job requirements and
+            are likely a good fit for the role.
+          </p>
+        </div>
+
+        <div className="h-px bg-border" />
+
+        {/* Save Button */}
+        <button
+          onClick={handleSave}
+          className="flex items-center justify-center gap-2 w-full h-12 rounded-xl bg-foreground text-background text-sm font-bold hover:opacity-90 transition-all active:scale-[0.98]"
+        >
+          {saved ? (
+            <>
+              <CheckCircle size={16} />
+              Saved!
+            </>
+          ) : (
+            <>
+              <Save size={16} />
+              Save Notification Settings
+            </>
+          )}
+        </button>
       </div>
     </div>
   );
 }
-
