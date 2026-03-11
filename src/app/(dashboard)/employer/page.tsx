@@ -31,6 +31,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 // ------- Types -------
 type Applicant = {
@@ -418,6 +426,7 @@ function EmployerJobDetail({
   onDelete: (id: string) => void;
 }) {
   const [expanded, setExpanded] = useState(false);
+  const [isPublishDialogOpen, setIsPublishDialogOpen] = useState(false);
   
   const locConfig = locationTypeConfig[job.locationType];
   const jobTypeLabel = jobTypeLabels[job.jobType];
@@ -493,7 +502,13 @@ function EmployerJobDetail({
             Redaktə Et
           </button>
           <button
-            onClick={() => onDelist(job.id!)}
+            onClick={() => {
+              if (job.isActive) {
+                onDelist(job.id!);
+              } else {
+                setIsPublishDialogOpen(true);
+              }
+            }}
             className="h-9 px-4 inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-card hover:bg-muted text-sm font-semibold text-foreground transition-colors shadow-sm"
           >
             {job.isActive ? (
@@ -508,6 +523,37 @@ function EmployerJobDetail({
               </>
             )}
           </button>
+
+          <Dialog open={isPublishDialogOpen} onOpenChange={setIsPublishDialogOpen}>
+            <DialogContent className="sm:max-w-[425px] rounded-2xl dark:bg-[#1C1F26] border-border">
+              <DialogHeader>
+                <DialogTitle className="text-xl font-bold text-foreground">
+                   Elanı Yayımla
+                </DialogTitle>
+                <DialogDescription className="text-muted-foreground pt-2">
+                  Bu elanı yayımlamaq istəyirsinizmi? Elan yayımlandıqdan sonra hamı tərəfindən görünəcək.
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter className="gap-2 sm:gap-0 pt-4">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setIsPublishDialogOpen(false)}
+                  className="rounded-xl border-border bg-transparent hover:bg-muted"
+                >
+                  Xeyr, ləğv et
+                </Button>
+                <Button 
+                  onClick={() => {
+                    onDelist(job.id!);
+                    setIsPublishDialogOpen(false);
+                  }}
+                  className="rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold"
+                >
+                  Bəli, yayımla
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
           {job.isFeatured ? (
             <button
               onClick={() => onToggleFeatured(job.id!)}
