@@ -90,7 +90,7 @@ export default function DashboardLayout({
         </header>
 
         {/* Page content - This will be scrollable depending on children (like JobBoardPage) */}
-        <main className="flex-1 overflow-hidden">
+        <main className="flex-1 overflow-y-auto">
           {children}
         </main>
       </div>

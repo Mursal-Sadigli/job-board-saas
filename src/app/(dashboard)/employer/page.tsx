@@ -554,11 +554,11 @@ function EmployerJobDetail({
                   </DialogDescription>
                 </DialogHeader>
 
-                <DialogFooter className="flex-col sm:flex-row gap-3 mt-8">
+                <DialogFooter className="grid grid-cols-2 gap-3 mt-8">
                   <Button 
-                    variant="outline" 
+                    variant="ghost" 
                     onClick={() => setIsPublishDialogOpen(false)}
-                    className="flex-1 h-12 rounded-2xl border-border bg-transparent hover:bg-muted font-bold text-sm transition-all active:scale-95"
+                    className="h-12 rounded-2xl bg-muted/50 hover:bg-muted font-bold text-sm transition-all active:scale-95"
                   >
                     Xeyr, ləğv et
                   </Button>
@@ -567,7 +567,7 @@ function EmployerJobDetail({
                       onDelist(job.id!);
                       setIsPublishDialogOpen(false);
                     }}
-                    className="flex-1 h-12 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black text-sm shadow-xl shadow-slate-900/10 dark:shadow-white/5 hover:opacity-90 transition-all active:scale-95"
+                    className="h-12 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black text-sm shadow-xl shadow-slate-900/10 dark:shadow-white/5 hover:opacity-90 transition-all active:scale-95"
                   >
                     Bəli, yayımla
                   </Button>
