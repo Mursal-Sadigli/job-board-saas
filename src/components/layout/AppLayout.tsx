@@ -6,6 +6,7 @@ import Sidebar from "@/components/layout/Sidebar";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/utils/cn";
 import { ModeToggle } from "@/components/ModeToggle";
+import { UserButton } from "@clerk/nextjs";
 
 export default function DashboardLayout({
   children,
@@ -64,6 +65,7 @@ export default function DashboardLayout({
 
           <div className="flex items-center gap-3">
             <ModeToggle />
+            <UserButton />
           </div>
         </header>
 
