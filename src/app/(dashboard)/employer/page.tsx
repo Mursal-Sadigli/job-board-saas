@@ -263,33 +263,33 @@ function ApplicationsSection({ applicants, jobId }: { applicants: Applicant[]; j
       </h3>
 
       {/* Filters */}
-      <div className="flex items-center gap-2 mb-4">
-        <div className="relative">
+      <div className="flex flex-wrap items-center gap-3 mb-6">
+        <div className="relative w-full sm:w-auto">
           <select
             value={stageFilter}
             onChange={(e) => setStageFilter(e.target.value as Stage | "all")}
-            className="h-8 rounded-lg border border-border bg-card px-3 pr-8 text-xs font-semibold text-foreground appearance-none shadow-sm hover:bg-muted/50 transition-colors focus:outline-none focus:ring-1 focus:ring-ring cursor-pointer"
+            className="w-full sm:w-auto h-10 rounded-xl border border-border bg-card px-4 pr-10 text-sm font-semibold text-foreground appearance-none shadow-sm hover:bg-muted/50 transition-all focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer"
           >
             <option value="all">Bütün Mərhələlər ({list.length})</option>
             {Object.entries(stageLabels).map(([v, l]) => (
               <option key={v} value={v} className="bg-card text-foreground">{l}</option>
             ))}
           </select>
-          <ChevronDown size={12} className="text-muted-foreground absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <ChevronDown size={14} className="text-muted-foreground absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
         </div>
         
-        <div className="relative">
+        <div className="relative w-full sm:w-auto">
           <select
              value={ratingFilter}
              onChange={(e) => setRatingFilter(e.target.value === "all" ? "all" : Number(e.target.value))}
-             className="h-8 rounded-lg border border-border bg-card px-3 pr-8 text-xs font-semibold text-foreground appearance-none shadow-sm hover:bg-muted/50 transition-colors focus:outline-none focus:ring-1 focus:ring-ring cursor-pointer"
+             className="w-full sm:w-auto h-10 rounded-xl border border-border bg-card px-4 pr-10 text-sm font-semibold text-foreground appearance-none shadow-sm hover:bg-muted/50 transition-all focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer"
           >
              <option value="all">Bütün Reytinqlər</option>
              {[5,4,3,2,1].map(r => (
                <option key={r} value={r} className="bg-card text-foreground">{r} Ulduz</option>
              ))}
           </select>
-          <ChevronDown size={12} className="text-muted-foreground absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <ChevronDown size={14} className="text-muted-foreground absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
         </div>
       </div>
 
@@ -299,44 +299,67 @@ function ApplicationsSection({ applicants, jobId }: { applicants: Applicant[]; j
           <p className="text-sm text-muted-foreground">Müraciət tapılmadı</p>
         </div>
       ) : (
-        <div className="rounded-2xl border border-border bg-card overflow-hidden">
-          {/* Table header */}
-          <div className="grid grid-cols-[2fr_1.5fr_1.5fr_1fr_auto] gap-4 px-5 py-3 border-b border-border bg-muted/20 text-xs font-bold text-muted-foreground select-none">
-            <button onClick={() => handleSort("name")} className="flex items-center gap-1.5 hover:text-foreground transition-colors group text-left">
+        <div className="md:rounded-2xl border-none md:border border-border bg-transparent md:bg-card overflow-hidden">
+          {/* Table header (Desktop Only) */}
+          <div className="hidden md:grid grid-cols-[2fr_1.5fr_1.5fr_1fr_auto] gap-4 px-6 py-4 border-b border-border bg-muted/20 text-xs font-bold text-muted-foreground select-none">
+            <button onClick={() => handleSort("name")} className="flex items-center gap-1.5 hover:text-foreground transition-colors group text-left outline-none">
                Ad <SortIcon field="name" />
             </button>
-            <button onClick={() => handleSort("stage")} className="flex items-center gap-1.5 hover:text-foreground transition-colors group text-left w-fit">
+            <button onClick={() => handleSort("stage")} className="flex items-center gap-1.5 hover:text-foreground transition-colors group text-left w-fit outline-none">
                Mərhələ <SortIcon field="stage" />
             </button>
-            <button onClick={() => handleSort("rating")} className="flex items-center gap-1.5 hover:text-foreground transition-colors group text-left w-fit">
+            <button onClick={() => handleSort("rating")} className="flex items-center gap-1.5 hover:text-foreground transition-colors group text-left w-fit outline-none">
                Reytinq <SortIcon field="rating" />
             </button>
-            <button onClick={() => handleSort("appliedAt")} className="flex items-center gap-1.5 hover:text-foreground transition-colors group text-left w-fit">
-               Müraciət Tarixi <SortIcon field="appliedAt" />
+            <button onClick={() => handleSort("appliedAt")} className="flex items-center gap-1.5 hover:text-foreground transition-colors group text-left w-fit outline-none">
+               Tarix <SortIcon field="appliedAt" />
             </button>
             <span className="w-10"></span>
           </div>
-          {/* Rows */}
-          <div className="divide-y divide-border">
+          {/* Rows / Cards */}
+          <div className="flex flex-col gap-4 md:gap-0 md:divide-y md:divide-border outline-none">
             {filteredAndSorted.map((app) => (
               <div
                 key={app.id}
-                className="grid grid-cols-[2fr_1.5fr_1.5fr_1fr_auto] gap-4 items-center px-5 py-3.5 hover:bg-muted/30 transition-colors"
+                className="flex flex-col md:grid md:grid-cols-[2fr_1.5fr_1.5fr_1fr_auto] gap-4 items-start md:items-center px-5 py-5 md:px-6 md:py-4 bg-card md:bg-transparent border md:border-none border-border rounded-2xl md:rounded-none hover:bg-muted/30 transition-all shadow-sm md:shadow-none"
               >
-                {/* Name */}
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className={cn("w-7 h-7 rounded-full flex items-center justify-center text-white text-[10px] font-bold shrink-0", app.color)}>
-                    {app.initials}
+                {/* Mobile: Top Row (Name & Actions) */}
+                <div className="flex items-center justify-between w-full md:w-auto md:contents">
+                  {/* Name */}
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className={cn("w-9 h-9 md:w-8 md:h-8 rounded-full flex items-center justify-center text-white text-[11px] font-bold shrink-0 shadow-sm", app.color)}>
+                      {app.initials}
+                    </div>
+                    <span className="text-sm md:text-[13px] font-bold text-foreground truncate">{app.name}</span>
                   </div>
-                  <span className="text-sm font-medium text-foreground truncate">{app.name}</span>
+
+                  {/* Actions (Mobile view) */}
+                  <div className="md:hidden">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger
+                         className="w-10 h-10 flex items-center justify-center rounded-xl bg-muted/50 text-muted-foreground hover:text-foreground transition-colors outline-none cursor-pointer"
+                      >
+                         <MoreHorizontal size={18} />
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-56 rounded-2xl shadow-2xl dark:bg-[#1C1F26] border border-border p-2">
+                        <DropdownMenuItem className="cursor-pointer text-sm font-semibold py-3 px-4 rounded-xl focus:bg-slate-100 dark:focus:bg-white/5 transition-all">
+                          CV-ə Bax
+                        </DropdownMenuItem>
+                        <DropdownMenuItem disabled className="text-sm font-semibold text-muted-foreground py-3 px-4 rounded-xl">
+                          Əhatə Məktubu Yoxdur
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                 </div>
 
                 {/* Stage */}
-                <div className="flex items-center gap-1.5">
-                  <div className="relative group">
+                <div className="flex flex-col md:flex-row gap-1.5 w-full md:w-auto">
+                   <span className="md:hidden text-[10px] uppercase font-black tracking-widest text-muted-foreground/60">Mərhələ</span>
+                   <div className="relative group w-fit">
                     <select
                       className={cn(
-                        "text-sm font-medium focus:outline-none bg-transparent cursor-pointer appearance-none pr-4",
+                        "text-sm font-bold focus:outline-none bg-transparent cursor-pointer appearance-none pr-5",
                         stageColors[app.stage]
                       )}
                       value={app.stage}
@@ -346,29 +369,37 @@ function ApplicationsSection({ applicants, jobId }: { applicants: Applicant[]; j
                         <option key={v} value={v} className="bg-card text-foreground">{l}</option>
                       ))}
                     </select>
-                    <ChevronDown size={12} className="text-muted-foreground absolute top-1/2 right-0 -translate-y-1/2 pointer-events-none" />
+                    <ChevronDown size={14} className="text-muted-foreground/60 absolute top-1/2 right-0 -translate-y-1/2 pointer-events-none group-hover:text-foreground transition-colors" />
                   </div>
                 </div>
 
                 {/* Rating */}
-                <StarRating
-                  value={app.rating}
-                  onChange={(v) => updateApplicant(app.id, { rating: v })}
-                />
+                <div className="flex flex-col md:flex-row gap-1.5 w-full md:w-auto">
+                  <span className="md:hidden text-[10px] uppercase font-black tracking-widest text-muted-foreground/60">Reytinq</span>
+                  <StarRating
+                    value={app.rating}
+                    onChange={(v) => updateApplicant(app.id, { rating: v })}
+                  />
+                </div>
 
                 {/* Date */}
-                <span className="text-sm text-foreground">
-                  {new Date(app.appliedAt).toLocaleDateString("en-US", {
-                    month: "numeric",
-                    day: "numeric",
-                    year: "numeric",
-                  })}
-                </span>
+                <div className="flex flex-col md:flex-row gap-1.5 w-full md:w-auto">
+                  <span className="md:hidden text-[10px] uppercase font-black tracking-widest text-muted-foreground/60">Tarix</span>
+                  <span className="text-[13px] md:text-sm font-medium text-foreground">
+                    {new Date(app.appliedAt).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
+                  </span>
+                </div>
 
-                {/* Actions */}
-                <div className="flex justify-end min-w-10">
+                {/* Actions (Desktop Only) */}
+                <div className="hidden md:flex justify-end min-w-10">
                   <DropdownMenu>
-                    <DropdownMenuTrigger className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors outline-none cursor-pointer">
+                    <DropdownMenuTrigger
+                       className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors outline-none cursor-pointer"
+                    >
                       <MoreHorizontal size={14} />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-48 rounded-xl shadow-xl dark:bg-[#1C1F26] border border-border">
@@ -383,6 +414,7 @@ function ApplicationsSection({ applicants, jobId }: { applicants: Applicant[]; j
                 </div>
               </div>
             ))}
+          </div>
             {/* Pagination footer */}
             <div className="px-5 py-3 flex items-center justify-end gap-6 text-xs font-semibold text-muted-foreground">
                <div className="flex items-center gap-2">
@@ -528,8 +560,8 @@ function EmployerJobDetail({
           <Dialog open={isPublishDialogOpen} onOpenChange={setIsPublishDialogOpen}>
             <DialogContent className="sm:max-w-[440px] p-0 overflow-hidden rounded-3xl border-none bg-white dark:bg-[#1C1F26] shadow-2xl isolate">
               {/* Decorative Header Gradient */}
-              <div className="h-32 w-full bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 relative flex items-center justify-center overflow-hidden">
-                <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white via-transparent to-transparent scale-150" />
+              <div className="h-32 w-full bg-linear-to-br from-indigo-600 via-purple-600 to-pink-500 relative flex items-center justify-center overflow-hidden">
+                <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,var(--tw-gradient-stops))] from-white via-transparent to-transparent scale-150" />
                 <div className="relative w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 shadow-xl animate-in zoom-in-50 duration-500">
                   <Sparkles className="w-8 h-8 text-white animate-pulse" />
                 </div>
@@ -576,13 +608,11 @@ function EmployerJobDetail({
             </button>
           ) : (
             <DropdownMenu>
-              <DropdownMenuTrigger>
-                <button
-                  className="h-9 px-4 inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-card hover:bg-muted text-sm font-semibold text-foreground transition-colors shadow-sm"
-                >
-                  <Star size={14} className="text-muted-foreground" />
-                  Önə Çıxart
-                </button>
+              <DropdownMenuTrigger
+                className="h-9 px-4 inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-card hover:bg-muted text-sm font-semibold text-foreground transition-colors shadow-sm outline-none cursor-pointer"
+              >
+                <Star size={14} className="text-muted-foreground" />
+                Önə Çıxart
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48 rounded-xl shadow-xl dark:bg-[#1C1F26] border border-border">
                 <DropdownMenuItem className="cursor-pointer text-sm font-medium py-2.5 px-3 rounded-lg focus:bg-slate-100 dark:focus:bg-white/5">
