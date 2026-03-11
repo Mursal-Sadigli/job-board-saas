@@ -299,144 +299,121 @@ function ApplicationsSection({ applicants, jobId }: { applicants: Applicant[]; j
           <p className="text-sm text-muted-foreground">Müraciət tapılmadı</p>
         </div>
       ) : (
-        <div className="md:rounded-2xl border-none md:border border-border bg-transparent md:bg-card overflow-hidden">
-          {/* Table header (Desktop Only) */}
-          <div className="hidden md:grid grid-cols-[2fr_1.5fr_1.5fr_1fr_auto] gap-4 px-6 py-4 border-b border-border bg-muted/20 text-xs font-bold text-muted-foreground select-none">
-            <button onClick={() => handleSort("name")} className="flex items-center gap-1.5 hover:text-foreground transition-colors group text-left outline-none">
-               Ad <SortIcon field="name" />
-            </button>
-            <button onClick={() => handleSort("stage")} className="flex items-center gap-1.5 hover:text-foreground transition-colors group text-left w-fit outline-none">
-               Mərhələ <SortIcon field="stage" />
-            </button>
-            <button onClick={() => handleSort("rating")} className="flex items-center gap-1.5 hover:text-foreground transition-colors group text-left w-fit outline-none">
-               Reytinq <SortIcon field="rating" />
-            </button>
-            <button onClick={() => handleSort("appliedAt")} className="flex items-center gap-1.5 hover:text-foreground transition-colors group text-left w-fit outline-none">
-               Tarix <SortIcon field="appliedAt" />
-            </button>
-            <span className="w-10"></span>
-          </div>
-          {/* Rows / Cards */}
-          <div className="flex flex-col gap-4 md:gap-0 md:divide-y md:divide-border outline-none">
-            {filteredAndSorted.map((app) => (
-              <div
-                key={app.id}
-                className="flex flex-col md:grid md:grid-cols-[2fr_1.5fr_1.5fr_1fr_auto] gap-4 items-start md:items-center px-5 py-5 md:px-6 md:py-4 bg-card md:bg-transparent border md:border-none border-border rounded-2xl md:rounded-none hover:bg-muted/30 transition-all shadow-sm md:shadow-none"
-              >
-                {/* Mobile: Top Row (Name & Actions) */}
-                <div className="flex items-center justify-between w-full md:w-auto md:contents">
-                  {/* Name */}
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className={cn("w-9 h-9 md:w-8 md:h-8 rounded-full flex items-center justify-center text-white text-[11px] font-bold shrink-0 shadow-sm", app.color)}>
-                      {app.initials}
-                    </div>
-                    <span className="text-sm md:text-[13px] font-bold text-foreground truncate">{app.name}</span>
-                  </div>
-
-                  {/* Actions (Mobile view) */}
-                  <div className="md:hidden">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger
-                         className="w-10 h-10 flex items-center justify-center rounded-xl bg-muted/50 text-muted-foreground hover:text-foreground transition-colors outline-none cursor-pointer"
-                      >
-                         <MoreHorizontal size={18} />
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-56 rounded-2xl shadow-2xl dark:bg-[#1C1F26] border border-border p-2">
-                        <DropdownMenuItem className="cursor-pointer text-sm font-semibold py-3 px-4 rounded-xl focus:bg-slate-100 dark:focus:bg-white/5 transition-all">
-                          CV-ə Bax
-                        </DropdownMenuItem>
-                        <DropdownMenuItem disabled className="text-sm font-semibold text-muted-foreground py-3 px-4 rounded-xl">
-                          Əhatə Məktubu Yoxdur
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                </div>
-
-                {/* Stage */}
-                <div className="flex flex-col md:flex-row gap-1.5 w-full md:w-auto">
-                   <span className="md:hidden text-[10px] uppercase font-black tracking-widest text-muted-foreground/60">Mərhələ</span>
-                   <div className="relative group w-fit">
-                    <select
-                      className={cn(
-                        "text-sm font-bold focus:outline-none bg-transparent cursor-pointer appearance-none pr-5",
-                        stageColors[app.stage]
-                      )}
-                      value={app.stage}
-                      onChange={(e) => updateApplicant(app.id, { stage: e.target.value as Stage })}
-                    >
-                      {Object.entries(stageLabels).map(([v, l]) => (
-                        <option key={v} value={v} className="bg-card text-foreground">{l}</option>
-                      ))}
-                    </select>
-                    <ChevronDown size={14} className="text-muted-foreground/60 absolute top-1/2 right-0 -translate-y-1/2 pointer-events-none group-hover:text-foreground transition-colors" />
-                  </div>
-                </div>
-
-                {/* Rating */}
-                <div className="flex flex-col md:flex-row gap-1.5 w-full md:w-auto">
-                  <span className="md:hidden text-[10px] uppercase font-black tracking-widest text-muted-foreground/60">Reytinq</span>
-                  <StarRating
-                    value={app.rating}
-                    onChange={(v) => updateApplicant(app.id, { rating: v })}
-                  />
-                </div>
-
-                {/* Date */}
-                <div className="flex flex-col md:flex-row gap-1.5 w-full md:w-auto">
-                  <span className="md:hidden text-[10px] uppercase font-black tracking-widest text-muted-foreground/60">Tarix</span>
-                  <span className="text-[13px] md:text-sm font-medium text-foreground">
-                    {new Date(app.appliedAt).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric",
-                    })}
-                  </span>
-                </div>
-
-                {/* Actions (Desktop Only) */}
-                <div className="hidden md:flex justify-end min-w-10">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger
-                       className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors outline-none cursor-pointer"
-                    >
-                      <MoreHorizontal size={14} />
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-48 rounded-xl shadow-xl dark:bg-[#1C1F26] border border-border">
-                      <DropdownMenuItem className="cursor-pointer text-sm font-medium py-2.5 px-3 rounded-lg focus:bg-slate-100 dark:focus:bg-white/5">
-                        CV-ə Bax
-                      </DropdownMenuItem>
-                      <DropdownMenuItem disabled className="text-sm font-medium text-muted-foreground py-2.5 px-3 rounded-lg">
-                        Əhatə Məktubu Yoxdur
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
+        <div className="rounded-2xl border border-border bg-card overflow-hidden">
+          {/* Scrollable Container */}
+          <div className="overflow-x-auto">
+            <div className="min-w-[800px]">
+              {/* Table header */}
+              <div className="grid grid-cols-[2fr_1.5fr_1.5fr_1fr_auto] gap-4 px-6 py-4 border-b border-border bg-muted/20 text-xs font-bold text-muted-foreground select-none">
+                <button onClick={() => handleSort("name")} className="flex items-center gap-1.5 hover:text-foreground transition-colors group text-left outline-none">
+                   Ad <SortIcon field="name" />
+                </button>
+                <button onClick={() => handleSort("stage")} className="flex items-center gap-1.5 hover:text-foreground transition-colors group text-left w-fit outline-none">
+                   Mərhələ <SortIcon field="stage" />
+                </button>
+                <button onClick={() => handleSort("rating")} className="flex items-center gap-1.5 hover:text-foreground transition-colors group text-left w-fit outline-none">
+                   Reytinq <SortIcon field="rating" />
+                </button>
+                <button onClick={() => handleSort("appliedAt")} className="flex items-center gap-1.5 hover:text-foreground transition-colors group text-left w-fit outline-none">
+                   Tarix <SortIcon field="appliedAt" />
+                </button>
+                <span className="w-10"></span>
               </div>
-            ))}
-          </div>
-            {/* Pagination footer */}
-            <div className="px-5 py-3 flex items-center justify-end gap-6 text-xs font-semibold text-muted-foreground">
-               <div className="flex items-center gap-2">
-                 Səhifəbaşına Sətir
-                 <div className="relative">
-                   <select className="bg-transparent font-medium text-foreground focus:outline-none cursor-pointer border rounded-md px-2 py-1 appearance-none pr-6">
-                     <option value="10">10</option>
-                     <option value="20">20</option>
-                   </select>
-                   <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
-                 </div>
-               </div>
-               <div>
-                 Səhifə 1 (Cəmi 1)
-               </div>
-               <div className="flex items-center gap-1">
-                  <button className="w-6 h-6 flex items-center justify-center rounded-md hover:bg-muted transition-colors disabled:opacity-50">«</button>
-                  <button className="w-6 h-6 flex items-center justify-center rounded-md hover:bg-muted transition-colors disabled:opacity-50">‹</button>
-                  <button className="w-6 h-6 flex items-center justify-center rounded-md hover:bg-muted transition-colors disabled:opacity-50">›</button>
-                  <button className="w-6 h-6 flex items-center justify-center rounded-md hover:bg-muted transition-colors disabled:opacity-50">»</button>
-               </div>
+
+              {/* Rows */}
+              <div className="divide-y divide-border">
+                {filteredAndSorted.map((app) => (
+                  <div
+                    key={app.id}
+                    className="grid grid-cols-[2fr_1.5fr_1.5fr_1fr_auto] gap-4 items-center px-6 py-4 hover:bg-muted/30 transition-colors"
+                  >
+                    {/* Name */}
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className={cn("w-8 h-8 rounded-full flex items-center justify-center text-white text-[11px] font-bold shrink-0", app.color)}>
+                        {app.initials}
+                      </div>
+                      <span className="text-sm font-medium text-foreground truncate">{app.name}</span>
+                    </div>
+
+                    {/* Stage */}
+                    <div className="flex items-center gap-1.5">
+                      <div className="relative group">
+                        <select
+                          className={cn(
+                            "text-sm font-medium focus:outline-none bg-transparent cursor-pointer appearance-none pr-4",
+                            stageColors[app.stage]
+                          )}
+                          value={app.stage}
+                          onChange={(e) => updateApplicant(app.id, { stage: e.target.value as Stage })}
+                        >
+                          {Object.entries(stageLabels).map(([v, l]) => (
+                            <option key={v} value={v} className="bg-card text-foreground">{l}</option>
+                          ))}
+                        </select>
+                        <ChevronDown size={14} className="text-muted-foreground absolute top-1/2 right-0 -translate-y-1/2 pointer-events-none" />
+                      </div>
+                    </div>
+
+                    {/* Rating */}
+                    <StarRating
+                      value={app.rating}
+                      onChange={(v) => updateApplicant(app.id, { rating: v })}
+                    />
+
+                    {/* Date */}
+                    <span className="text-sm text-foreground">
+                      {new Date(app.appliedAt).toLocaleDateString("en-US", {
+                        month: "numeric",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
+                    </span>
+
+                    {/* Actions */}
+                    <div className="flex justify-end min-w-10">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger
+                           className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors outline-none cursor-pointer"
+                        >
+                          <MoreHorizontal size={14} />
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-48 rounded-xl shadow-xl dark:bg-[#1C1F26] border border-border">
+                          <DropdownMenuItem className="cursor-pointer text-sm font-medium py-2.5 px-3 rounded-lg focus:bg-slate-100 dark:focus:bg-white/5">
+                            CV-ə Bax
+                          </DropdownMenuItem>
+                          <DropdownMenuItem disabled className="text-sm font-medium text-muted-foreground py-2.5 px-3 rounded-lg">
+                            Əhatə Məktubu Yoxdur
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
+          </div>
+
+          {/* Pagination footer */}
+          <div className="px-6 py-4 border-t border-border flex flex-wrap items-center justify-end gap-6 text-xs font-semibold text-muted-foreground bg-muted/5">
+             <div className="flex items-center gap-2">
+               Səhifəbaşına Sətir
+               <div className="relative">
+                 <select className="bg-transparent font-medium text-foreground focus:outline-none cursor-pointer border rounded-md px-2 py-1 appearance-none pr-6">
+                   <option value="10">10</option>
+                   <option value="20">20</option>
+                 </select>
+                 <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
+               </div>
+             </div>
+             <div>
+               Səhifə 1 (Cəmi 1)
+             </div>
+             <div className="flex items-center gap-1">
+                <button className="w-6 h-6 flex items-center justify-center rounded-md hover:bg-muted transition-colors disabled:opacity-50">«</button>
+                <button className="w-6 h-6 flex items-center justify-center rounded-md hover:bg-muted transition-colors disabled:opacity-50">‹</button>
+                <button className="w-6 h-6 flex items-center justify-center rounded-md hover:bg-muted transition-colors disabled:opacity-50">›</button>
+                <button className="w-6 h-6 flex items-center justify-center rounded-md hover:bg-muted transition-colors disabled:opacity-50">»</button>
+             </div>
           </div>
         </div>
       )}
@@ -558,21 +535,21 @@ function EmployerJobDetail({
           </button>
 
           <Dialog open={isPublishDialogOpen} onOpenChange={setIsPublishDialogOpen}>
-            <DialogContent className="sm:max-w-[440px] p-0 overflow-hidden rounded-3xl border-none bg-white dark:bg-[#1C1F26] shadow-2xl isolate">
+            <DialogContent className="max-w-[calc(100%-2rem)] sm:max-w-[440px] p-0 overflow-hidden rounded-3xl border-none bg-white dark:bg-[#1C1F26] shadow-2xl isolate">
               {/* Decorative Header Gradient */}
-              <div className="h-32 w-full bg-linear-to-br from-indigo-600 via-purple-600 to-pink-500 relative flex items-center justify-center overflow-hidden">
+              <div className="h-28 sm:h-32 w-full bg-linear-to-br from-indigo-600 via-purple-600 to-pink-500 relative flex items-center justify-center overflow-hidden">
                 <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,var(--tw-gradient-stops))] from-white via-transparent to-transparent scale-150" />
-                <div className="relative w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 shadow-xl animate-in zoom-in-50 duration-500">
-                  <Sparkles className="w-8 h-8 text-white animate-pulse" />
+                <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 shadow-xl animate-in zoom-in-50 duration-500">
+                  <Sparkles className="w-7 h-7 sm:w-8 sm:h-8 text-white animate-pulse" />
                 </div>
               </div>
 
-              <div className="px-8 pt-6 pb-8">
+              <div className="px-6 sm:px-8 pt-6 pb-8">
                 <DialogHeader className="space-y-3">
-                  <DialogTitle className="text-2xl font-black text-foreground tracking-tight text-center">
+                  <DialogTitle className="text-xl sm:text-2xl font-black text-foreground tracking-tight text-center">
                     Elanı Yayımla!
                   </DialogTitle>
-                  <DialogDescription className="text-muted-foreground text-center text-[15px] leading-relaxed px-2">
+                  <DialogDescription className="text-muted-foreground text-center text-sm sm:text-[15px] leading-relaxed px-2">
                     Bu elanı yayımladıqdan sonra o, iş axtaranlar üçün dərhal görünən olacaq. Davam etmək istəyirsinizmi?
                   </DialogDescription>
                 </DialogHeader>
