@@ -46,35 +46,43 @@ export default function AISearchPage() {
 
         {/* AI Console / Search Area */}
         <div className="space-y-6 sm:space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-200">
-          <div className="relative group p-1 rounded-[2.5rem] bg-linear-to-br from-border/50 via-primary/10 to-border/50 shadow-2xl">
-            <div className="relative overflow-hidden rounded-[2.2rem] bg-card/90 backdrop-blur-md border border-white/10 dark:border-white/5">
-              <div className="absolute top-0 left-0 w-full h-px bg-linear-to-r from-transparent via-primary/30 to-transparent" />
+          <div className="relative group p-[2px] rounded-[2.5rem] shadow-2xl overflow-hidden bg-transparent max-w-2xl mx-auto">
+            
+            {/* Rotating colored border animation */}
+            <div className="absolute inset-[-200%] animate-[spin_6s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#3b82f6_0%,#8b5cf6_25%,#ec4899_50%,#8b5cf6_75%,#3b82f6_100%)] opacity-70 group-hover:opacity-100 transition-opacity duration-500" />
+            
+            {/* Inner Content Container */}
+            <div className="relative rounded-[calc(2.5rem-2px)] bg-white dark:bg-[#11131A] p-5 sm:p-6 flex flex-col z-10">
               
-              <div className="p-4 sm:p-6 flex flex-col">
-                <div className="flex items-start gap-4 mb-4">
-                   <div className="w-10 h-10 rounded-xl bg-muted/50 flex items-center justify-center shrink-0">
-                     <Search size={18} className="text-muted-foreground group-focus-within:text-primary transition-colors" />
-                   </div>
-                   <textarea
-                     value={prompt}
-                     onChange={(e) => setPrompt(e.target.value)}
-                     className="w-full min-h-[100px] sm:min-h-[120px] bg-transparent text-lg sm:text-xl font-medium placeholder:text-muted-foreground/50 border-none focus:ring-0 focus:outline-none resize-none pt-1"
-                     placeholder="Nə axtarırsınız? (məs. Uzaqdan işləyən, senior səviyyəli dizayn rolları...)"
-                   />
+              {/* Search Icon & Text Area */}
+              <div className="flex gap-4 sm:gap-5 mb-6">
+                <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0">
+                  <Search size={20} className="text-slate-500 dark:text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
                 </div>
+                <input
+                  type="text"
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                  className="w-full h-12 bg-transparent text-lg font-bold text-slate-800 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-600 border-none focus:ring-0 focus:outline-none mb-2"
+                  placeholder="Nə axtarırsınız? (məs. Uzaqdan işləyən dizayn rolları...)"
+                />
+              </div>
 
-                <div className="flex items-center justify-between pt-4 border-t border-border/40">
-                  <div className="hidden sm:flex items-center gap-2 text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest pl-2">
-                    <Sparkles size={12} className="text-primary/50" />
-                    AI Modeli: Pro V2
-                  </div>
-                  <button
-                    disabled={!prompt.trim()}
-                    className="flex items-center justify-center gap-2 px-8 h-12 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-sm font-black transition-all hover:opacity-90 active:scale-95 disabled:opacity-50 disabled:grayscale disabled:scale-100"
-                  >
-                    Analiz Et <ArrowRight size={16} />
-                  </button>
+              {/* Separator */}
+              <div className="w-full h-px bg-slate-100 dark:bg-slate-800/50 mb-5" />
+
+              {/* Footer: Model info & Button */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-2 text-[11px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest pl-2">
+                  <Sparkles size={14} className="text-slate-400 dark:text-slate-500" />
+                  AI Modeli: Pro V2
                 </div>
+                <button
+                  disabled={!prompt.trim()}
+                  className="flex items-center justify-center gap-2 px-8 h-12 w-full sm:w-auto hover:w-auto rounded-2xl bg-slate-500 hover:bg-slate-600 dark:bg-white/10 dark:hover:bg-white/20 text-white text-sm font-bold transition-all shadow-md active:scale-95 disabled:opacity-50"
+                >
+                  Analiz Et <ArrowRight size={16} />
+                </button>
               </div>
             </div>
           </div>
