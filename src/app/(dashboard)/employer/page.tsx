@@ -499,23 +499,33 @@ function EmployerJobDetail({
             {job.isActive ? <EyeOff size={14} className="text-muted-foreground" /> : <Eye size={14} className="text-emerald-500" />}
             {job.isActive ? "Deaktiv Et" : "Aktivləşdir"}
           </button>
-          <DropdownMenu>
-            <DropdownMenuTrigger>
-              <button
-                className="h-9 px-4 inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-card hover:bg-muted text-sm font-semibold text-foreground transition-colors shadow-sm"
-              >
-                <Star size={14} className={cn(job.isFeatured ? "fill-[#8B5CF6] text-[#8B5CF6]" : "text-muted-foreground")} />
-                {job.isFeatured ? "Önə Çıxmanı Ləğv Et" : "Önə Çıxart"}
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48 rounded-xl shadow-xl dark:bg-[#1C1F26] border border-border">
-              <DropdownMenuItem className="cursor-pointer text-sm font-medium py-2.5 px-3 rounded-lg focus:bg-slate-100 dark:focus:bg-white/5">
-                <Link href="/upgrade" className="w-full">
-                   Upgrade plan
-                </Link>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {job.isFeatured ? (
+            <button
+              onClick={() => onToggleFeatured(job.id!)}
+              className="h-9 px-4 inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-card hover:bg-muted text-sm font-semibold text-foreground transition-colors shadow-sm"
+            >
+              <Star size={14} className="fill-[#8B5CF6] text-[#8B5CF6]" />
+              Önə Çıxmanı Ləğv Et
+            </button>
+          ) : (
+            <DropdownMenu>
+              <DropdownMenuTrigger>
+                <button
+                  className="h-9 px-4 inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-card hover:bg-muted text-sm font-semibold text-foreground transition-colors shadow-sm"
+                >
+                  <Star size={14} className="text-muted-foreground" />
+                  Önə Çıxart
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48 rounded-xl shadow-xl dark:bg-[#1C1F26] border border-border">
+                <DropdownMenuItem className="cursor-pointer text-sm font-medium py-2.5 px-3 rounded-lg focus:bg-slate-100 dark:focus:bg-white/5">
+                  <Link href="/upgrade" className="w-full">
+                     Upgrade plan
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
           <button
             onClick={() => onDelete(job.id!)}
             className="h-9 px-4 inline-flex items-center justify-center gap-1.5 rounded-lg border border-red-500/20 bg-red-500/10 text-red-600 dark:text-red-400 hover:bg-red-500 hover:text-white dark:hover:text-white dark:hover:bg-red-500 text-sm font-semibold transition-colors shadow-sm"
