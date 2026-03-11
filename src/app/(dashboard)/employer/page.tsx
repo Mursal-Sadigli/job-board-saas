@@ -520,7 +520,7 @@ function EmployerJobDetail({
               <DropdownMenuContent align="end" className="w-48 rounded-xl shadow-xl dark:bg-[#1C1F26] border border-border">
                 <DropdownMenuItem className="cursor-pointer text-sm font-medium py-2.5 px-3 rounded-lg focus:bg-slate-100 dark:focus:bg-white/5">
                   <Link href="/upgrade" className="w-full">
-                     Upgrade plan
+                     Planı yüksəlt
                   </Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
