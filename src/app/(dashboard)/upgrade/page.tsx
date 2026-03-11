@@ -9,27 +9,27 @@ export default function UpgradePage() {
   return (
     <div className="flex-1 w-full h-full p-4 sm:p-8 md:p-12 overflow-y-auto bg-background">
       <div className="max-w-5xl mx-auto">
-        <div className="mb-12">
-          <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
+        <div className="mb-8 md:mb-12 text-center md:text-left">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-3 md:mb-4">
             Təfərrüatlı Planlar
           </h1>
-          <p className="text-muted-foreground text-lg">
+          <p className="text-muted-foreground text-sm sm:text-base md:text-lg max-w-2xl mx-auto md:mx-0">
             İşə qəbul prosesinizi sürətləndirmək üçün ən uyğun planı seçin.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
           {/* Basic Plan */}
-          <div className="rounded-2xl border border-border dark:border-slate-800 bg-card dark:bg-[#1C1F26] p-6 flex flex-col shadow-sm">
-            <h3 className="text-xl font-bold text-foreground mb-2">Basic</h3>
-            <div className="flex items-end gap-1 mb-4">
-              <span className="text-4xl font-bold text-foreground">
+          <div className="rounded-2xl border border-border dark:border-slate-800 bg-card dark:bg-[#1C1F26] p-5 sm:p-6 md:p-8 flex flex-col shadow-sm">
+            <h3 className="text-lg md:text-xl font-bold text-foreground mb-1 md:mb-2">Basic</h3>
+            <div className="flex items-end gap-1 mb-4 md:mb-6">
+              <span className="text-3xl md:text-4xl font-bold text-foreground">
                 ${annual ? 80 * 10 : 80}
               </span>
-              <span className="text-sm text-muted-foreground mb-1">/ ay</span>
+              <span className="text-xs md:text-sm text-muted-foreground mb-1">/ ay</span>
             </div>
 
-            <div className="flex items-center gap-2 mb-8">
+            <div className="flex items-center gap-2 mb-6 md:mb-8">
               <button
                 type="button"
                 onClick={() => setAnnual(!annual)}
@@ -43,12 +43,12 @@ export default function UpgradePage() {
                   }`}
                 />
               </button>
-              <span className="text-xs font-medium text-foreground/70">
+              <span className="text-[11px] md:text-xs font-medium text-foreground/70">
                 İllik ödəniş
               </span>
             </div>
 
-            <div className="space-y-4 flex-1 mb-8 border-t border-border dark:border-slate-800 pt-6 mt-[-8px]">
+            <div className="space-y-3 md:space-y-4 flex-1 mb-6 md:mb-8 border-t border-border dark:border-slate-800 pt-5 md:pt-6 mt-[-8px]">
               <div className="flex gap-3 text-sm text-foreground/80">
                 <Check size={16} className="text-primary shrink-0 mt-0.5" />
                 <span>İş elanları yaratmaq</span>
@@ -63,25 +63,25 @@ export default function UpgradePage() {
               </div>
             </div>
 
-            <button className="w-full h-11 rounded-lg bg-foreground text-background font-bold text-sm hover:opacity-90 transition-opacity">
+            <button className="w-full h-10 md:h-11 rounded-lg bg-foreground text-background font-bold text-sm hover:opacity-90 transition-opacity">
               Bu plana keç
             </button>
           </div>
 
           {/* Growth Plan */}
-          <div className="rounded-2xl border border-primary/50 dark:border-primary/50 bg-card dark:bg-[#1C1F26] p-6 flex flex-col relative shadow-md">
-            <div className="absolute top-6 right-6 px-2.5 py-1 rounded bg-foreground text-background text-[10px] font-bold tracking-wide">
+          <div className="rounded-2xl border border-primary/50 dark:border-primary/50 bg-card dark:bg-[#1C1F26] p-5 sm:p-6 md:p-8 flex flex-col relative shadow-md">
+            <div className="absolute top-5 right-5 md:top-6 md:right-6 px-2.5 py-1 rounded bg-foreground text-background text-[10px] font-bold tracking-wide">
               Aktiv
             </div>
-            <h3 className="text-xl font-bold text-foreground mb-2">Growth</h3>
-            <div className="flex items-end gap-1 mb-4">
-              <span className="text-4xl font-bold text-foreground">
+            <h3 className="text-lg md:text-xl font-bold text-foreground mb-1 md:mb-2">Growth</h3>
+            <div className="flex items-end gap-1 mb-4 md:mb-6">
+              <span className="text-3xl md:text-4xl font-bold text-foreground">
                 ${annual ? 200 * 10 : 200}
               </span>
-              <span className="text-sm text-muted-foreground mb-1">/ ay</span>
+              <span className="text-xs md:text-sm text-muted-foreground mb-1">/ ay</span>
             </div>
 
-            <div className="flex items-center gap-2 mb-8">
+            <div className="flex items-center gap-2 mb-6 md:mb-8">
               <button
                 type="button"
                 onClick={() => setAnnual(!annual)}
@@ -95,12 +95,12 @@ export default function UpgradePage() {
                   }`}
                 />
               </button>
-              <span className="text-xs font-medium text-foreground/70">
+              <span className="text-[11px] md:text-xs font-medium text-foreground/70">
                 İllik ödəniş
               </span>
             </div>
 
-            <div className="space-y-4 flex-1 mb-8 border-t border-border dark:border-slate-800 pt-6 mt-[-8px]">
+            <div className="space-y-3 md:space-y-4 flex-1 mb-6 md:mb-8 border-t border-border dark:border-slate-800 pt-5 md:pt-6 mt-[-8px]">
               <div className="flex gap-3 text-sm text-foreground/80">
                 <Check size={16} className="text-primary shrink-0 mt-0.5" />
                 <span>1 Önə çıxarılmış elan</span>
@@ -119,22 +119,22 @@ export default function UpgradePage() {
               </div>
             </div>
 
-            <button className="w-full h-11 rounded-lg bg-foreground text-background font-bold text-sm hover:opacity-90 transition-opacity">
+            <button className="w-full h-10 md:h-11 rounded-lg bg-foreground text-background font-bold text-sm hover:opacity-90 transition-opacity">
               Bu plana keç
             </button>
           </div>
 
           {/* Enterprise Plan */}
-          <div className="rounded-2xl border border-border dark:border-slate-800 bg-card dark:bg-[#1C1F26] p-6 flex flex-col shadow-sm">
-            <h3 className="text-xl font-bold text-foreground mb-2">Enterprise</h3>
-            <div className="flex items-end gap-1 mb-4">
-              <span className="text-4xl font-bold text-foreground">
+          <div className="rounded-2xl border border-border dark:border-slate-800 bg-card dark:bg-[#1C1F26] p-5 sm:p-6 md:p-8 flex flex-col shadow-sm">
+            <h3 className="text-lg md:text-xl font-bold text-foreground mb-1 md:mb-2">Enterprise</h3>
+            <div className="flex items-end gap-1 mb-4 md:mb-6">
+              <span className="text-3xl md:text-4xl font-bold text-foreground">
                 ${annual ? 800 * 10 : 800}
               </span>
-              <span className="text-sm text-muted-foreground mb-1">/ ay</span>
+              <span className="text-xs md:text-sm text-muted-foreground mb-1">/ ay</span>
             </div>
 
-            <div className="flex items-center gap-2 mb-8">
+            <div className="flex items-center gap-2 mb-6 md:mb-8">
               <button
                 type="button"
                 onClick={() => setAnnual(!annual)}
@@ -148,12 +148,12 @@ export default function UpgradePage() {
                   }`}
                 />
               </button>
-              <span className="text-xs font-medium text-foreground/70">
+              <span className="text-[11px] md:text-xs font-medium text-foreground/70">
                 İllik ödəniş
               </span>
             </div>
 
-            <div className="space-y-4 flex-1 mb-8 border-t border-border dark:border-slate-800 pt-6 mt-[-8px]">
+            <div className="space-y-3 md:space-y-4 flex-1 mb-6 md:mb-8 border-t border-border dark:border-slate-800 pt-5 md:pt-6 mt-[-8px]">
               <div className="flex gap-3 text-sm text-foreground/80">
                 <Check size={16} className="text-primary shrink-0 mt-0.5" />
                 <span>İş elanları yaratmaq</span>
@@ -172,7 +172,7 @@ export default function UpgradePage() {
               </div>
             </div>
 
-            <button className="w-full h-11 rounded-lg bg-foreground text-background font-bold text-sm hover:opacity-90 transition-opacity">
+            <button className="w-full h-10 md:h-11 rounded-lg bg-foreground text-background font-bold text-sm hover:opacity-90 transition-opacity">
               Bu plana keç
             </button>
           </div>
