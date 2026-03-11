@@ -29,6 +29,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { UpgradePlanModal } from "@/components/employer/UpgradePlanModal";
 
 // ------- Types -------
 type Applicant = {
@@ -430,9 +432,9 @@ function EmployerJobDetail({
           <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-4 leading-tight">
             {job.title}
           </h1>
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex flex-wrap items-center gap-2 mb-4">
             <span className={cn(
-              "inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border",
+              "inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border whitespace-nowrap",
               job.isActive
                 ? "bg-slate-100 dark:bg-white text-slate-900 dark:text-slate-900 border-border"
                 : "bg-muted text-muted-foreground border-border"
@@ -440,34 +442,34 @@ function EmployerJobDetail({
               {job.isActive ? "Aktiv" : "Deaktiv"}
             </span>
             {job.isFeatured && (
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-[#8B5CF6] text-white">
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-[#8B5CF6] text-white whitespace-nowrap">
                 Önə Çıxarılmış
               </span>
             )}
             {job.salary && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border border-border bg-card">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border border-border bg-card whitespace-nowrap">
                 <Banknote size={12} className="text-muted-foreground" />
                 {job.salary}
               </span>
             )}
             {(job.city || job.district) && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border border-border bg-card">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border border-border bg-card whitespace-nowrap">
                 <MapPin size={12} className="text-muted-foreground" />
                 {[job.city, job.district].filter(Boolean).join(", ")}
               </span>
             )}
             {locConfig && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border border-border bg-card">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border border-border bg-card whitespace-nowrap">
                 {locConfig.icon}
                 {locConfig.label === "Uzaqdan" ? "Remote" : locConfig.label}
               </span>
             )}
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border border-border bg-card">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border border-border bg-card whitespace-nowrap">
               <Briefcase size={12} className="text-muted-foreground" />
               {jobTypeLabel === "Tam iş günü" ? "Full Time" : jobTypeLabel}
             </span>
             {job.experienceLevel && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border border-border bg-card text-foreground">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border border-border bg-card text-foreground whitespace-nowrap">
                 <User size={12} className="text-muted-foreground" />
                 {job.experienceLevel === "junior" ? "Junior" : 
                  job.experienceLevel === "mid" ? "Mid Level" : 
@@ -475,7 +477,7 @@ function EmployerJobDetail({
               </span>
             )}
             {job.deadline && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border border-red-500/20 bg-red-500/10 text-red-600 dark:text-red-400">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border border-red-500/20 bg-red-500/10 text-red-600 dark:text-red-400 whitespace-nowrap">
                  Son Tarix: {new Date(job.deadline).toLocaleDateString("az-AZ")}
               </span>
             )}
@@ -497,13 +499,14 @@ function EmployerJobDetail({
             {job.isActive ? <EyeOff size={14} className="text-muted-foreground" /> : <Eye size={14} className="text-emerald-500" />}
             {job.isActive ? "Deaktiv Et" : "Aktivləşdir"}
           </button>
-          <button
-            onClick={() => onToggleFeatured(job.id!)}
-            className="h-9 px-4 inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-card hover:bg-muted text-sm font-semibold text-foreground transition-colors shadow-sm"
-          >
-            <Star size={14} className={cn(job.isFeatured ? "fill-[#8B5CF6] text-[#8B5CF6]" : "text-muted-foreground")} />
-            {job.isFeatured ? "Önə Çıxmanı Ləğv Et" : "Önə Çıxart"}
-          </button>
+          <UpgradePlanModal>
+            <button
+              className="h-9 px-4 inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-card hover:bg-muted text-sm font-semibold text-foreground transition-colors shadow-sm"
+            >
+              <Star size={14} className={cn(job.isFeatured ? "fill-[#8B5CF6] text-[#8B5CF6]" : "text-muted-foreground")} />
+              {job.isFeatured ? "Önə Çıxmanı Ləğv Et" : "Önə Çıxart"}
+            </button>
+          </UpgradePlanModal>
           <button
             onClick={() => onDelete(job.id!)}
             className="h-9 px-4 inline-flex items-center justify-center gap-1.5 rounded-lg border border-red-500/20 bg-red-500/10 text-red-600 dark:text-red-400 hover:bg-red-500 hover:text-white dark:hover:text-white dark:hover:bg-red-500 text-sm font-semibold transition-colors shadow-sm"
