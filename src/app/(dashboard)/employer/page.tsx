@@ -20,6 +20,7 @@ import {
   ChevronUp,
   MoreHorizontal,
   User,
+  Sparkles,
 } from "lucide-react";
 import { cn } from "@/utils/cn";
 import { PostJobModal, type JobFormData } from "@/components/employer/PostJobModal";
@@ -525,33 +526,44 @@ function EmployerJobDetail({
           </button>
 
           <Dialog open={isPublishDialogOpen} onOpenChange={setIsPublishDialogOpen}>
-            <DialogContent className="sm:max-w-[425px] rounded-2xl dark:bg-[#1C1F26] border-border">
-              <DialogHeader>
-                <DialogTitle className="text-xl font-bold text-foreground">
-                   Elanı Yayımla
-                </DialogTitle>
-                <DialogDescription className="text-muted-foreground pt-2">
-                  Bu elanı yayımlamaq istəyirsinizmi? Elan yayımlandıqdan sonra hamı tərəfindən görünəcək.
-                </DialogDescription>
-              </DialogHeader>
-              <DialogFooter className="gap-2 sm:gap-0 pt-4">
-                <Button 
-                  variant="outline" 
-                  onClick={() => setIsPublishDialogOpen(false)}
-                  className="rounded-xl border-border bg-transparent hover:bg-muted"
-                >
-                  Xeyr, ləğv et
-                </Button>
-                <Button 
-                  onClick={() => {
-                    onDelist(job.id!);
-                    setIsPublishDialogOpen(false);
-                  }}
-                  className="rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold"
-                >
-                  Bəli, yayımla
-                </Button>
-              </DialogFooter>
+            <DialogContent className="sm:max-w-[440px] p-0 overflow-hidden rounded-3xl border-none bg-white dark:bg-[#1C1F26] shadow-2xl isolate">
+              {/* Decorative Header Gradient */}
+              <div className="h-32 w-full bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 relative flex items-center justify-center overflow-hidden">
+                <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white via-transparent to-transparent scale-150" />
+                <div className="relative w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 shadow-xl animate-in zoom-in-50 duration-500">
+                  <Sparkles className="w-8 h-8 text-white animate-pulse" />
+                </div>
+              </div>
+
+              <div className="px-8 pt-6 pb-8">
+                <DialogHeader className="space-y-3">
+                  <DialogTitle className="text-2xl font-black text-foreground tracking-tight text-center">
+                    Elanı Yayımla!
+                  </DialogTitle>
+                  <DialogDescription className="text-muted-foreground text-center text-[15px] leading-relaxed px-2">
+                    Bu elanı yayımladıqdan sonra o, iş axtaranlar üçün dərhal görünən olacaq. Davam etmək istəyirsinizmi?
+                  </DialogDescription>
+                </DialogHeader>
+
+                <DialogFooter className="flex-col sm:flex-row gap-3 mt-8">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setIsPublishDialogOpen(false)}
+                    className="flex-1 h-12 rounded-2xl border-border bg-transparent hover:bg-muted font-bold text-sm transition-all active:scale-95"
+                  >
+                    Xeyr, ləğv et
+                  </Button>
+                  <Button 
+                    onClick={() => {
+                      onDelist(job.id!);
+                      setIsPublishDialogOpen(false);
+                    }}
+                    className="flex-1 h-12 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black text-sm shadow-xl shadow-slate-900/10 dark:shadow-white/5 hover:opacity-90 transition-all active:scale-95"
+                  >
+                    Bəli, yayımla
+                  </Button>
+                </DialogFooter>
+              </div>
             </DialogContent>
           </Dialog>
           {job.isFeatured ? (
