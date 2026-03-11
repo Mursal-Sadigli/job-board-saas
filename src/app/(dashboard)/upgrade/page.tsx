@@ -20,7 +20,7 @@ export default function UpgradePage() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Basic Plan */}
-          <div className="rounded-2xl border border-border bg-card p-6 flex flex-col shadow-sm">
+          <div className="rounded-2xl border border-border dark:border-slate-800 bg-card dark:bg-[#1C1F26] p-6 flex flex-col shadow-sm">
             <h3 className="text-xl font-bold text-foreground mb-2">Basic</h3>
             <div className="flex items-end gap-1 mb-4">
               <span className="text-4xl font-bold text-foreground">
@@ -48,7 +48,7 @@ export default function UpgradePage() {
               </span>
             </div>
 
-            <div className="space-y-4 flex-1 mb-8">
+            <div className="space-y-4 flex-1 mb-8 border-t border-border dark:border-slate-800 pt-6 mt-[-8px]">
               <div className="flex gap-3 text-sm text-foreground/80">
                 <Check size={16} className="text-primary shrink-0 mt-0.5" />
                 <span>İş elanları yaratmaq</span>
@@ -69,7 +69,7 @@ export default function UpgradePage() {
           </div>
 
           {/* Growth Plan */}
-          <div className="rounded-2xl border border-primary/50 bg-card p-6 flex flex-col relative shadow-md">
+          <div className="rounded-2xl border border-primary/50 dark:border-primary/50 bg-card dark:bg-[#1C1F26] p-6 flex flex-col relative shadow-md">
             <div className="absolute top-6 right-6 px-2.5 py-1 rounded bg-foreground text-background text-[10px] font-bold tracking-wide">
               Aktiv
             </div>
@@ -100,7 +100,7 @@ export default function UpgradePage() {
               </span>
             </div>
 
-            <div className="space-y-4 flex-1 mb-8 border-t border-border pt-6 mt-[-8px]">
+            <div className="space-y-4 flex-1 mb-8 border-t border-border dark:border-slate-800 pt-6 mt-[-8px]">
               <div className="flex gap-3 text-sm text-foreground/80">
                 <Check size={16} className="text-primary shrink-0 mt-0.5" />
                 <span>1 Önə çıxarılmış elan</span>
@@ -125,7 +125,7 @@ export default function UpgradePage() {
           </div>
 
           {/* Enterprise Plan */}
-          <div className="rounded-2xl border border-border bg-card p-6 flex flex-col shadow-sm">
+          <div className="rounded-2xl border border-border dark:border-slate-800 bg-card dark:bg-[#1C1F26] p-6 flex flex-col shadow-sm">
             <h3 className="text-xl font-bold text-foreground mb-2">Enterprise</h3>
             <div className="flex items-end gap-1 mb-4">
               <span className="text-4xl font-bold text-foreground">
@@ -153,7 +153,7 @@ export default function UpgradePage() {
               </span>
             </div>
 
-            <div className="space-y-4 flex-1 mb-8 border-t border-border pt-6 mt-[-8px]">
+            <div className="space-y-4 flex-1 mb-8 border-t border-border dark:border-slate-800 pt-6 mt-[-8px]">
               <div className="flex gap-3 text-sm text-foreground/80">
                 <Check size={16} className="text-primary shrink-0 mt-0.5" />
                 <span>İş elanları yaratmaq</span>
