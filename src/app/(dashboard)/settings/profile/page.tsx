@@ -34,6 +34,9 @@ import {
 export default function ProfilePage() {
   const { user } = useUser();
   const [saved, setSaved] = useState(false);
+  const [newSkill, setNewSkill] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Initial Mock Data
   const [profile, setProfile] = useState<CandidateProfile>({
@@ -76,6 +79,21 @@ export default function ProfilePage() {
   const handleSave = () => {
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+
+    try {
+      setIsUploading(true);
+      await user.setProfileImage({ file });
+      // Clerk updates session automatically, image reflects via user.imageUrl
+    } catch (error) {
+      console.error("Error uploading image:", error);
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const addSkill = (skill: string) => {
@@ -130,26 +148,6 @@ export default function ProfilePage() {
             </p>
           </div>
         </div>
-        
-        <Button 
-          onClick={handleSave}
-          className={cn(
-            "h-12 px-8 rounded-2xl font-bold transition-all active:scale-95 shadow-lg shadow-primary/20",
-            saved ? "bg-emerald-500 hover:bg-emerald-600" : "bg-primary hover:bg-primary/90"
-          )}
-        >
-          {saved ? (
-            <div className="flex items-center gap-2">
-              <CheckCircle size={18} />
-              Yadda saxlanıldı
-            </div>
-          ) : (
-            <div className="flex items-center gap-2">
-              <Save size={18} />
-              Dəyişiklikləri Saxla
-            </div>
-          )}
-        </Button>
       </div>
 
       <div className="max-w-4xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -162,7 +160,20 @@ export default function ProfilePage() {
             
             <div className="flex flex-col items-center text-center relative z-10">
               <div className="relative mb-6">
-                <div className="w-32 h-32 rounded-[2.5rem] bg-muted border-4 border-background shadow-2xl flex items-center justify-center overflow-hidden group/avatar">
+                <input 
+                  type="file" 
+                  ref={fileInputRef} 
+                  onChange={handleImageUpload} 
+                  accept="image/*" 
+                  className="hidden" 
+                />
+                <div 
+                  onClick={() => fileInputRef.current?.click()}
+                  className={cn(
+                    "w-32 h-32 rounded-[2.5rem] bg-muted border-4 border-background shadow-2xl flex items-center justify-center overflow-hidden group/avatar relative cursor-pointer transition-all hover:scale-105",
+                    isUploading && "animate-pulse opacity-70"
+                  )}
+                >
                   {user?.imageUrl ? (
                     <img src={user.imageUrl} alt="Avatar" className="w-full h-full object-cover" />
                   ) : (
@@ -170,8 +181,13 @@ export default function ProfilePage() {
                       {profile.firstName[0]}{profile.lastName[0]}
                     </span>
                   )}
-                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover/avatar:opacity-100 transition-opacity cursor-pointer">
-                    <Camera size={24} className="text-white" />
+                  
+                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover/avatar:opacity-100 transition-opacity">
+                    {isUploading ? (
+                      <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <Camera size={24} className="text-white" />
+                    )}
                   </div>
                 </div>
                 <div className="absolute -bottom-2 -right-2 w-10 h-10 rounded-2xl bg-primary text-primary-foreground flex items-center justify-center shadow-lg border-4 border-background">
@@ -211,22 +227,36 @@ export default function ProfilePage() {
 
           {/* Skills Section */}
           <div className="bg-card border border-border rounded-[2.5rem] p-8 shadow-xl shadow-shadow/5">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center">
-                  <Layers size={16} className="text-amber-500" />
-                </div>
-                <h3 className="font-bold text-foreground">Bacarıqlar</h3>
+            <div className="flex items-center gap-2 mb-6">
+              <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center">
+                <Layers size={16} className="text-amber-500" />
               </div>
-              <button 
-                onClick={() => {
-                  const s = prompt("Bacarıq əlavə edin:");
-                  if (s) addSkill(s);
+              <h3 className="font-bold text-foreground">Bacarıqlar</h3>
+            </div>
+            
+            <div className="flex gap-2 mb-6">
+              <Input 
+                value={newSkill}
+                onChange={(e) => setNewSkill(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    addSkill(newSkill);
+                    setNewSkill("");
+                  }
                 }}
-                className="w-8 h-8 rounded-lg bg-muted hover:bg-primary hover:text-primary-foreground transition-all flex items-center justify-center shadow-sm"
+                placeholder="Bacarıq əlavə et..."
+                className="bg-muted/30 border-border rounded-xl h-10 text-xs"
+              />
+              <Button 
+                onClick={() => {
+                  addSkill(newSkill);
+                  setNewSkill("");
+                }}
+                size="sm"
+                className="h-10 rounded-xl px-3 bg-primary"
               >
                 <Plus size={16} />
-              </button>
+              </Button>
             </div>
             
             <div className="flex flex-wrap gap-2">
@@ -252,6 +282,61 @@ export default function ProfilePage() {
 
         {/* Right Column - Main Info */}
         <div className="lg:col-span-2 space-y-8">
+          {/* Personal Info Section - NEW */}
+          <div className="bg-card border border-border rounded-[2.5rem] p-8 shadow-xl shadow-shadow/5">
+            <h3 className="text-lg font-black text-foreground mb-8 flex items-center gap-3">
+              <span className="w-1.5 h-6 bg-pink-500 rounded-full" />
+              Şəxsi Məlumatlar
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-1">
+                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground px-1">AD</label>
+                <Input 
+                  value={profile.firstName}
+                  onChange={(e) => setProfile(prev => ({ ...prev, firstName: e.target.value }))}
+                  placeholder="Adınız"
+                  className="bg-muted/30 border-border rounded-xl h-12 font-bold focus:ring-2 focus:ring-primary/20"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground px-1">SOYAD</label>
+                <Input 
+                  value={profile.lastName}
+                  onChange={(e) => setProfile(prev => ({ ...prev, lastName: e.target.value }))}
+                  placeholder="Soyadınız"
+                  className="bg-muted/30 border-border rounded-xl h-12 font-bold focus:ring-2 focus:ring-primary/20"
+                />
+              </div>
+              <div className="space-y-1 md:col-span-2">
+                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground px-1">PEŞƏKAR BAŞLIQ</label>
+                <Input 
+                  value={profile.title}
+                  onChange={(e) => setProfile(prev => ({ ...prev, title: e.target.value }))}
+                  placeholder="Məs: Senior Frontend Developer"
+                  className="bg-muted/30 border-border rounded-xl h-12 font-bold focus:ring-2 focus:ring-primary/20"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground px-1">TELEFON</label>
+                <Input 
+                  value={profile.phone}
+                  onChange={(e) => setProfile(prev => ({ ...prev, phone: e.target.value }))}
+                  placeholder="+994 -- --- -- --"
+                  className="bg-muted/30 border-border rounded-xl h-12 font-bold focus:ring-2 focus:ring-primary/20"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground px-1">MƏKAN</label>
+                <Input 
+                  value={profile.location}
+                  onChange={(e) => setProfile(prev => ({ ...prev, location: e.target.value }))}
+                  placeholder="Məs: Bakı, Azərbaycan"
+                  className="bg-muted/30 border-border rounded-xl h-12 font-bold focus:ring-2 focus:ring-primary/20"
+                />
+              </div>
+            </div>
+          </div>
+
           {/* About Me Section */}
           <div className="bg-card border border-border rounded-[2.5rem] p-8 shadow-xl shadow-shadow/5">
             <h3 className="text-lg font-black text-foreground mb-6 flex items-center gap-3">
@@ -289,18 +374,18 @@ export default function ProfilePage() {
                 <div key={exp.id} className="relative pl-8 group">
                   {/* Timeline connector */}
                   {idx < profile.experience.length - 1 && (
-                    <div className="absolute left-3 top-8 bottom-[-2rem] w-0.5 bg-border group-hover:bg-primary/20 transition-colors" />
+                    <div className="absolute left-3 top-8 -bottom-8 w-0.5 bg-border group-hover:bg-primary/20 transition-colors" />
                   )}
                   <div className="absolute left-[3px] top-[6px] w-5 h-5 rounded-full bg-background border-4 border-primary shadow-sm z-10" />
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-4">
+                  <div className="grid grid-cols-1 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-1">
                         <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground px-1">ŞİRKƏT</label>
                         <Input 
                           value={exp.company}
                           placeholder="Məs: Google"
-                          className="bg-muted/30 border-border rounded-xl h-10 font-bold"
+                          className="bg-muted/30 border-border rounded-xl h-12 font-bold px-4"
                           onChange={(e) => {
                             const newExp = [...profile.experience];
                             newExp[idx].company = e.target.value;
@@ -313,7 +398,7 @@ export default function ProfilePage() {
                         <Input 
                           value={exp.position}
                           placeholder="Məs: UI/UX Designer"
-                          className="bg-muted/30 border-border rounded-xl h-10 font-bold"
+                          className="bg-muted/30 border-border rounded-xl h-12 font-bold px-4"
                           onChange={(e) => {
                             const newExp = [...profile.experience];
                             newExp[idx].position = e.target.value;
@@ -322,14 +407,14 @@ export default function ProfilePage() {
                         />
                       </div>
                     </div>
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
+                      <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-1">
                           <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground px-1">BAŞLAMA</label>
                           <Input 
                             type="month"
                             value={exp.startDate}
-                            className="bg-muted/30 border-border rounded-xl h-10"
+                            className="bg-muted/30 border-border rounded-xl h-12 font-medium px-4"
                             onChange={(e) => {
                               const newExp = [...profile.experience];
                               newExp[idx].startDate = e.target.value;
@@ -343,7 +428,7 @@ export default function ProfilePage() {
                             type="month"
                             disabled={exp.current}
                             value={exp.endDate}
-                            className="bg-muted/30 border-border rounded-xl h-10"
+                            className="bg-muted/30 border-border rounded-xl h-12 font-medium px-4"
                             onChange={(e) => {
                               const newExp = [...profile.experience];
                               newExp[idx].endDate = e.target.value;
@@ -352,7 +437,7 @@ export default function ProfilePage() {
                           />
                         </div>
                       </div>
-                      <div className="flex items-center gap-2 pt-2 px-1">
+                      <div className="flex items-center gap-2 pb-3 px-1">
                         <input 
                           type="checkbox"
                           checked={exp.current}
@@ -361,7 +446,7 @@ export default function ProfilePage() {
                             newExp[idx].current = e.target.checked;
                             setProfile(prev => ({ ...prev, experience: newExp }));
                           }}
-                          className="w-4 h-4 rounded border-border bg-muted/30 text-primary focus:ring-primary/20"
+                          className="w-5 h-5 rounded border-border bg-muted/30 text-primary focus:ring-primary/20"
                         />
                         <span className="text-xs font-bold text-muted-foreground uppercase tracking-tight">Hazırda burada işləyirəm</span>
                       </div>
@@ -416,52 +501,52 @@ export default function ProfilePage() {
             <div className="space-y-6">
               {profile.education.map((edu) => (
                 <div key={edu.id} className="p-6 rounded-3xl bg-muted/20 border border-border group relative">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-4">
-                      <div className="space-y-1">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground px-1">MÜƏSSİSƏ</label>
+                  <div className="grid grid-cols-1 gap-6">
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground px-1">MÜƏSSİSƏ</label>
+                      <Input 
+                        value={edu.school}
+                        placeholder="Məs: ADA Universiteti"
+                        className="bg-background border-border rounded-xl h-12 font-bold px-4"
+                        onChange={(e) => {
+                          const newEdu = profile.education.map(ed => ed.id === edu.id ? { ...ed, school: e.target.value } : ed);
+                          setProfile(prev => ({ ...prev, education: newEdu }));
+                        }}
+                      />
+                    </div>
+                    
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground px-1">DƏRƏCƏ VƏ SAHƏ</label>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <Input 
-                          value={edu.school}
-                          placeholder="Məs: ADA Universiteti"
-                          className="bg-background border-border rounded-xl h-10 font-bold"
+                          value={edu.degree}
+                          placeholder="Dərəcə"
+                          className="sm:col-span-1 bg-background border-border rounded-xl h-12 font-bold px-4 w-full"
                           onChange={(e) => {
-                            const newEdu = profile.education.map(ed => ed.id === edu.id ? { ...ed, school: e.target.value } : ed);
+                            const newEdu = profile.education.map(ed => ed.id === edu.id ? { ...ed, degree: e.target.value } : ed);
+                            setProfile(prev => ({ ...prev, education: newEdu }));
+                          }}
+                        />
+                        <Input 
+                          value={edu.field}
+                          placeholder="Məs: İnformasiya Texnologiyaları"
+                          className="sm:col-span-2 bg-background border-border rounded-xl h-12 font-bold px-4 w-full"
+                          onChange={(e) => {
+                            const newEdu = profile.education.map(ed => ed.id === edu.id ? { ...ed, field: e.target.value } : ed);
                             setProfile(prev => ({ ...prev, education: newEdu }));
                           }}
                         />
                       </div>
-                      <div className="space-y-1">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground px-1">DƏRƏCƏ VƏ SAHƏ</label>
-                        <div className="flex gap-2">
-                          <Input 
-                            value={edu.degree}
-                            placeholder="Məs: Bakalavr"
-                            className="bg-background border-border rounded-xl h-10 font-bold w-1/3"
-                            onChange={(e) => {
-                              const newEdu = profile.education.map(ed => ed.id === edu.id ? { ...ed, degree: e.target.value } : ed);
-                              setProfile(prev => ({ ...prev, education: newEdu }));
-                            }}
-                          />
-                          <Input 
-                            value={edu.field}
-                            placeholder="Məs: İnformasiya Texnologiyaları"
-                            className="bg-background border-border rounded-xl h-10 font-bold flex-1"
-                            onChange={(e) => {
-                              const newEdu = profile.education.map(ed => ed.id === edu.id ? { ...ed, field: e.target.value } : ed);
-                              setProfile(prev => ({ ...prev, education: newEdu }));
-                            }}
-                          />
-                        </div>
-                      </div>
                     </div>
-                    <div className="space-y-4">
-                       <div className="grid grid-cols-2 gap-3">
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-1">
                           <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground px-1">BAŞLAMA</label>
                           <Input 
                             type="month"
                             value={edu.startDate}
-                            className="bg-background border-border rounded-xl h-10"
+                            className="bg-background border-border rounded-xl h-12 font-medium px-4"
                             onChange={(e) => {
                               const newEdu = profile.education.map(ed => ed.id === edu.id ? { ...ed, startDate: e.target.value } : ed);
                               setProfile(prev => ({ ...prev, education: newEdu }));
@@ -473,7 +558,7 @@ export default function ProfilePage() {
                           <Input 
                             type="month"
                             value={edu.endDate}
-                            className="bg-background border-border rounded-xl h-10"
+                            className="bg-background border-border rounded-xl h-12 font-medium px-4"
                             onChange={(e) => {
                               const newEdu = profile.education.map(ed => ed.id === edu.id ? { ...ed, endDate: e.target.value } : ed);
                               setProfile(prev => ({ ...prev, education: newEdu }));
@@ -481,6 +566,7 @@ export default function ProfilePage() {
                           />
                         </div>
                       </div>
+                      <div />
                     </div>
                   </div>
                   <button 
@@ -502,7 +588,6 @@ export default function ProfilePage() {
               <span className="w-1.5 h-6 bg-orange-500 rounded-full" />
               Sosial Linklər
             </h3>
-
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="group space-y-2">
                 <div className="flex items-center gap-2 px-1">
@@ -512,7 +597,20 @@ export default function ProfilePage() {
                 <Input 
                   placeholder="linkedin.com/in/username"
                   value={profile.socialLinks.find(l => l.platform === 'linkedin')?.url || ""}
-                  className="bg-muted/30 border-border rounded-xl h-12 focus:border-[#0077b5] focus:ring-[#0077b5]/10"
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setProfile(prev => {
+                      const existing = prev.socialLinks.findIndex(l => l.platform === 'linkedin');
+                      const newSocial = [...prev.socialLinks];
+                      if (existing > -1) {
+                        newSocial[existing] = { ...newSocial[existing], url: value };
+                      } else {
+                        newSocial.push({ platform: 'linkedin', url: value });
+                      }
+                      return { ...prev, socialLinks: newSocial };
+                    });
+                  }}
+                  className="bg-muted/30 border-border rounded-xl h-12 focus:border-[#0077b5] focus:ring-[#0077b5]/10 font-medium"
                 />
               </div>
               <div className="group space-y-2">
@@ -523,7 +621,20 @@ export default function ProfilePage() {
                 <Input 
                   placeholder="github.com/username"
                   value={profile.socialLinks.find(l => l.platform === 'github')?.url || ""}
-                  className="bg-muted/30 border-border rounded-xl h-12 focus:border-foreground focus:ring-foreground/10"
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setProfile(prev => {
+                      const existing = prev.socialLinks.findIndex(l => l.platform === 'github');
+                      const newSocial = [...prev.socialLinks];
+                      if (existing > -1) {
+                        newSocial[existing] = { ...newSocial[existing], url: value };
+                      } else {
+                        newSocial.push({ platform: 'github', url: value });
+                      }
+                      return { ...prev, socialLinks: newSocial };
+                    });
+                  }}
+                  className="bg-muted/30 border-border rounded-xl h-12 focus:border-foreground focus:ring-foreground/10 font-medium"
                 />
               </div>
               <div className="group space-y-2">
@@ -534,7 +645,20 @@ export default function ProfilePage() {
                 <Input 
                   placeholder="www.portfolio.com"
                   value={profile.socialLinks.find(l => l.platform === 'portfolio')?.url || ""}
-                  className="bg-muted/30 border-border rounded-xl h-12 focus:border-emerald-500 focus:ring-emerald-500/10"
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setProfile(prev => {
+                      const existing = prev.socialLinks.findIndex(l => l.platform === 'portfolio');
+                      const newSocial = [...prev.socialLinks];
+                      if (existing > -1) {
+                        newSocial[existing] = { ...newSocial[existing], url: value };
+                      } else {
+                        newSocial.push({ platform: 'portfolio', url: value });
+                      }
+                      return { ...prev, socialLinks: newSocial };
+                    });
+                  }}
+                  className="bg-muted/30 border-border rounded-xl h-12 focus:border-emerald-500 focus:ring-emerald-500/10 font-medium"
                 />
               </div>
             </div>
@@ -542,8 +666,30 @@ export default function ProfilePage() {
         </div>
       </div>
       
-      {/* Bottom Padding */}
-      <div className="h-20" />
+      {/* Centered Save Button at the Bottom */}
+      <div className="max-w-4xl mx-auto mt-12 flex justify-center pb-20">
+        <Button 
+          onClick={handleSave}
+          className={cn(
+            "h-14 px-12 rounded-2xl font-black text-sm uppercase tracking-widest transition-all active:scale-95 shadow-xl",
+            saved 
+              ? "bg-emerald-500 text-white hover:bg-emerald-600 shadow-emerald-500/20" 
+              : "bg-primary text-primary-foreground hover:opacity-90 shadow-primary/20"
+          )}
+        >
+          {saved ? (
+            <div className="flex items-center gap-2">
+              <CheckCircle size={20} />
+              Yadda Saxlanıldı
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <Save size={20} />
+              Dəyişiklikləri Saxla
+            </div>
+          )}
+        </Button>
+      </div>
     </div>
   );
 }
