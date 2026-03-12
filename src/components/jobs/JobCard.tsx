@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Job } from "@/types/job";
 import { formatRelativeTime } from "@/utils/formatters";
 import { cn } from "@/utils/cn";
@@ -46,6 +46,12 @@ const expLevelConfig: Record<string, string> = {
 
 export default function JobCard({ job, onClick, isSelected }: JobCardProps) {
   const [logoError, setLogoError] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   const locConfig = locationTypeConfig[job.locationType] || locationTypeConfig.any;
   const expLabel = expLevelConfig[job.experienceLevel] || expLevelConfig.any;
 
@@ -103,7 +109,7 @@ export default function JobCard({ job, onClick, isSelected }: JobCardProps) {
             {/* Time + New badge */}
             <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-2 shrink-0">
               <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">
-                {formatRelativeTime(job.postedAt)}
+                {isMounted ? formatRelativeTime(job.postedAt) : "..."}
               </span>
               {job.isNew && (
                 <span className="inline-flex items-center px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-[8px] sm:text-[9px] font-black uppercase tracking-[0.15em] bg-foreground text-background shadow-sm">
