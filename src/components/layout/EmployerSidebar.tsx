@@ -70,11 +70,11 @@ export default function EmployerSidebar({
           className={cn(
             "flex items-center gap-3 px-4 py-3.5 rounded-[14px] text-sm font-bold transition-all w-full",
             pathname === ROUTES.employer
-              ? "bg-[#8B5CF6] text-white shadow-md shadow-[#8B5CF6]/20"
-              : "text-slate-600 hover:bg-slate-100"
+              ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
+              : "text-muted-foreground hover:bg-muted"
           )}
         >
-          <Building2 size={18} className={cn("shrink-0", pathname === ROUTES.employer ? "text-white" : "text-slate-400")} />
+          <Building2 size={18} className={cn("shrink-0", pathname === ROUTES.employer ? "text-primary-foreground" : "text-muted-foreground/60")} />
           {!isCollapsed && <span>Paneli İdarə Et</span>}
         </Link>
         
@@ -83,10 +83,10 @@ export default function EmployerSidebar({
           onClick={() => onNavigate?.()}
           className={cn(
             "flex items-center gap-3 px-4 py-3 rounded-xl text-[15px] font-medium transition-all w-full",
-            "text-slate-500 hover:text-slate-900"
+            "text-muted-foreground hover:text-foreground"
           )}
         >
-          <ArrowLeft size={18} className="shrink-0 text-slate-400" />
+          <ArrowLeft size={18} className="shrink-0 text-muted-foreground/60" />
           {!isCollapsed && <span>Əsas Səhifəyə Qayıt</span>}
         </Link>
       </nav>
@@ -129,11 +129,11 @@ export default function EmployerSidebar({
           <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
             <DropdownMenuTrigger
               className={cn(
-                "w-full flex items-center rounded-xl hover:bg-slate-50 transition-all group outline-none py-2 border border-transparent cursor-pointer",
+                "w-full flex items-center rounded-xl hover:bg-muted/50 transition-all group outline-none py-2 border border-transparent cursor-pointer",
                 isCollapsed ? "justify-center px-0" : "px-0 gap-3"
               )}
             >
-              <div className="w-11 h-11 rounded-full flex items-center justify-center shrink-0 text-base font-bold bg-[#8B5CF6] text-white shadow-sm uppercase">
+              <div className="w-11 h-11 rounded-full flex items-center justify-center shrink-0 text-base font-bold bg-primary text-primary-foreground shadow-sm uppercase">
                 {initials}
               </div>
               {!isCollapsed && (
@@ -142,14 +142,14 @@ export default function EmployerSidebar({
                     <p className="text-[15px] font-bold text-foreground truncate">
                       {displayName}
                     </p>
-                    <p className="text-[13px] text-slate-500 truncate font-medium">
+                    <p className="text-[13px] text-muted-foreground truncate font-medium">
                       {displayEmail}
                     </p>
                   </div>
                   <ChevronDown
                     size={16}
                     className={cn(
-                      "transition-transform duration-300 shrink-0 text-slate-400 font-bold",
+                      "transition-transform duration-300 shrink-0 text-muted-foreground/60 font-bold",
                       dropdownOpen && "rotate-180"
                     )}
                   />
@@ -163,37 +163,37 @@ export default function EmployerSidebar({
               className="w-[260px] rounded-2xl p-2 border-border shadow-2xl bg-white dark:bg-[#1C1F26] isolate z-100"
             >
               <DropdownMenuItem
-                className="cursor-pointer gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 transition-all font-medium text-sm"
+                className="cursor-pointer gap-3 px-3 py-2.5 rounded-xl hover:bg-muted transition-all font-medium text-sm"
                 onClick={() => handleNavigate(ROUTES.employer)}
               >
-                <Building2 size={16} className="text-slate-400 shrink-0" />
+                <Building2 size={16} className="text-muted-foreground/60 shrink-0" />
                 <span>Təşkilatı İdarə Et</span>
               </DropdownMenuItem>
 
               <DropdownMenuItem
-                className="cursor-pointer gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 transition-all font-medium text-sm"
+                className="cursor-pointer gap-3 px-3 py-2.5 rounded-xl hover:bg-muted transition-all font-medium text-sm"
                 onClick={() => handleNavigate(ROUTES.settings.notifications)}
               >
-                <Users size={16} className="text-slate-400 shrink-0" />
+                <Users size={16} className="text-muted-foreground/60 shrink-0" />
                 <span>İstifadəçi Parametrləri</span>
               </DropdownMenuItem>
 
               <DropdownMenuItem
-                className="cursor-pointer gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 transition-all font-medium text-sm"
+                className="cursor-pointer gap-3 px-3 py-2.5 rounded-xl hover:bg-muted transition-all font-medium text-sm"
                 onClick={() => handleNavigate("/upgrade")}
               >
-                <CreditCard size={16} className="text-slate-400 shrink-0" />
+                <CreditCard size={16} className="text-muted-foreground/60 shrink-0" />
                 <span>Planı Dəyiş</span>
               </DropdownMenuItem>
 
               <DropdownMenuItem
-                className="cursor-pointer gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 transition-all font-medium text-sm"
+                className="cursor-pointer gap-3 px-3 py-2.5 rounded-xl hover:bg-muted transition-all font-medium text-sm"
                 onClick={() => {
                   setDropdownOpen(false);
                   setOrgSwitcherOpen(true);
                 }}
               >
-                <ArrowLeftRight size={16} className="text-slate-400 shrink-0" />
+                <ArrowLeftRight size={16} className="text-muted-foreground/60 shrink-0" />
                 <span>Təşkilatı Dəyiş</span>
               </DropdownMenuItem>
 

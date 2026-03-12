@@ -21,6 +21,7 @@ import {
   MoreHorizontal,
   User,
   Sparkles,
+  Menu,
 } from "lucide-react";
 import { cn } from "@/utils/cn";
 import { PostJobModal, type JobFormData } from "@/components/employer/PostJobModal";
@@ -45,6 +46,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { CreditCard, ArrowLeftRight, LogOut, ArrowLeft, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 // ------- Types -------
 const FALLBACK_USER = {
@@ -78,11 +80,11 @@ type Job = JobFormData & {
 // ------- Config -------
 const stageLabels: Record<Stage, string> = {
   applied: "Müraciət",
-  screening: "Seçim",
+  screening: "İlkin seçim",
   interview: "Müsahibə",
   offer: "Təklif",
-  hired: "Qəbul",
-  rejected: "Rədd",
+  hired: "İşə qəbul",
+  rejected: "İmtina",
 };
 
 const stageColors: Record<Stage, string> = {
@@ -113,63 +115,65 @@ const mockApplicants: Applicant[] = [
   { id: "2", name: "Kyle Cook", initials: "KC", color: "bg-slate-500", stage: "applied", rating: 4, appliedAt: "2025-06-05" },
 ];
 
+
+
 const MOCK_JOBS: Job[] = [
   {
     id: "3",
-    title: "UX Engineer, Android XR",
+    title: "UX Mühəndis, Android XR",
     locationType: "remote",
     jobType: "full-time",
-    salary: "$225 / hr",
-    description: `<p><strong>Minimum qualifications:</strong></p><ul><li>Bachelor's degree or equivalent practical experience.</li><li>4 years of experience with front-end development, technical UX design, or prototyping.</li><li>Experience with Android UI prototyping or development.</li><li>Experience with Android Compose.</li></ul><p><strong>Preferred qualifications:</strong></p><ul><li>5 years of experience developing native, clean, and compatible Android applications.</li><li>3 years of experience as a front-end developer, UX Engineer, creative or design technologist, or in a prototyping design environment.</li><li>Experience with XR software development using unity/unreal or other engines.</li></ul>`,
+    salary: "$225 / saat",
+    description: `<p><strong>Minimum tələblər:</strong></p><ul><li>Bakalavr dərəcəsi və ya ekvivalent təcrübə.</li><li>Front-end inkişaf, texniki UX dizayn və ya prototipləşdirmə sahəsində 4 illik təcrübə.</li><li>Android UI prototipləşdirmə və ya inkişaf təcrübəsi.</li><li>Android Compose təcrübəsi.</li></ul><p><strong>Arzuolunan tələblər:</strong></p><ul><li>Native, təmiz və uyğun Android tətbiqlərinin hazırlanmasında 5 illik təcrübə.</li><li>Front-end mühəndisi, UX mühəndisi, kreativ və ya dizayn texnoloqu sahəsində 3 illik təcrübə.</li><li>Unity/Unreal və ya digər mühərriklərdən istifadə edərək XR proqram təminatının hazırlanması təcrübəsi.</li></ul>`,
     isActive: true,
     isFeatured: true,
     applicants: mockApplicants,
-    city: "New York",
+    city: "Nyu York",
     district: "NY",
     experienceLevel: "mid",
   },
   {
     id: "1",
-    title: "Software Engineer III, Full Stack",
+    title: "Full Stack Proqramçı III",
     locationType: "in-office",
     jobType: "full-time",
     salary: "$150k - $200k",
-    description: "<p>We are looking for a Software Engineer III to join our team in New York.</p>",
+    description: "<p>Nyu Yorkdakı komandamıza qoşulmaq üçün Full Stack Proqramçı axtarırıq.</p>",
     isActive: true,
     isFeatured: false,
     applicants: [],
-    city: "New York",
+    city: "Nyu York",
     district: "NY",
     experienceLevel: "senior",
   },
   {
     id: "2",
-    title: "Staff Software Engineer, Frontend",
+    title: "Baş Proqramçı, Frontend",
     locationType: "hybrid",
     jobType: "full-time",
     salary: "$200k+",
-    description: "<p>Join our frontend architecture team.</p>",
+    description: "<p>Frontend arxitektura komandamıza qoşulun.</p>",
     isActive: true,
     isFeatured: false,
     applicants: [],
-    city: "Los Gatos",
+    city: "Los Qatos",
     district: "CA",
     experienceLevel: "lead",
   },
   {
     id: "4",
-    title: "Product Designer",
+    title: "Məhsul Dizayneri",
     locationType: "hybrid",
     jobType: "part-time",
-    salary: "$90 / hr",
-    description: "Looking for a UI/UX expert.",
+    salary: "$90 / saat",
+    description: "UI/UX eksperti axtarılır.",
     isActive: true,
     isFeatured: true,
     applicants: mockApplicants,
-    city: "Baku",
+    city: "Bakı",
     district: "",
     experienceLevel: "mid",
-    deadline: "2026-12-31" /* adding a mock deadline to test */
+    deadline: "2026-12-31" 
   }
 ];
 
@@ -253,93 +257,94 @@ function ApplicationsSection({ applicants, jobId }: { applicants: Applicant[]; j
     });
 
   return (
-    <div className="mt-12 border-t border-slate-800/80 pt-12">
-      <h3 className="text-xl font-bold text-white mb-8">
-        Applications
+    <div className="mt-12 border-t border-border pt-12">
+      <h3 className="text-xl font-bold text-foreground mb-8">
+        Müraciətlər
       </h3>
 
       {/* Filters Summary / Quick Toggles */}
-      <div className="flex items-center gap-2 mb-8">
-        <button className="h-8 px-3 rounded-lg border border-slate-800 bg-slate-900/40 text-[11px] font-bold text-slate-300 flex items-center gap-2 hover:bg-slate-800 transition-colors">
-          <span className="w-5 h-5 rounded-full bg-slate-800 flex items-center justify-center text-[10px] text-slate-400">4</span>
-          Stage
-          <ChevronDown size={12} className="text-slate-500" />
+      <div className="flex flex-wrap items-center gap-2 mb-8">
+        <button className="h-8 px-3 rounded-lg border border-border bg-muted/40 text-[11px] font-bold text-muted-foreground flex items-center gap-2 hover:bg-muted transition-colors">
+          <span className="w-5 h-5 rounded-full bg-muted flex items-center justify-center text-[10px] text-muted-foreground">4</span>
+          Mərhələ
+          <ChevronDown size={12} className="text-muted-foreground" />
         </button>
-        <button className="h-8 px-3 rounded-lg border border-slate-800 bg-slate-900/40 text-[11px] font-bold text-slate-300 flex items-center gap-2 hover:bg-slate-800 transition-colors">
-          Rating
-          <ChevronDown size={12} className="text-slate-500" />
+        <button className="h-8 px-3 rounded-lg border border-border bg-muted/40 text-[11px] font-bold text-muted-foreground flex items-center gap-2 hover:bg-muted transition-colors">
+          Reytinq
+          <ChevronDown size={12} className="text-muted-foreground" />
         </button>
       </div>
 
-      <div className="border border-slate-800/50 rounded-xl overflow-hidden bg-slate-900/20">
+      <div className="border border-border rounded-xl overflow-hidden bg-muted/10">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-slate-800/50 bg-slate-900/40">
-                <th className="px-6 py-4 text-[11px] font-bold text-slate-500 uppercase tracking-widest">Name</th>
-                <th className="px-6 py-4 text-[11px] font-bold text-slate-500 uppercase tracking-widest">
+              <tr className="border-b border-border bg-muted/30">
+                <th className="px-6 py-4 text-[11px] font-bold text-muted-foreground uppercase tracking-widest">AD</th>
+                <th className="px-6 py-4 text-[11px] font-bold text-muted-foreground uppercase tracking-widest">
                   <div className="flex items-center gap-1">
-                    Stage
+                    MƏRHƏLƏ
                     <div className="flex flex-col">
-                      <ChevronUp size={10} className="text-slate-600 -mb-0.5" />
-                      <ChevronDown size={10} className="text-slate-600 -mt-0.5 shadow-sm" />
+                      <ChevronUp size={10} className="text-muted-foreground/60 -mb-0.5" />
+                      <ChevronDown size={10} className="text-muted-foreground/60 -mt-0.5 shadow-sm" />
                     </div>
                   </div>
                 </th>
-                <th className="px-6 py-4 text-[11px] font-bold text-slate-500 uppercase tracking-widest">
+                <th className="px-6 py-4 text-[11px] font-bold text-muted-foreground uppercase tracking-widest">
                   <div className="flex items-center gap-1">
-                    Rating
+                    REYTİNQ
                     <div className="flex flex-col">
-                      <ChevronUp size={10} className="text-slate-600 -mb-0.5" />
-                      <ChevronDown size={10} className="text-slate-600 -mt-0.5" />
+                      <ChevronUp size={10} className="text-muted-foreground/60 -mb-0.5" />
+                      <ChevronDown size={10} className="text-muted-foreground/60 -mt-0.5" />
                     </div>
                   </div>
                 </th>
-                <th className="px-6 py-4 text-[11px] font-bold text-slate-500 uppercase tracking-widest">
+                <th className="px-6 py-4 text-[11px] font-bold text-muted-foreground uppercase tracking-widest">
                   <div className="flex items-center gap-1">
-                    Applied On
+                    TƏQDİM TARİXİ
                     <div className="flex flex-col">
-                      <ChevronUp size={10} className="text-slate-600 -mb-0.5" />
-                      <ChevronDown size={10} className="text-slate-600 -mt-0.5" />
+                      <ChevronUp size={10} className="text-muted-foreground/60 -mb-0.5" />
+                      <ChevronDown size={10} className="text-muted-foreground/60 -mt-0.5" />
                     </div>
                   </div>
                 </th>
                 <th className="px-6 py-4 w-10"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/30">
+            <tbody className="divide-y divide-border">
               {filteredAndSorted.map((app) => (
-                <tr key={app.id} className="hover:bg-slate-800/20 transition-colors group">
+                <tr key={app.id} className="hover:bg-muted/20 transition-colors group">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center gap-3">
-                      <div className={cn("w-8 h-8 rounded-full flex items-center justify-center text-white text-[10px] font-bold shrink-0 shadow-lg", app.color)}>
+                      <div className={cn("w-8 h-8 rounded-full flex items-center justify-center text-white text-[10px] font-bold shrink-0 shadow-md", app.color)}>
                         {app.initials}
                       </div>
-                      <span className="text-[13px] font-bold text-slate-200">{app.name}</span>
+                      <span className="text-[13px] font-bold text-foreground">{app.name}</span>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center gap-2">
-                       <div className="w-5 h-5 rounded-full border border-slate-700 flex items-center justify-center bg-slate-800">
+                       <div className="w-5 h-5 rounded-full border border-border flex items-center justify-center bg-muted">
                           {app.stage === "applied" ? (
-                             <span className="text-[10px] font-bold text-slate-400">?</span>
+                             <span className="text-[10px] font-bold text-muted-foreground">?</span>
                           ) : (
-                             <Star size={10} className="text-slate-400" />
+                             <Star size={10} className="text-muted-foreground" />
                           )}
                        </div>
                        <div className="relative flex items-center">
                           <select
-                            className="text-[13px] font-bold text-slate-300 bg-transparent focus:outline-none cursor-pointer appearance-none pr-5"
+                            className="text-[13px] font-bold text-foreground bg-transparent focus:outline-none cursor-pointer appearance-none pr-5"
                             value={app.stage}
                             onChange={(e) => updateApplicant(app.id, { stage: e.target.value as Stage })}
                           >
-                            <option value="applied">Applied</option>
-                            <option value="interview">Interview</option>
-                            <option value="offer">Offer</option>
-                            <option value="hired">Hired</option>
-                            <option value="rejected">Rejected</option>
+                            <option value="applied">Müraciət</option>
+                            <option value="screening">İlkin seçim</option>
+                            <option value="interview">Müsahibə</option>
+                            <option value="offer">Təklif</option>
+                            <option value="hired">İşə qəbul</option>
+                            <option value="rejected">İmtina</option>
                           </select>
-                          <ChevronDown size={12} className="text-slate-500 absolute right-0 pointer-events-none" />
+                          <ChevronDown size={12} className="text-muted-foreground absolute right-0 pointer-events-none" />
                        </div>
                     </div>
                   </td>
@@ -350,22 +355,22 @@ function ApplicationsSection({ applicants, jobId }: { applicants: Applicant[]; j
                           key={s}
                           size={12}
                           className={cn(
-                            app.rating >= s ? "fill-white text-white" : "fill-none text-slate-700"
+                            app.rating >= s ? "fill-foreground text-foreground" : "fill-none text-muted-foreground/30"
                           )}
                         />
                       ))}
-                      <ChevronDown size={12} className="ml-1 text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <ChevronDown size={12} className="ml-1 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-[13px] font-medium text-slate-400">
-                    {new Date(app.appliedAt).toLocaleDateString("en-US", {
+                  <td className="px-6 py-4 whitespace-nowrap text-[13px] font-medium text-muted-foreground">
+                    {new Date(app.appliedAt).toLocaleDateString("az-AZ", {
                       month: "numeric",
                       day: "numeric",
                       year: "numeric",
                     })}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right">
-                    <button className="text-slate-500 hover:text-white transition-colors">
+                    <button className="text-muted-foreground hover:text-foreground transition-colors">
                       <MoreHorizontal size={16} />
                     </button>
                   </td>
@@ -376,31 +381,31 @@ function ApplicationsSection({ applicants, jobId }: { applicants: Applicant[]; j
         </div>
 
         {/* Cədvəl Altı - Pagination */}
-        <div className="px-6 py-4 border-t border-slate-800/50 bg-slate-900/40 flex items-center justify-end gap-8">
+        <div className="px-4 sm:px-6 py-4 border-t border-border bg-muted/30 flex flex-wrap items-center justify-between gap-4">
            <div className="flex items-center gap-3">
-             <span className="text-[11px] font-bold text-slate-500">Rows per page</span>
+             <span className="text-[11px] font-bold text-muted-foreground">Hər səhifədə</span>
              <div className="relative flex items-center">
-                <select className="bg-transparent text-[11px] font-bold text-slate-300 focus:outline-none cursor-pointer appearance-none pr-5 hover:text-white transition-colors">
+                <select className="bg-transparent text-[11px] font-bold text-foreground focus:outline-none cursor-pointer appearance-none pr-5 hover:text-primary transition-colors">
                   <option value="10">10</option>
                   <option value="20">20</option>
                 </select>
-                <ChevronDown size={10} className="text-slate-600 absolute right-0 pointer-events-none" />
+                <ChevronDown size={10} className="text-muted-foreground/60 absolute right-0 pointer-events-none" />
              </div>
            </div>
-           <div className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
-             Page 1 of 1
+           <div className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest">
+             Səhifə 1 / 1
            </div>
-           <div className="flex items-center gap-4">
-              <button disabled className="text-slate-700">
+           <div className="flex items-center gap-2 sm:gap-4">
+              <button disabled className="text-muted-foreground/40">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m11 17-5-5 5-5M18 17l-5-5 5-5"/></svg>
               </button>
-              <button disabled className="text-slate-700">
+              <button disabled className="text-muted-foreground/40">
                 <ChevronLeft size={16} />
               </button>
-              <button disabled className="text-slate-700">
+              <button disabled className="text-muted-foreground/40">
                 <ChevronRight size={16} />
               </button>
-              <button disabled className="text-slate-700">
+              <button disabled className="text-muted-foreground/40">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m13 17 5-5-5-5M6 17l5-5-5-5"/></svg>
               </button>
            </div>
@@ -437,7 +442,7 @@ function EmployerJobDetail({
     <div className="w-full">
       {/* Header Section */}
       <div className="flex flex-col gap-6 mb-8">
-        <h1 className="text-2xl sm:text-3xl font-bold text-white leading-tight">
+        <h1 className="text-2xl sm:text-3xl font-bold text-foreground leading-tight">
           {job.title}
         </h1>
 
@@ -447,56 +452,56 @@ function EmployerJobDetail({
             <span className={cn(
               "h-7 px-3 flex items-center rounded-full text-[11px] font-bold border",
               job.isActive
-                ? "bg-white text-[#0B0F19] border-white"
-                : "bg-slate-800 text-slate-400 border-slate-700"
+                ? "bg-foreground text-background border-foreground"
+                : "bg-muted text-muted-foreground border-border"
             )}>
-              {job.isActive ? "Active" : "Delisted"}
+              {job.isActive ? "Aktiv" : "Deaktiv"}
             </span>
             {job.isFeatured && (
-              <span className="h-7 px-3 flex items-center rounded-full text-[11px] font-bold bg-[#6366F1] text-white">
-                Featured
+              <span className="h-7 px-3 flex items-center rounded-full text-[11px] font-bold bg-primary text-primary-foreground">
+                Önə Çıxarılmış
               </span>
             )}
             {job.salary && (
-              <span className="h-7 px-3 flex items-center gap-1.5 rounded-lg border border-slate-800 bg-slate-900/50 text-[11px] font-bold text-slate-300">
-                <Banknote size={12} className="text-slate-500" />
+              <span className="h-7 px-3 flex items-center gap-1.5 rounded-lg border border-border bg-muted/30 text-[11px] font-bold text-muted-foreground">
+                <Banknote size={12} className="text-muted-foreground/60" />
                 {job.salary}
               </span>
             )}
             {(job.city || job.district) && (
-              <span className="h-7 px-3 flex items-center gap-1.5 rounded-lg border border-slate-800 bg-slate-900/50 text-[11px] font-bold text-slate-300">
-                <MapPin size={12} className="text-slate-500" />
+              <span className="h-7 px-3 flex items-center gap-1.5 rounded-lg border border-border bg-muted/30 text-[11px] font-bold text-muted-foreground">
+                <MapPin size={12} className="text-muted-foreground/60" />
                 {[job.city, job.district].filter(Boolean).join(", ")}
               </span>
             )}
             {locConfig && (
-              <span className="h-7 px-3 flex items-center gap-1.5 rounded-lg border border-slate-800 bg-slate-900/50 text-[11px] font-bold text-slate-300">
-                <Globe size={12} className="text-slate-500" />
-                {locConfig.label === "Uzaqdan" ? "Remote" : locConfig.label}
+              <span className="h-7 px-3 flex items-center gap-1.5 rounded-lg border border-border bg-muted/30 text-[11px] font-bold text-muted-foreground">
+                <Globe size={12} className="text-muted-foreground/60" />
+                {locConfig.label}
               </span>
             )}
-            <span className="h-7 px-3 flex items-center gap-1.5 rounded-lg border border-slate-800 bg-slate-900/50 text-[11px] font-bold text-slate-300">
-              <Briefcase size={12} className="text-slate-500" />
-              {jobTypeLabel === "Tam iş günü" ? "Full Time" : jobTypeLabel}
+            <span className="h-7 px-3 flex items-center gap-1.5 rounded-lg border border-border bg-muted/30 text-[11px] font-bold text-muted-foreground">
+              <Briefcase size={12} className="text-muted-foreground/60" />
+              {jobTypeLabel}
             </span>
             {job.experienceLevel && (
-              <span className="h-7 px-3 flex items-center gap-1.5 rounded-lg border border-slate-800 bg-slate-900/50 text-[11px] font-bold text-slate-300">
-                <User size={12} className="text-slate-500" />
-                {job.experienceLevel === "junior" ? "Junior" : 
-                 job.experienceLevel === "mid" ? "Mid Level" : 
-                 job.experienceLevel === "senior" ? "Senior" : "Lead"}
+              <span className="h-7 px-3 flex items-center gap-1.5 rounded-lg border border-border bg-muted/30 text-[11px] font-bold text-muted-foreground">
+                <User size={12} className="text-muted-foreground/60" />
+                {job.experienceLevel === "junior" ? "Kiçik mütəxəssis" : 
+                 job.experienceLevel === "mid" ? "Orta mütəxəssis" : 
+                 job.experienceLevel === "senior" ? "Baş mütəxəssis" : "Rəhbər"}
               </span>
             )}
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => onEdit(job)}
-              className="h-8 px-3 inline-flex items-center justify-center gap-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-[11px] font-bold text-white transition-all"
+              className="h-8 px-3 inline-flex items-center justify-center gap-1.5 rounded-lg bg-muted hover:bg-muted/80 text-[11px] font-bold text-foreground transition-all border border-border shadow-sm"
             >
-              <Pencil size={12} />
-              Edit
+              <Pencil size={12} className="text-muted-foreground" />
+              Redaktə
             </button>
             <button
               onClick={() => {
@@ -506,35 +511,35 @@ function EmployerJobDetail({
                   setIsPublishDialogOpen(true);
                 }
               }}
-              className="h-8 px-3 inline-flex items-center justify-center gap-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-[11px] font-bold text-white transition-all"
+              className="h-8 px-3 inline-flex items-center justify-center gap-1.5 rounded-lg bg-muted hover:bg-muted/80 text-[11px] font-bold text-foreground transition-all border border-border shadow-sm"
             >
               {job.isActive ? (
                 <>
-                  <EyeOff size={12} />
-                  Delist
+                  <EyeOff size={12} className="text-muted-foreground" />
+                  Deaktiv et
                 </>
               ) : (
                 <>
-                  <Eye size={12} className="text-emerald-400" />
-                  Publish
+                  <Eye size={12} className="text-emerald-500" />
+                  Dərc et
                 </>
               )}
             </button>
             {job.isFeatured && (
               <button
                 onClick={() => onToggleFeatured(job.id!)}
-                className="h-8 px-3 inline-flex items-center justify-center gap-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-[11px] font-bold text-white transition-all"
+                className="h-8 px-3 inline-flex items-center justify-center gap-1.5 rounded-lg bg-muted hover:bg-muted/80 text-[11px] font-bold text-foreground transition-all border border-border shadow-sm"
               >
-                <Star size={12} className="fill-white" />
-                UnFeature
+                <Star size={12} className="fill-primary text-primary" />
+                Önə Çıxarma
               </button>
             )}
             <button
               onClick={() => onDelete(job.id!)}
-              className="h-8 px-3 inline-flex items-center justify-center gap-1.5 rounded-lg bg-red-950/30 text-red-500 border border-red-500/20 hover:bg-red-500 hover:text-white text-[11px] font-bold transition-all"
+              className="h-8 px-3 inline-flex items-center justify-center gap-1.5 rounded-lg bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive hover:text-destructive-foreground text-[11px] font-bold transition-all shadow-sm"
             >
               <Trash2 size={12} />
-              Delete
+              Sil
             </button>
           </div>
         </div>
@@ -544,9 +549,9 @@ function EmployerJobDetail({
       <div className="mb-10">
          <div 
            className={cn(
-             "text-[13px] leading-relaxed prose prose-sm dark:prose-invert max-w-none text-slate-300",
-             "**:text-slate-300 **:marker:text-slate-500 prose-p:my-4 prose-ul:my-4 prose-li:my-1",
-             "prose-strong:text-white prose-strong:text-base prose-strong:font-bold",
+             "text-[13px] leading-relaxed prose prose-sm dark:prose-invert max-w-none text-muted-foreground",
+             "**:text-muted-foreground **:marker:text-muted-foreground/60 prose-p:my-4 prose-ul:my-4 prose-li:my-1",
+             "prose-strong:text-foreground prose-strong:text-base prose-strong:font-bold",
              !expanded && isLong && "line-clamp-10"
            )} 
            dangerouslySetInnerHTML={{ __html: job.description }} 
@@ -554,9 +559,9 @@ function EmployerJobDetail({
          {isLong && (
            <button
              onClick={() => setExpanded(!expanded)}
-             className="mt-4 text-[13px] font-bold text-white hover:underline underline-offset-4"
+             className="mt-4 text-[13px] font-bold text-foreground hover:underline underline-offset-4"
            >
-             {expanded ? "Show Less" : "Read More"}
+             {expanded ? "Daha az göstər" : "Daha çox oxu"}
            </button>
          )}
       </div>
@@ -565,21 +570,21 @@ function EmployerJobDetail({
 
       {/* Internal Dialog */}
       <Dialog open={isPublishDialogOpen} onOpenChange={setIsPublishDialogOpen}>
-        <DialogContent className="max-w-[400px] rounded-3xl border-slate-800 bg-[#1C1F26] p-8 shadow-2xl">
+        <DialogContent className="max-w-[400px] rounded-3xl border-border bg-card p-8 shadow-2xl">
           <DialogHeader className="space-y-3">
-            <DialogTitle className="text-xl font-bold text-white text-center">
-              Publish Job Listing
+            <DialogTitle className="text-xl font-bold text-foreground text-center">
+              Vakansiyanı Dərc Et
             </DialogTitle>
-            <DialogDescription className="text-slate-400 text-center text-sm leading-relaxed">
-              Once published, this job will be visible to all candidates on the job board.
+            <DialogDescription className="text-muted-foreground text-center text-sm leading-relaxed">
+              Dərc edildikdən sonra bu vakansiya iş axtaranlar üçün görünən olacaq.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="grid grid-cols-2 gap-3 mt-8">
-            <Button variant="ghost" onClick={() => setIsPublishDialogOpen(false)} className="rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold border-none">
-              Cancel
+            <Button variant="ghost" onClick={() => setIsPublishDialogOpen(false)} className="rounded-xl bg-muted hover:bg-muted/80 text-foreground font-bold border-none text-xs">
+              Ləğv et
             </Button>
-            <Button onClick={() => { onDelist(job.id!); setIsPublishDialogOpen(false); }} className="rounded-xl bg-white text-slate-900 hover:bg-slate-200 font-bold">
-              Yes, Publish
+            <Button onClick={() => { onDelist(job.id!); setIsPublishDialogOpen(false); }} className="rounded-xl bg-primary text-primary-foreground hover:opacity-90 font-bold text-xs">
+              Bəli, Dərc et
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -611,7 +616,7 @@ function JobCard({
   const jobTypeLabel = jobTypeLabels[job.jobType];
   return (
     <div className={cn(
-      "rounded-2xl border border-border bg-card p-5 flex flex-col sm:flex-row sm:items-center gap-4 hover:shadow-md transition-all cursor-pointer group",
+      "rounded-2xl border border-border bg-card p-5 flex flex-col lg:flex-row lg:items-center gap-4 hover:shadow-md transition-all cursor-pointer group",
       isSelected && "ring-2 ring-foreground/20"
     )}>
       {/* Icon */}
@@ -657,7 +662,7 @@ function JobCard({
       </div>
 
       {/* Applicants + Actions */}
-      <div className="flex items-center gap-3 shrink-0">
+      <div className="flex flex-wrap items-center gap-2 sm:gap-3 shrink-0">
         {job.applicants.length > 0 && (
           <button onClick={onView} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted hover:bg-muted/80 text-xs font-bold text-foreground transition-colors">
             <Users size={13} />
@@ -693,7 +698,6 @@ function JobCard({
 export default function EmployerPage() {
   const { user } = useUser();
   const router = useRouter();
-  const [dropdownOpen, setDropdownOpen] = useState(false);
   const [activeView, setActiveView] = useState<"jobs" | "job-detail">("jobs");
   const [orgSwitcherOpen, setOrgSwitcherOpen] = useState(false);
 
@@ -704,6 +708,7 @@ export default function EmployerPage() {
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
   const [activeExpanded, setActiveExpanded] = useState(true);
   const [delistedExpanded, setDelistedExpanded] = useState(true);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   const activeJobs = jobs.filter(j => j.isActive);
   const delistedJobs = jobs.filter(j => !j.isActive);
@@ -765,198 +770,200 @@ export default function EmployerPage() {
   };
 
   const handleNavigate = (href: string) => {
-    setDropdownOpen(false);
     router.push(href);
   };
 
-  return (
-    <div className="flex bg-background h-screen overflow-hidden">
-      {/* Left Sidebar - Image style */}
-      <div className="w-[280px] shrink-0 border-r border-border bg-[#0B0F19] flex flex-col hidden lg:flex text-slate-300">
-        {/* Header with Title and Add Button */}
-        <div className="px-5 pt-8 pb-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-5 h-5 rounded flex items-center justify-center bg-slate-800">
-              <Briefcase size={12} className="text-slate-400" />
-            </div>
-            <span className="text-[13px] font-bold text-slate-400 uppercase tracking-wider">Job Listings</span>
+  const renderSidebarContent = () => (
+    <div className="flex flex-col h-full text-muted-foreground select-none">
+      {/* Header with Title and Add Button */}
+      <div className="px-5 pt-8 pb-4 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className="w-5 h-5 rounded flex items-center justify-center bg-muted">
+            <Briefcase size={12} className="text-muted-foreground" />
           </div>
-          <PostJobModal onSuccess={addJob}>
-            <button className="w-6 h-6 flex items-center justify-center rounded-md hover:bg-slate-800 text-slate-400 hover:text-white transition-colors">
-              <Plus size={16} />
-            </button>
-          </PostJobModal>
+          <span className="text-[13px] font-bold text-muted-foreground uppercase tracking-wider">Vakansiyalar</span>
         </div>
-
-        {/* Navigation / Groups */}
-        <nav className="flex-1 overflow-y-auto px-2 py-2 flex flex-col gap-1 custom-scrollbar">
-          {/* Active Jobs Accordion */}
-          <div>
-            <button
-              onClick={() => setActiveExpanded(!activeExpanded)}
-              className="w-full flex items-center gap-2 px-3 py-2 text-[13px] font-bold hover:text-white transition-colors group"
-            >
-              <ChevronDown 
-                size={14} 
-                className={cn("text-slate-500 transition-transform duration-200", !activeExpanded && "-rotate-90")} 
-              />
-              <span className={cn(activeExpanded ? "text-white" : "text-slate-400")}>Active</span>
-            </button>
-            {activeExpanded && (
-              <div className="mt-1 flex flex-col gap-0.5">
-                {activeJobs.map((job) => (
-                  <button
-                    key={job.id}
-                    onClick={() => {
-                      setSelectedJobId(job.id);
-                      setActiveView("job-detail");
-                    }}
-                    className={cn(
-                      "w-full text-left px-8 py-2 text-[13px] font-medium transition-all truncate",
-                      selectedJobId === job.id
-                        ? "bg-slate-800/80 text-white rounded-lg shadow-sm"
-                        : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/30 rounded-lg"
-                    )}
-                  >
-                    {job.title}
-                    {job.applicants.length > 0 && (
-                      <span className="ml-2 text-[11px] text-slate-500 font-bold">{job.applicants.length}</span>
-                    )}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Delisted Jobs Accordion */}
-          <div className="mt-2">
-            <button
-              onClick={() => setDelistedExpanded(!delistedExpanded)}
-              className="w-full flex items-center gap-2 px-3 py-2 text-[13px] font-bold hover:text-white transition-colors group"
-            >
-              <ChevronDown 
-                size={14} 
-                className={cn("text-slate-500 transition-transform duration-200", !delistedExpanded && "-rotate-90")} 
-              />
-              <span className={cn(delistedExpanded ? "text-white" : "text-slate-400")}>Delisted</span>
-            </button>
-            {delistedExpanded && (
-              <div className="mt-1 flex flex-col gap-0.5">
-                {delistedJobs.map((job) => (
-                  <button
-                    key={job.id}
-                    onClick={() => {
-                      setSelectedJobId(job.id);
-                      setActiveView("job-detail");
-                    }}
-                    className={cn(
-                      "w-full text-left px-8 py-2 text-[13px] font-medium transition-all truncate",
-                      selectedJobId === job.id
-                        ? "bg-slate-800/80 text-white rounded-lg shadow-sm"
-                        : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/30 rounded-lg"
-                    )}
-                  >
-                    {job.title}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        </nav>
-
-        {/* Bottom Section */}
-        <div className="mt-auto p-4 border-t border-slate-800/50 flex flex-col gap-4">
-          <Link
-            href={ROUTES.jobBoard}
-            className="flex items-center gap-3 px-3 py-2 rounded-xl text-[13px] font-bold text-slate-400 hover:text-white hover:bg-slate-800/50 transition-all"
-          >
-            <div className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center border border-slate-700/50">
-              <Building2 size={16} />
-            </div>
-            Job Board
-          </Link>
-
-          {/* User Profile Info section */}
-          {user && (
-            <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
-              <DropdownMenuTrigger className="w-full flex items-center gap-3 px-1 py-2 hover:bg-slate-800/30 rounded-xl transition-all outline-none">
-                <div className="w-10 h-10 rounded flex items-center justify-center shrink-0 bg-white shadow-sm overflow-hidden">
-                   <svg width="24" height="24" viewBox="0 0 24 24">
-                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                     <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                     <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-                     <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-                   </svg>
-                </div>
-                <div className="flex-1 text-left min-w-0">
-                  <p className="text-[13px] font-bold text-white truncate uppercase tracking-tight">
-                    {displayName}
-                  </p>
-                  <p className="text-[11px] text-slate-500 truncate font-medium">
-                    {displayEmail}
-                  </p>
-                </div>
-                <ChevronDown
-                  size={14}
-                  className={cn(
-                    "transition-transform duration-300 shrink-0 text-slate-600",
-                    dropdownOpen && "rotate-180"
-                  )}
-                />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="start"
-                side="top"
-                sideOffset={12}
-                className="w-[260px] rounded-2xl p-2 border-slate-800 shadow-2xl bg-[#1C1F26] text-white"
-              >
-                {/* Profile items */}
-                <DropdownMenuItem
-                  className="cursor-pointer gap-3 px-3 py-2.5 rounded-xl hover:bg-white/5 transition-all font-medium text-sm"
-                  onClick={() => handleNavigate(ROUTES.employer)}
-                >
-                  <Building2 size={16} className="text-slate-500 shrink-0" />
-                  <span>Təşkilatı İdarə Et</span>
-                </DropdownMenuItem>
-
-                <DropdownMenuItem
-                  className="cursor-pointer gap-3 px-3 py-2.5 rounded-xl hover:bg-white/5 transition-all font-medium text-sm"
-                  onClick={() => handleNavigate(ROUTES.settings.notifications)}
-                >
-                  <Users size={16} className="text-slate-500 shrink-0" />
-                  <span>İstifadəçi Parametrləri</span>
-                </DropdownMenuItem>
-
-                <DropdownMenuItem
-                  className="cursor-pointer gap-3 px-3 py-2.5 rounded-xl hover:bg-white/5 transition-all font-medium text-sm"
-                  onClick={() => {
-                    setDropdownOpen(false);
-                    setOrgSwitcherOpen(true);
-                  }}
-                >
-                  <ArrowLeftRight size={16} className="text-slate-500 shrink-0" />
-                  <span>Təşkilatı Dəyiş</span>
-                </DropdownMenuItem>
-
-                <DropdownMenuSeparator className="my-1 bg-slate-800" />
-
-                <SignOutButton>
-                  <DropdownMenuItem
-                    className="cursor-pointer gap-3 px-3 py-2.5 rounded-xl text-red-500 hover:bg-red-500/10 transition-all font-semibold text-sm"
-                    onClick={() => setDropdownOpen(false)}
-                  >
-                    <LogOut size={16} className="shrink-0" />
-                    <span>Çıxış</span>
-                  </DropdownMenuItem>
-                </SignOutButton>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
-        </div>
+        <PostJobModal onSuccess={addJob}>
+          <button className="w-6 h-6 flex items-center justify-center rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors">
+            <Plus size={16} />
+          </button>
+        </PostJobModal>
       </div>
 
-      {/* Right Content Pane - Dark theme */}
-      <div className="flex-1 overflow-y-auto bg-[#0B0F19] custom-scrollbar border-l border-slate-800/30">
+      {/* Navigation / Groups */}
+      <nav className="flex-1 overflow-y-auto px-2 py-2 flex flex-col gap-1 custom-scrollbar">
+        {/* Active Jobs Accordion */}
+        <div>
+          <button
+            onClick={() => setActiveExpanded(!activeExpanded)}
+            className="w-full flex items-center gap-2 px-3 py-2 text-[13px] font-bold hover:text-foreground transition-colors group"
+          >
+            <ChevronDown 
+              size={14} 
+              className={cn("text-muted-foreground/40 transition-transform duration-200", !activeExpanded && "-rotate-90")} 
+            />
+            <span className={cn(activeExpanded ? "text-foreground" : "text-muted-foreground")}>Aktiv</span>
+          </button>
+          {activeExpanded && (
+            <div className="mt-1 flex flex-col gap-0.5">
+              {activeJobs.map((job) => (
+                <button
+                  key={job.id}
+                  onClick={() => {
+                    setSelectedJobId(job.id);
+                    setActiveView("job-detail");
+                    // Close dropdown/menu on mobile if needed
+                  }}
+                  className={cn(
+                    "w-full text-left px-8 py-2 text-[13px] font-medium transition-all truncate",
+                    selectedJobId === job.id
+                      ? "bg-muted text-foreground rounded-lg shadow-sm"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg"
+                  )}
+                >
+                  {job.title}
+                  {job.applicants.length > 0 && (
+                    <span className="ml-2 text-[11px] text-muted-foreground/60 font-bold">{job.applicants.length}</span>
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Delisted Jobs Accordion */}
+        <div className="mt-2">
+          <button
+            onClick={() => setDelistedExpanded(!delistedExpanded)}
+            className="w-full flex items-center gap-2 px-3 py-2 text-[13px] font-bold hover:text-foreground transition-colors group"
+          >
+            <ChevronDown 
+              size={14} 
+              className={cn("text-muted-foreground/40 transition-transform duration-200", !delistedExpanded && "-rotate-90")} 
+            />
+            <span className={cn(delistedExpanded ? "text-foreground" : "text-muted-foreground")}>Deaktiv</span>
+          </button>
+          {delistedExpanded && (
+            <div className="mt-1 flex flex-col gap-0.5">
+              {delistedJobs.map((job) => (
+                <button
+                  key={job.id}
+                  onClick={() => {
+                    setSelectedJobId(job.id);
+                    setActiveView("job-detail");
+                  }}
+                  className={cn(
+                    "w-full text-left px-8 py-2 text-[13px] font-medium transition-all truncate",
+                    selectedJobId === job.id
+                      ? "bg-muted text-foreground rounded-lg shadow-sm"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg"
+                  )}
+                >
+                  {job.title}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </nav>
+
+      {/* Bottom Section */}
+      <div className="mt-auto p-4 border-t border-border flex flex-col gap-4">
+        <Link
+          href={ROUTES.jobBoard}
+          className="flex items-center gap-3 px-3 py-2 rounded-xl text-[13px] font-bold text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all"
+        >
+          <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center border border-border">
+            <Building2 size={16} />
+          </div>
+          Vakansiya Paneli
+        </Link>
+
+        {user && (
+          <DropdownMenu>
+            <DropdownMenuTrigger className="w-full flex items-center gap-3 px-1 py-2 hover:bg-muted/30 rounded-xl transition-all outline-none group/trigger">
+              <div className="w-10 h-10 rounded flex items-center justify-center shrink-0 bg-white shadow-sm overflow-hidden border border-border">
+                 <svg width="24" height="24" viewBox="0 0 24 24">
+                   <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                   <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                   <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                   <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                 </svg>
+              </div>
+              <div className="flex-1 text-left min-w-0">
+                <p className="text-[13px] font-bold text-foreground truncate uppercase tracking-tight">
+                  {displayName}
+                </p>
+                <p className="text-[11px] text-muted-foreground truncate font-medium">
+                  {displayEmail}
+                </p>
+              </div>
+              <ChevronDown
+                size={14}
+                className="transition-transform duration-300 shrink-0 text-muted-foreground/40 group-data-[state=open]/trigger:rotate-180"
+              />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="start"
+              side="top"
+              sideOffset={12}
+              className="w-[260px] rounded-2xl p-2 border-border shadow-2xl bg-card text-foreground"
+            >
+              <DropdownMenuItem
+                className="cursor-pointer gap-3 px-3 py-2.5 rounded-xl hover:bg-muted transition-all font-medium text-sm"
+                onClick={() => handleNavigate(ROUTES.employer)}
+              >
+                <Building2 size={16} className="text-muted-foreground/80 shrink-0" />
+                <span>Təşkilatı İdarə Et</span>
+              </DropdownMenuItem>
+
+              <DropdownMenuItem
+                className="cursor-pointer gap-3 px-3 py-2.5 rounded-xl hover:bg-muted transition-all font-medium text-sm"
+                onClick={() => handleNavigate(ROUTES.settings.notifications)}
+              >
+                <Users size={16} className="text-muted-foreground/80 shrink-0" />
+                <span>İstifadəçi Parametrləri</span>
+              </DropdownMenuItem>
+
+              <DropdownMenuItem
+                className="cursor-pointer gap-3 px-3 py-2.5 rounded-xl hover:bg-muted transition-all font-medium text-sm"
+                onClick={() => {
+                  setOrgSwitcherOpen(true);
+                }}
+              >
+                <ArrowLeftRight size={16} className="text-muted-foreground/80 shrink-0" />
+                <span>Təşkilatı Dəyiş</span>
+              </DropdownMenuItem>
+
+              <DropdownMenuSeparator className="my-1 bg-border" />
+
+              <SignOutButton>
+                <DropdownMenuItem
+                  className="cursor-pointer gap-3 px-3 py-2.5 rounded-xl text-destructive hover:bg-destructive/10 transition-all font-semibold text-sm"
+                >
+                  <LogOut size={16} className="shrink-0" />
+                  <span>Çıxış</span>
+                </DropdownMenuItem>
+              </SignOutButton>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="flex bg-background h-screen overflow-hidden">
+      {/* Desktop Sidebar - Image style */}
+      <div className={cn(
+        "shrink-0 border-r border-border bg-background flex flex-col hidden lg:flex text-muted-foreground transition-all duration-300 ease-in-out overflow-hidden",
+        isSidebarCollapsed ? "w-0 opacity-0" : "w-[280px] opacity-100"
+      )}>
+        {renderSidebarContent()}
+      </div>
+
+      {/* Right Content Pane - Theme aware */}
+      <div className="flex-1 overflow-y-auto bg-background custom-scrollbar border-l border-border/50">
         {activeView === "job-detail" && selectedJob ? (
           <div className="p-6 lg:p-10">
             <button
@@ -977,13 +984,32 @@ export default function EmployerPage() {
         ) : (
           <div className="p-6 lg:p-10 max-w-5xl mx-auto">
             {/* Page Header */}
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <h1 className="text-2xl font-black text-foreground tracking-tight">İş Elanları</h1>
-                <p className="text-sm text-muted-foreground mt-1 font-medium">Vakansiyalarınızı idarə edin</p>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+              <div className="flex items-center gap-3 sm:gap-4">
+                {/* Desktop Hamburger */}
+                <button 
+                  onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+                  className="hidden lg:flex w-10 h-10 items-center justify-center rounded-xl bg-card border border-border text-muted-foreground hover:text-foreground transition-all shadow-sm active:scale-95 outline-none"
+                >
+                  <Menu size={20} className={cn("transition-transform duration-300", isSidebarCollapsed && "rotate-90")} />
+                </button>
+
+                {/* Mobile Hamburger (Sheet) */}
+                <Sheet>
+                  <SheetTrigger className="lg:hidden w-10 h-10 flex items-center justify-center rounded-xl bg-card border border-border text-muted-foreground hover:text-foreground transition-all shadow-sm active:scale-95 outline-none cursor-pointer">
+                    <Menu size={20} />
+                  </SheetTrigger>
+                  <SheetContent side="left" className="p-0 w-[280px] border-r border-border bg-background">
+                    {renderSidebarContent()}
+                  </SheetContent>
+                </Sheet>
+                <div>
+                  <h1 className="text-xl sm:text-2xl font-black text-foreground tracking-tight">Vakansiyalar</h1>
+                  <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 sm:mt-1 font-medium">İş elanlarınızı idarə edin</p>
+                </div>
               </div>
               <PostJobModal onSuccess={addJob}>
-                <button className="h-10 px-5 flex items-center gap-2 rounded-xl bg-foreground text-background text-sm font-bold shadow-sm hover:opacity-90 active:scale-95 transition-all">
+                <button className="h-10 px-5 flex items-center justify-center gap-2 rounded-xl bg-foreground text-background text-sm font-bold shadow-sm hover:opacity-90 active:scale-95 transition-all w-full sm:w-auto">
                   <Plus size={16} />
                   Yeni Vakansiya
                 </button>
@@ -991,7 +1017,7 @@ export default function EmployerPage() {
             </div>
 
             {/* Stats Cards */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+            <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
               {[
                 { label: "Ümumi Elanlar", value: jobs.length, color: "bg-slate-100 dark:bg-white/5" },
                 { label: "Aktiv Elanlar", value: activeJobs.length, color: "bg-emerald-50 dark:bg-emerald-950/30" },
