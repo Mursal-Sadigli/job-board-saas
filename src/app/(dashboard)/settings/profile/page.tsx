@@ -154,9 +154,9 @@ export default function ProfilePage() {
         
         {/* Left Column - Avatar & Personal Info Quick View */}
         <div className="lg:col-span-1 space-y-8">
-          <div className="bg-card border border-border rounded-[2.5rem] p-8 shadow-xl shadow-shadow/5 relative overflow-hidden group">
+          <div className="bg-card dark:bg-[#0f1423] border border-border dark:border-white/10 rounded-[2.5rem] p-8 shadow-xl shadow-shadow/5 relative overflow-hidden group backdrop-blur-xl transition-colors">
             {/* Glossy background effect */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-primary/10 transition-all duration-500" />
+            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 dark:bg-primary/10 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-primary/10 transition-all duration-500" />
             
             <div className="flex flex-col items-center text-center relative z-10">
               <div className="relative mb-6">
@@ -226,7 +226,7 @@ export default function ProfilePage() {
           </div>
 
           {/* Skills Section */}
-          <div className="bg-card border border-border rounded-[2.5rem] p-8 shadow-xl shadow-shadow/5">
+          <div className="bg-card dark:bg-[#0f1423] border border-border dark:border-white/10 rounded-[2.5rem] p-8 shadow-xl shadow-shadow/5 backdrop-blur-xl transition-colors">
             <div className="flex items-center gap-2 mb-6">
               <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center">
                 <Layers size={16} className="text-amber-500" />
@@ -283,7 +283,7 @@ export default function ProfilePage() {
         {/* Right Column - Main Info */}
         <div className="lg:col-span-2 space-y-8">
           {/* Personal Info Section - NEW */}
-          <div className="bg-card border border-border rounded-[2.5rem] p-8 shadow-xl shadow-shadow/5">
+          <div className="bg-card dark:bg-[#0f1423] border border-border dark:border-white/10 rounded-[2.5rem] p-8 shadow-xl shadow-shadow/5 backdrop-blur-xl transition-colors">
             <h3 className="text-lg font-black text-foreground mb-8 flex items-center gap-3">
               <span className="w-1.5 h-6 bg-pink-500 rounded-full" />
               Şəxsi Məlumatlar
@@ -338,7 +338,7 @@ export default function ProfilePage() {
           </div>
 
           {/* About Me Section */}
-          <div className="bg-card border border-border rounded-[2.5rem] p-8 shadow-xl shadow-shadow/5">
+          <div className="bg-card dark:bg-[#0f1423] border border-border dark:border-white/10 rounded-[2.5rem] p-8 shadow-xl shadow-shadow/5 backdrop-blur-xl transition-colors">
             <h3 className="text-lg font-black text-foreground mb-6 flex items-center gap-3">
               <span className="w-1.5 h-6 bg-primary rounded-full" />
               Haqqında
@@ -352,7 +352,7 @@ export default function ProfilePage() {
           </div>
 
           {/* Professional Experience */}
-          <div className="bg-card border border-border rounded-[2.5rem] p-8 shadow-xl shadow-shadow/5">
+          <div className="bg-card dark:bg-[#0f1423] border border-border dark:border-white/10 rounded-[2.5rem] p-8 shadow-xl shadow-shadow/5 backdrop-blur-xl transition-colors">
             <div className="flex items-center justify-between mb-8">
               <h3 className="text-lg font-black text-foreground flex items-center gap-3">
                 <span className="w-1.5 h-6 bg-blue-500 rounded-full" />
@@ -481,7 +481,7 @@ export default function ProfilePage() {
           </div>
 
           {/* Education */}
-          <div className="bg-card border border-border rounded-[2.5rem] p-8 shadow-xl shadow-shadow/5">
+          <div className="bg-card dark:bg-[#0f1423] border border-border dark:border-white/10 rounded-[2.5rem] p-8 shadow-xl shadow-shadow/5 backdrop-blur-xl transition-colors">
             <div className="flex items-center justify-between mb-8">
               <h3 className="text-lg font-black text-foreground flex items-center gap-3">
                 <span className="w-1.5 h-6 bg-emerald-500 rounded-full" />
@@ -583,7 +583,7 @@ export default function ProfilePage() {
           </div>
 
           {/* Social Links */}
-          <div className="bg-card border border-border rounded-[2.5rem] p-8 shadow-xl shadow-shadow/5">
+          <div className="bg-card dark:bg-[#0f1423] border border-border dark:border-white/10 rounded-[2.5rem] p-8 shadow-xl shadow-shadow/5 backdrop-blur-xl transition-colors">
             <h3 className="text-lg font-black text-foreground mb-8 flex items-center gap-3">
               <span className="w-1.5 h-6 bg-orange-500 rounded-full" />
               Sosial Linklər
