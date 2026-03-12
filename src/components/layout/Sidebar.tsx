@@ -57,11 +57,6 @@ const mainNavItems: NavItem[] = [
 
 const settingsItems: NavItem[] = [
   {
-    label: "Profil",
-    href: ROUTES.settings.profile,
-    icon: <User size={16} />,
-  },
-  {
     label: "Bildirişlər",
     href: ROUTES.settings.notifications,
     icon: <Bell size={16} />,

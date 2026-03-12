@@ -197,11 +197,11 @@ export default function NotificationsPage() {
         </div>
 
         {/* Save Button */}
-        <div className="mt-10 flex justify-end pb-20">
+        <div className="mt-12 flex justify-center sm:justify-end pb-20">
           <button
             onClick={handleSave}
             className={cn(
-              "h-14 px-12 rounded-2xl font-black text-sm uppercase tracking-widest transition-all active:scale-95 shadow-xl flex items-center gap-2",
+              "h-14 w-full sm:w-auto px-10 rounded-2xl font-black text-sm uppercase tracking-widest transition-all active:scale-95 shadow-xl flex items-center justify-center gap-3 whitespace-nowrap",
               saved 
                 ? "bg-emerald-500 text-white hover:bg-emerald-600 shadow-emerald-500/20" 
                 : "bg-primary text-primary-foreground hover:opacity-90 shadow-primary/20"
@@ -209,13 +209,13 @@ export default function NotificationsPage() {
           >
             {saved ? (
               <>
-                <CheckCircle size={20} />
-                Tənzimləmələr Saxlanıldı
+                <CheckCircle size={20} className="shrink-0" />
+                <span>Tənzimləmələr Saxlanıldı</span>
               </>
             ) : (
               <>
-                <Save size={20} />
-                Dəyişiklikləri Saxla
+                <Save size={20} className="shrink-0" />
+                <span>Dəyişiklikləri Saxla</span>
               </>
             )}
           </button>
