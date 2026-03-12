@@ -57,6 +57,11 @@ const mainNavItems: NavItem[] = [
 
 const settingsItems: NavItem[] = [
   {
+    label: "Profil",
+    href: ROUTES.settings.profile,
+    icon: <User size={16} />,
+  },
+  {
     label: "Bildirişlər",
     href: ROUTES.settings.notifications,
     icon: <Bell size={16} />,
@@ -362,7 +367,7 @@ export default function Sidebar({
                 <>
                   <DropdownMenuItem
                     className="cursor-pointer gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-900 transition-all font-medium text-sm"
-                    onClick={() => setDropdownOpen(false)}
+                    onClick={() => handleNavigate(ROUTES.settings.profile)}
                   >
                     <User size={16} className="text-slate-400 shrink-0" />
                     <span>Profil</span>

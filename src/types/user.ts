@@ -6,6 +6,41 @@ export interface UserProfile {
   imageUrl?: string;
 }
 
+export interface CandidateProfile extends UserProfile {
+  title: string;
+  bio: string;
+  location: string;
+  phone: string;
+  experience: ExperienceItem[];
+  education: EducationItem[];
+  skills: string[];
+  socialLinks: SocialLink[];
+}
+
+export interface ExperienceItem {
+  id: string;
+  company: string;
+  position: string;
+  startDate: string;
+  endDate: string;
+  current: boolean;
+  description: string;
+}
+
+export interface EducationItem {
+  id: string;
+  school: string;
+  degree: string;
+  field: string;
+  startDate: string;
+  endDate: string;
+}
+
+export interface SocialLink {
+  platform: 'linkedin' | 'github' | 'portfolio' | 'other';
+  url: string;
+}
+
 export interface ResumeFile {
   id: string;
   name: string;

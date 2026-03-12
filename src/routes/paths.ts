@@ -6,6 +6,7 @@ export const ROUTES = {
   settings: {
     notifications: "/settings/notifications",
     resume: "/settings/resume",
+    profile: "/settings/profile",
   },
   signIn: "/sign-in",
   signUp: "/sign-up",
