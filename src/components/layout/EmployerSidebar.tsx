@@ -11,6 +11,12 @@ import {
   ChevronDown,
   ArrowLeft,
   X,
+  FileText,
+  Calendar,
+  PieChart,
+  UserCheck,
+  Star,
+  Search,
 } from "lucide-react";
 import { ROUTES } from "@/routes/paths";
 import { cn } from "@/utils/cn";
@@ -65,16 +71,16 @@ export default function EmployerSidebar({
       {/* Nav */}
       <nav className="flex-1 overflow-y-auto px-4 mt-8 py-8 flex flex-col gap-4 custom-scrollbar">
         <Link
-          href={ROUTES.employer}
+          href={ROUTES.employer.root}
           onClick={() => onNavigate?.()}
           className={cn(
             "flex items-center gap-3 px-4 py-3.5 rounded-[14px] text-sm font-bold transition-all w-full",
-            pathname === ROUTES.employer
+            pathname === ROUTES.employer.root
               ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
               : "text-muted-foreground hover:bg-muted"
           )}
         >
-          <Building2 size={18} className={cn("shrink-0", pathname === ROUTES.employer ? "text-primary-foreground" : "text-muted-foreground/60")} />
+          <Building2 size={18} className={cn("shrink-0", pathname === ROUTES.employer.root ? "text-primary-foreground" : "text-muted-foreground/60")} />
           {!isCollapsed && <span>Paneli İdarə Et</span>}
         </Link>
         
@@ -89,6 +95,87 @@ export default function EmployerSidebar({
           <ArrowLeft size={18} className="shrink-0 text-muted-foreground/60" />
           {!isCollapsed && <span>Əsas Səhifəyə Qayıt</span>}
         </Link>
+
+        {/* ATS Section */}
+        {!isCollapsed && (
+          <div className="mt-6 mb-2 px-4">
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">
+              ATS Sistemi
+            </p>
+          </div>
+        )}
+
+        <div className="space-y-1.5">
+          <Link
+            href={ROUTES.employer.ats.candidates}
+            onClick={() => onNavigate?.()}
+            className={cn(
+              "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all w-full",
+              pathname === ROUTES.employer.ats.candidates
+                ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
+                : "text-muted-foreground hover:bg-muted"
+            )}
+          >
+            <Users size={18} className={cn("shrink-0", pathname === ROUTES.employer.ats.candidates ? "text-primary-foreground" : "text-muted-foreground/60")} />
+            {!isCollapsed && <span>Namizədlər</span>}
+          </Link>
+
+          <Link
+            href={ROUTES.employer.ats.applications}
+            onClick={() => onNavigate?.()}
+            className={cn(
+              "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all w-full",
+              pathname === ROUTES.employer.ats.applications
+                ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
+                : "text-muted-foreground hover:bg-muted"
+            )}
+          >
+            <FileText size={18} className={cn("shrink-0", pathname === ROUTES.employer.ats.applications ? "text-primary-foreground" : "text-muted-foreground/60")} />
+            {!isCollapsed && <span>Müraciətlər</span>}
+          </Link>
+
+          <Link
+            href={ROUTES.employer.ats.interviews}
+            onClick={() => onNavigate?.()}
+            className={cn(
+              "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all w-full",
+              pathname === ROUTES.employer.ats.interviews
+                ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
+                : "text-muted-foreground hover:bg-muted"
+            )}
+          >
+            <Calendar size={18} className={cn("shrink-0", pathname === ROUTES.employer.ats.interviews ? "text-primary-foreground" : "text-muted-foreground/60")} />
+            {!isCollapsed && <span>Müsahibələr</span>}
+          </Link>
+
+          <Link
+            href={ROUTES.employer.ats.analytics}
+            onClick={() => onNavigate?.()}
+            className={cn(
+              "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all w-full",
+              pathname === ROUTES.employer.ats.analytics
+                ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
+                : "text-muted-foreground hover:bg-muted"
+            )}
+          >
+            <PieChart size={18} className={cn("shrink-0", pathname === ROUTES.employer.ats.analytics ? "text-primary-foreground" : "text-muted-foreground/60")} />
+            {!isCollapsed && <span>Analitika</span>}
+          </Link>
+
+          <Link
+            href={ROUTES.employer.ats.talentPool}
+            onClick={() => onNavigate?.()}
+            className={cn(
+              "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all w-full",
+              pathname === ROUTES.employer.ats.talentPool
+                ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
+                : "text-muted-foreground hover:bg-muted"
+            )}
+          >
+            <Star size={18} className={cn("shrink-0", pathname === ROUTES.employer.ats.talentPool ? "text-primary-foreground" : "text-muted-foreground/60")} />
+            {!isCollapsed && <span>İstedad Hovuzu</span>}
+          </Link>
+        </div>
       </nav>
 
       {/* Organization Switcher Modal */}
@@ -116,7 +203,7 @@ export default function EmployerSidebar({
                 },
               }}
               hidePersonal={false}
-              afterSelectOrganizationUrl={ROUTES.employer}
+              afterSelectOrganizationUrl={ROUTES.employer.root}
               afterSelectPersonalUrl={ROUTES.jobBoard}
             />
           </div>
@@ -164,7 +251,7 @@ export default function EmployerSidebar({
             >
               <DropdownMenuItem
                 className="cursor-pointer gap-3 px-3 py-2.5 rounded-xl hover:bg-muted transition-all font-medium text-sm"
-                onClick={() => handleNavigate(ROUTES.employer)}
+                onClick={() => handleNavigate(ROUTES.employer.root)}
               >
                 <Building2 size={16} className="text-muted-foreground/60 shrink-0" />
                 <span>Təşkilatı İdarə Et</span>

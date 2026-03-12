@@ -23,6 +23,8 @@ export interface Job {
   featured: boolean;
   isNew: boolean;
   description?: string;
+  isActive: boolean;
+  applicants: any[]; // Temporarily any to avoid complex circular dependencies
 }
 
 export interface JobFilters {

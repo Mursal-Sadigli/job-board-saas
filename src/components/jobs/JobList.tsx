@@ -13,8 +13,8 @@ interface JobListProps {
 export default function JobList({ jobs, selectedJobId, onSelect }: JobListProps) {
   if (jobs.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 gap-4 bg-card rounded-[2.5rem] border border-dashed border-border shadow-inner">
-        <div className="w-20 h-20 rounded-3xl flex items-center justify-center bg-muted/20 border border-border shadow-sm">
+      <div className="flex flex-col items-center justify-center py-20 gap-4 bg-card dark:bg-[#0f1423] rounded-[2.5rem] border border-dashed border-border dark:border-white/10 shadow-inner backdrop-blur-xl">
+        <div className="w-20 h-20 rounded-3xl flex items-center justify-center bg-muted/20 dark:bg-white/5 border border-border dark:border-white/10 shadow-sm">
           <SearchX size={32} className="text-muted-foreground/40" />
         </div>
         <div className="text-center space-y-2">

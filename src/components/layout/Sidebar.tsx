@@ -312,7 +312,7 @@ export default function Sidebar({
                 <>
                   <DropdownMenuItem
                     className="cursor-pointer gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-900 transition-all font-medium text-sm"
-                    onClick={() => handleNavigate(ROUTES.employer)}
+                    onClick={() => handleNavigate(ROUTES.employer.root)}
                   >
                     <Building2 size={16} className="text-slate-400 shrink-0" />
                     <span>Təşkilatı İdarə Et</span>
@@ -442,7 +442,7 @@ export default function Sidebar({
                 },
               }}
               hidePersonal={false}
-              afterSelectOrganizationUrl={ROUTES.employer}
+              afterSelectOrganizationUrl={ROUTES.employer.root}
               afterSelectPersonalUrl={ROUTES.jobBoard}
             />
           </div>

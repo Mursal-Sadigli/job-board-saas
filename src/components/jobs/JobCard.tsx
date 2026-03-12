@@ -61,15 +61,15 @@ export default function JobCard({ job, onClick, isSelected }: JobCardProps) {
     <div 
       onClick={onClick}
       className={cn(
-        "border rounded-2xl p-4 sm:p-5 cursor-pointer group transition-all duration-200 relative overflow-hidden",
+        "border rounded-2xl p-4 sm:p-5 cursor-pointer group transition-all duration-200 relative overflow-hidden backdrop-blur-xl",
         job.featured 
-          ? "bg-white dark:bg-[#1e1424] shadow-lg shadow-purple-500/5" 
-          : "bg-card",
+          ? "bg-white dark:bg-[#1e1424] shadow-lg shadow-purple-500/5 dark:shadow-purple-500/10" 
+          : "bg-card dark:bg-[#0f1423]",
         isSelected
-          ? "border-primary ring-2 ring-primary/20 shadow-md"
+          ? "border-primary ring-2 ring-primary/20 shadow-md dark:ring-white/10"
           : job.featured
-            ? "border-purple-500/20 hover:border-purple-500/40"
-            : "border-border hover:border-primary/20 hover:shadow-sm"
+            ? "border-purple-500/20 dark:border-purple-500/30 hover:border-purple-500/40"
+            : "border-border dark:border-white/10 hover:border-primary/20 hover:shadow-sm"
       )}
     >
       {/* Background Glow for Featured */}

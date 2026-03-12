@@ -53,16 +53,16 @@ export default function JobDetailPanel({ job, onClose, onApply }: JobDetailPanel
   const showLogo = job.companyLogo && !logoError;
 
   return (
-    <div className="flex flex-col h-full bg-card border-l border-border relative overflow-hidden">
+    <div className="flex flex-col h-full bg-card dark:bg-[#0b0e14] border-l border-border dark:border-white/10 relative overflow-hidden backdrop-blur-xl">
       {/* Scrollable Content Area */}
       <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar">
         {/* Header Section */}
-        <div className="px-6 pt-8 pb-6 relative border-b border-border/40">
+        <div className="px-6 pt-8 pb-6 relative border-b border-border/40 dark:border-white/5">
           {/* Minimalist Close button */}
           {onClose && (
             <button
               onClick={onClose}
-              className="absolute top-6 right-6 p-2 rounded-xl hover:bg-muted transition-all text-muted-foreground/30 hover:text-foreground active:scale-90 z-10 bg-background/50"
+              className="absolute top-6 right-6 p-2 rounded-xl hover:bg-muted transition-all text-muted-foreground/30 hover:text-foreground active:scale-90 z-10 bg-background/50 dark:bg-white/5"
             >
               <X size={20} strokeWidth={2} />
             </button>
@@ -70,7 +70,7 @@ export default function JobDetailPanel({ job, onClose, onApply }: JobDetailPanel
 
           {/* Company + Title */}
           <div className="flex items-start gap-4 mb-6">
-            <div className="shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-card border border-border/60 overflow-hidden flex items-center justify-center shadow-sm group">
+            <div className="shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-card dark:bg-[#0f1423] border border-border/60 dark:border-white/10 overflow-hidden flex items-center justify-center shadow-sm group">
               {showLogo ? (
                 <img
                   src={job.companyLogo}
@@ -102,29 +102,29 @@ export default function JobDetailPanel({ job, onClose, onApply }: JobDetailPanel
           {/* Badges Stack */}
           <div className="flex flex-wrap gap-2 sm:gap-2.5">
             {job.featured && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider bg-purple-500/10 text-purple-600 border border-purple-500/20 shadow-sm shadow-purple-500/5">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider bg-purple-500/10 text-purple-600 border border-purple-500/20 shadow-sm shadow-purple-500/5 dark:text-purple-400">
                 <Award size={12} />
                 Önə çıxan
               </span>
             )}
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-bold border bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-bold border bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20 dark:border-blue-500/30">
               <MapPin size={12} />
               {job.location || job.city}
             </span>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-bold border bg-slate-500/5 text-slate-600 dark:text-slate-400 border-border/50">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-bold border bg-slate-500/5 text-slate-600 dark:text-slate-400 border-border/50 dark:border-white/10">
               <span className="shrink-0">{locConfig.icon}</span>
               {locConfig.label}
             </span>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-bold border bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-bold border bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20 dark:border-purple-500/30">
               <Briefcase size={12} />
               {jobTypeConfig[job.jobType] || jobTypeConfig.any}
             </span>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-bold border bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-bold border bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 dark:border-emerald-500/30">
               <Clock size={12} />
               {expLabel}
             </span>
             {job.salary && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-bold border bg-card text-foreground border-border shadow-sm">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-bold border bg-card dark:bg-[#0f1423] text-foreground border-border dark:border-white/10 shadow-sm">
                 <Banknote size={12} className="text-muted-foreground/60" />
                 {job.salary}
               </span>
@@ -158,7 +158,7 @@ export default function JobDetailPanel({ job, onClose, onApply }: JobDetailPanel
       </div>
 
       {/* Apply Button Footer */}
-      <div className="shrink-0 p-4 sm:p-6 border-t border-border bg-card">
+      <div className="shrink-0 p-4 sm:p-6 border-t border-border dark:border-white/10 bg-card dark:bg-[#0f1423]">
         <PostJobModal onSuccess={onApply}>
           <button className="w-full h-12 rounded-2xl bg-foreground text-background font-bold text-sm hover:opacity-90 transition-all active:scale-[0.98] shadow-lg shadow-black/5">
             Müraciət Et

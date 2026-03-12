@@ -30,7 +30,10 @@ import {
   ChevronLeft,
   ChevronRight,
   Moon,
-  Sun
+  Sun,
+  FileText,
+  Calendar,
+  PieChart
 } from "lucide-react";
 import { cn } from "@/utils/cn";
 import { PostJobModal, type JobFormData } from "@/components/employer/PostJobModal";
@@ -802,8 +805,71 @@ export default function EmployerPage() {
         </PostJobModal>
       </div>
 
+      {/* ATS Section Label */}
+      <div className="px-5 pt-4 pb-2 flex items-center gap-2">
+        <div className="w-5 h-5 rounded flex items-center justify-center bg-indigo-50 dark:bg-indigo-950/30">
+          <Sparkles size={12} className="text-indigo-500" />
+        </div>
+        <span className="text-[13px] font-bold text-indigo-500 uppercase tracking-wider">ATS Sistemi</span>
+      </div>
+
       {/* Navigation / Groups */}
       <nav className="flex-1 overflow-y-auto px-2 py-2 flex flex-col gap-1 custom-scrollbar">
+        {/* ATS Links */}
+        <div className="mb-4 space-y-0.5">
+          <button
+            onClick={() => setActiveView("jobs")} // Placeholder for now
+            className={cn(
+              "w-full text-left px-8 py-2 text-[13px] font-medium transition-all truncate flex items-center gap-3",
+              "text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg"
+            )}
+          >
+            <Users size={14} className="shrink-0 opacity-60" />
+            <span>Namizədlər</span>
+          </button>
+          <button
+            onClick={() => setActiveView("jobs")}
+            className={cn(
+              "w-full text-left px-8 py-2 text-[13px] font-medium transition-all truncate flex items-center gap-3",
+              "text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg"
+            )}
+          >
+            <FileText size={14} className="shrink-0 opacity-60" />
+            <span>Müraciətlər</span>
+          </button>
+          <button
+            onClick={() => setActiveView("jobs")}
+            className={cn(
+              "w-full text-left px-8 py-2 text-[13px] font-medium transition-all truncate flex items-center gap-3",
+              "text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg"
+            )}
+          >
+            <Calendar size={14} className="shrink-0 opacity-60" />
+            <span>Müsahibələr</span>
+          </button>
+          <button
+            onClick={() => setActiveView("jobs")}
+            className={cn(
+              "w-full text-left px-8 py-2 text-[13px] font-medium transition-all truncate flex items-center gap-3",
+              "text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg"
+            )}
+          >
+            <PieChart size={14} className="shrink-0 opacity-60" />
+            <span>Analitika</span>
+          </button>
+          <button
+            onClick={() => setActiveView("jobs")}
+            className={cn(
+              "w-full text-left px-8 py-2 text-[13px] font-medium transition-all truncate flex items-center gap-3",
+              "text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg"
+            )}
+          >
+            <Star size={14} className="shrink-0 opacity-60" />
+            <span>İstedad Hovuzu</span>
+          </button>
+        </div>
+
+        <DropdownMenuSeparator className="mx-3 mb-4 opacity-50" />
         {/* Active Jobs Accordion */}
         <div>
           <button
@@ -941,7 +1007,7 @@ export default function EmployerPage() {
 
               <DropdownMenuItem
                 className="cursor-pointer gap-3 px-3 py-2.5 rounded-xl hover:bg-muted transition-all font-medium text-sm"
-                onClick={() => handleNavigate(ROUTES.employer)}
+                onClick={() => handleNavigate(ROUTES.employer.root)}
               >
                 <Building2 size={16} className="text-muted-foreground/80 shrink-0" />
                 <span>Təşkilatı İdarə Et</span>
@@ -983,162 +1049,135 @@ export default function EmployerPage() {
   );
 
   return (
-    <div className="flex bg-background h-screen overflow-hidden">
-      {/* Desktop Sidebar - Image style */}
-      <div className={cn(
-        "shrink-0 border-r border-border dark:border-white/10 bg-background flex flex-col hidden lg:flex text-muted-foreground transition-all duration-300 ease-in-out overflow-hidden",
-        isSidebarCollapsed ? "w-0 opacity-0" : "w-[280px] opacity-100"
-      )}>
-        {renderSidebarContent()}
+    <div className="p-6 lg:p-10 max-w-5xl mx-auto">
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+        <div>
+          <h1 className="text-xl sm:text-2xl font-black text-foreground tracking-tight">Vakansiyalar</h1>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 sm:mt-1 font-medium">İş elanlarınızı idarə edin</p>
+        </div>
+        <PostJobModal onSuccess={addJob}>
+          <button className="h-10 px-5 flex items-center justify-center gap-2 rounded-xl bg-foreground text-background text-sm font-bold shadow-sm hover:opacity-90 active:scale-95 transition-all w-full sm:w-auto">
+            <Plus size={16} />
+            Yeni Vakansiya
+          </button>
+        </PostJobModal>
       </div>
 
-      {/* Right Content Pane - Theme aware */}
-      <div className="flex-1 overflow-y-auto bg-background custom-scrollbar border-l border-border/50 dark:border-white/5">
-        {activeView === "job-detail" && selectedJob ? (
-          <div className="p-6 lg:p-10">
-            <button
-              onClick={() => setActiveView("jobs")}
-              className="mb-6 flex items-center gap-2 text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <ArrowLeft size={16} />
-              Elanlar Siyahısına Qayıt
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        {[
+          { label: "Ümumi Elanlar", value: jobs.length, color: "bg-slate-100 dark:bg-white/5" },
+          { label: "Aktiv Elanlar", value: activeJobs.length, color: "bg-emerald-50 dark:bg-emerald-950/30" },
+          { label: "Deaktiv Elanlar", value: delistedJobs.length, color: "bg-orange-50 dark:bg-orange-950/30" },
+          { label: "Ümumi Müraciətlər", value: jobs.reduce((s, j) => s + j.applicants.length, 0), color: "bg-purple-50 dark:bg-purple-950/30" },
+        ].map((stat) => (
+          <div key={stat.label} className={cn("rounded-2xl p-4 border border-border/60 dark:border-white/10 shadow-sm", stat.color)}>
+            <p className="text-2xl font-black text-foreground">{stat.value}</p>
+            <p className="text-xs font-semibold text-muted-foreground mt-1">{stat.label}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Jobs Grid */}
+      {jobs.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-20 text-center rounded-2xl border border-dashed border-border bg-card/30">
+          <div className="w-16 h-16 rounded-2xl bg-muted/50 flex items-center justify-center mb-4">
+            <Briefcase size={32} className="text-muted-foreground/30" />
+          </div>
+          <h3 className="text-lg font-bold text-foreground mb-2">Hələ elan yoxdur</h3>
+          <p className="text-sm text-muted-foreground mb-6 max-w-xs">İlk vakansiyangızı əlavə edərək istedadlı namizədləri cəlb edin.</p>
+          <PostJobModal onSuccess={addJob}>
+            <button className="h-10 px-6 flex items-center gap-2 rounded-xl bg-foreground text-background text-sm font-bold hover:opacity-90 active:scale-95 transition-all">
+              <Plus size={15} />
+              İlk Vakansiyam
             </button>
-            <EmployerJobDetail
-              job={selectedJob}
-              onEdit={handleEdit}
-              onDelist={handleDelist}
-              onToggleFeatured={handleToggleFeatured}
-              onDelete={handleDelete}
-            />
-          </div>
-        ) : (
-          <div className="p-6 lg:p-10 max-w-5xl mx-auto">
-            {/* Page Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-              <div className="flex items-center gap-3 sm:gap-4">
-                {/* Desktop Hamburger */}
-                <button 
-                  onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-                  className="hidden lg:flex w-10 h-10 items-center justify-center rounded-xl bg-card dark:bg-[#0f1423] border border-border dark:border-white/10 text-muted-foreground hover:text-foreground transition-all shadow-sm active:scale-95 outline-none"
-                >
-                  <Menu size={20} className={cn("transition-transform duration-300", isSidebarCollapsed && "rotate-90")} />
-                </button>
-
-                {/* Mobile Hamburger (Sheet) */}
-                <Sheet>
-                  <SheetTrigger className="lg:hidden w-10 h-10 flex items-center justify-center rounded-xl bg-card dark:bg-[#0f1423] border border-border dark:border-white/10 text-muted-foreground hover:text-foreground transition-all shadow-sm active:scale-95 outline-none cursor-pointer backdrop-blur-xl">
-                    <Menu size={20} />
-                  </SheetTrigger>
-                  <SheetContent side="left" className="p-0 w-[280px] border-r border-border dark:border-white/10 bg-background">
-                    {renderSidebarContent()}
-                  </SheetContent>
-                </Sheet>
-                <div>
-                  <h1 className="text-xl sm:text-2xl font-black text-foreground tracking-tight">Vakansiyalar</h1>
-                  <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 sm:mt-1 font-medium">İş elanlarınızı idarə edin</p>
+          </PostJobModal>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-3">
+          {/* Active Section */}
+          {activeJobs.length > 0 && (
+            <div className="mb-2">
+              <button
+                onClick={() => setActiveExpanded(!activeExpanded)}
+                className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3 hover:text-foreground transition-colors"
+              >
+                <ChevronDown size={14} className={cn("transition-transform", !activeExpanded && "-rotate-90")} />
+                Aktiv ({activeJobs.length})
+              </button>
+              {activeExpanded && (
+                <div className="flex flex-col gap-3">
+                  {activeJobs.map((job) => (
+                    <JobCard
+                      key={job.id}
+                      job={job}
+                      isSelected={selectedJobId === job.id}
+                      onView={() => { setSelectedJobId(job.id); setActiveView("job-detail"); }}
+                      onEdit={() => handleEdit(job)}
+                      onDelist={() => handleDelist(job.id)}
+                      onToggleFeatured={() => handleToggleFeatured(job.id)}
+                      onDelete={() => handleDelete(job.id)}
+                    />
+                  ))}
                 </div>
-              </div>
-              <PostJobModal onSuccess={addJob}>
-                <button className="h-10 px-5 flex items-center justify-center gap-2 rounded-xl bg-foreground text-background text-sm font-bold shadow-sm hover:opacity-90 active:scale-95 transition-all w-full sm:w-auto">
-                  <Plus size={16} />
-                  Yeni Vakansiya
-                </button>
-              </PostJobModal>
+              )}
             </div>
-
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-              {[
-                { label: "Ümumi Elanlar", value: jobs.length, color: "bg-slate-100 dark:bg-white/5" },
-                { label: "Aktiv Elanlar", value: activeJobs.length, color: "bg-emerald-50 dark:bg-emerald-950/30" },
-                { label: "Deaktiv Elanlar", value: delistedJobs.length, color: "bg-orange-50 dark:bg-orange-950/30" },
-                { label: "Ümumi Müraciətlər", value: jobs.reduce((s, j) => s + j.applicants.length, 0), color: "bg-purple-50 dark:bg-purple-950/30" },
-              ].map((stat) => (
-                <div key={stat.label} className={cn("rounded-2xl p-4 border border-border/60 dark:border-white/10 shadow-sm", stat.color)}>
-                  <p className="text-2xl font-black text-foreground">{stat.value}</p>
-                  <p className="text-xs font-semibold text-muted-foreground mt-1">{stat.label}</p>
+          )}
+          {/* Delisted Section */}
+          {delistedJobs.length > 0 && (
+            <div>
+              <button
+                onClick={() => setDelistedExpanded(!delistedExpanded)}
+                className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3 hover:text-foreground transition-colors"
+              >
+                <ChevronDown size={14} className={cn("transition-transform", !delistedExpanded && "-rotate-90")} />
+                Deaktiv ({delistedJobs.length})
+              </button>
+              {delistedExpanded && (
+                <div className="flex flex-col gap-3">
+                  {delistedJobs.map((job) => (
+                    <JobCard
+                      key={job.id}
+                      job={job}
+                      isSelected={selectedJobId === job.id}
+                      onView={() => { setSelectedJobId(job.id); setActiveView("job-detail"); }}
+                      onEdit={() => handleEdit(job)}
+                      onDelist={() => handleDelist(job.id)}
+                      onToggleFeatured={() => handleToggleFeatured(job.id)}
+                      onDelete={() => handleDelete(job.id)}
+                    />
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
+          )}
+        </div>
+      )}
 
-            {/* Jobs Grid */}
-            {jobs.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-20 text-center rounded-2xl border border-dashed border-border bg-card/30">
-                <div className="w-16 h-16 rounded-2xl bg-muted/50 flex items-center justify-center mb-4">
-                  <Briefcase size={32} className="text-muted-foreground/30" />
-                </div>
-                <h3 className="text-lg font-bold text-foreground mb-2">Hələ elan yoxdur</h3>
-                <p className="text-sm text-muted-foreground mb-6 max-w-xs">İlk vakansiyangızı əlavə edərək istedadlı namizədləri cəlb edin.</p>
-                <PostJobModal onSuccess={addJob}>
-                  <button className="h-10 px-6 flex items-center gap-2 rounded-xl bg-foreground text-background text-sm font-bold hover:opacity-90 active:scale-95 transition-all">
-                    <Plus size={15} />
-                    İlk Vakansiyam
-                  </button>
-                </PostJobModal>
-              </div>
-            ) : (
-              <div className="flex flex-col gap-3">
-                {/* Active Section */}
-                {activeJobs.length > 0 && (
-                  <div className="mb-2">
-                    <button
-                      onClick={() => setActiveExpanded(!activeExpanded)}
-                      className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3 hover:text-foreground transition-colors"
-                    >
-                      <ChevronDown size={14} className={cn("transition-transform", !activeExpanded && "-rotate-90")} />
-                      Aktiv ({activeJobs.length})
-                    </button>
-                    {activeExpanded && (
-                      <div className="flex flex-col gap-3">
-                        {activeJobs.map((job) => (
-                          <JobCard
-                            key={job.id}
-                            job={job}
-                            isSelected={selectedJobId === job.id}
-                            onView={() => { setSelectedJobId(job.id); setActiveView("job-detail"); }}
-                            onEdit={() => handleEdit(job)}
-                            onDelist={() => handleDelist(job.id)}
-                            onToggleFeatured={() => handleToggleFeatured(job.id)}
-                            onDelete={() => handleDelete(job.id)}
-                          />
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-                {/* Delisted Section */}
-                {delistedJobs.length > 0 && (
-                  <div>
-                    <button
-                      onClick={() => setDelistedExpanded(!delistedExpanded)}
-                      className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3 hover:text-foreground transition-colors"
-                    >
-                      <ChevronDown size={14} className={cn("transition-transform", !delistedExpanded && "-rotate-90")} />
-                      Deaktiv ({delistedJobs.length})
-                    </button>
-                    {delistedExpanded && (
-                      <div className="flex flex-col gap-3">
-                        {delistedJobs.map((job) => (
-                          <JobCard
-                            key={job.id}
-                            job={job}
-                            isSelected={selectedJobId === job.id}
-                            onView={() => { setSelectedJobId(job.id); setActiveView("job-detail"); }}
-                            onEdit={() => handleEdit(job)}
-                            onDelist={() => handleDelist(job.id)}
-                            onToggleFeatured={() => handleToggleFeatured(job.id)}
-                            onDelete={() => handleDelete(job.id)}
-                          />
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            )}
+      {/* Job Detail View - Overlays the list when active */}
+      {activeView === "job-detail" && selectedJob && (
+        <div className="fixed inset-0 z-60 bg-background/80 backdrop-blur-sm flex justify-end">
+          <div className="w-full max-w-4xl bg-background border-l border-border h-full overflow-y-auto animate-in slide-in-from-right duration-300">
+            <div className="p-6 lg:p-10">
+              <button
+                onClick={() => setActiveView("jobs")}
+                className="mb-6 flex items-center gap-2 text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <ArrowLeft size={16} />
+                Elanlar Siyahısına Qayıt
+              </button>
+              <EmployerJobDetail
+                job={selectedJob}
+                onEdit={handleEdit}
+                onDelist={handleDelist}
+                onToggleFeatured={handleToggleFeatured}
+                onDelete={handleDelete}
+              />
+            </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Organization Switcher Modal */}
       {orgSwitcherOpen && (
@@ -1165,7 +1204,7 @@ export default function EmployerPage() {
                 },
               }}
               hidePersonal={false}
-              afterSelectOrganizationUrl={ROUTES.employer}
+              afterSelectOrganizationUrl={ROUTES.employer.root}
               afterSelectPersonalUrl={ROUTES.jobBoard}
             />
           </div>

@@ -30,9 +30,9 @@ export default function JobFiltersPanel({
   };
 
   return (
-    <div className="flex flex-col h-full bg-background border-r border-border">
+    <div className="flex flex-col h-full bg-background dark:bg-[#0b0e14] border-r border-border dark:border-white/10">
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-5 border-b border-border bg-background sticky top-0 z-10">
+      <div className="flex items-center justify-between px-6 py-5 border-b border-border dark:border-white/10 bg-background dark:bg-[#0b0e14] sticky top-0 z-10">
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-lg bg-slate-900 dark:bg-white flex items-center justify-center text-white dark:text-slate-900 shadow-sm">
             <SlidersHorizontal size={14} />
@@ -58,7 +58,7 @@ export default function JobFiltersPanel({
             placeholder="məs. Frontend mühəndis"
             value={filters.title}
             onChange={(e) => update("title", e.target.value)}
-            className="bg-card border-border h-11 rounded-xl"
+            className="bg-card dark:bg-[#0f1423] border-border dark:border-white/10 h-11 rounded-xl focus-visible:ring-primary/20"
           />
         </FilterField>
 
@@ -70,10 +70,10 @@ export default function JobFiltersPanel({
               update("locationType", value)
             }
           >
-            <SelectTrigger className="bg-card border-border h-11 rounded-xl">
+            <SelectTrigger className="bg-card dark:bg-[#0f1423] border-border dark:border-white/10 h-11 rounded-xl focus:ring-primary/20">
               <SelectValue placeholder="İş növünü seçin" />
             </SelectTrigger>
-            <SelectContent className="rounded-xl border-border">
+            <SelectContent className="rounded-xl border-border dark:border-white/10 dark:bg-[#0f1423] backdrop-blur-xl">
               <SelectItem value="any">İstənilən</SelectItem>
               <SelectItem value="in-office">Ofisdə</SelectItem>
               <SelectItem value="hybrid">Hibrid</SelectItem>
@@ -88,7 +88,7 @@ export default function JobFiltersPanel({
             placeholder="məs. Bakı, Gəncə"
             value={filters.city}
             onChange={(e) => update("city", e.target.value)}
-            className="bg-card border-border h-11 rounded-xl"
+            className="bg-card dark:bg-[#0f1423] border-border dark:border-white/10 h-11 rounded-xl focus-visible:ring-primary/20"
           />
         </FilterField>
 
@@ -100,10 +100,10 @@ export default function JobFiltersPanel({
               update("jobType", value)
             }
           >
-            <SelectTrigger className="bg-card border-border h-11 rounded-xl">
+            <SelectTrigger className="bg-card dark:bg-[#0f1423] border-border dark:border-white/10 h-11 rounded-xl focus:ring-primary/20">
               <SelectValue placeholder="İş rejimi seçin" />
             </SelectTrigger>
-            <SelectContent className="rounded-xl border-border">
+            <SelectContent className="rounded-xl border-border dark:border-white/10 dark:bg-[#0f1423] backdrop-blur-xl">
               <SelectItem value="any">İstənilən</SelectItem>
               <SelectItem value="full-time">Tam iş günü</SelectItem>
               <SelectItem value="part-time">Yarımştat</SelectItem>
@@ -121,10 +121,10 @@ export default function JobFiltersPanel({
               update("experienceLevel", value)
             }
           >
-            <SelectTrigger className="bg-card border-border h-11 rounded-xl">
+            <SelectTrigger className="bg-card dark:bg-[#0f1423] border-border dark:border-white/10 h-11 rounded-xl focus:ring-primary/20">
               <SelectValue placeholder="Səviyyə seçin" />
             </SelectTrigger>
-            <SelectContent className="rounded-xl border-border">
+            <SelectContent className="rounded-xl border-border dark:border-white/10 dark:bg-[#0f1423] backdrop-blur-xl">
               <SelectItem value="any">İstənilən</SelectItem>
               <SelectItem value="junior">Junior</SelectItem>
               <SelectItem value="mid">Mid</SelectItem>
@@ -135,7 +135,7 @@ export default function JobFiltersPanel({
         </FilterField>
       </div>
 
-      <div className="p-6 border-t border-border bg-background">
+      <div className="p-6 border-t border-border dark:border-white/10 bg-background dark:bg-[#0b0e14]">
         <Button onClick={onApply} className="w-full h-11 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold shadow-lg shadow-slate-900/10 dark:shadow-white/5 active:scale-95 transition-all">
           <SlidersHorizontal size={15} className="mr-2" />
           Filtrləri Tətbiq Et

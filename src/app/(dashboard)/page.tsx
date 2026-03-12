@@ -70,16 +70,16 @@ export default function JobBoardPage() {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row h-full lg:h-[calc(100vh-65px)] overflow-hidden bg-background">
+    <div className="flex flex-col lg:flex-row h-full lg:h-[calc(100vh-65px)] overflow-hidden bg-background dark:bg-[#0b0e14]">
       {/* Mobile top bar */}
-      <div className="lg:hidden sticky top-0 z-20 px-4 py-3 bg-background border-b border-border flex items-center justify-between shrink-0">
+      <div className="lg:hidden sticky top-0 z-20 px-4 py-3 bg-background dark:bg-[#0b0e14] border-b border-border dark:border-white/10 flex items-center justify-between shrink-0">
         <h2 className="text-sm font-bold text-foreground">İş Elanları</h2>
         <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
           <SheetTrigger className="inline-flex items-center justify-center gap-2 rounded-xl border border-border px-3 py-1.5 text-xs font-bold hover:bg-muted transition-all cursor-pointer bg-card shadow-sm outline-none active:scale-95">
             <Filter size={14} />
             Filtrlər
           </SheetTrigger>
-          <SheetContent side="right" className="p-0 w-[300px] border-l border-border">
+          <SheetContent side="right" className="p-0 w-[300px] border-l border-border dark:border-white/10 dark:bg-[#0b0e14]">
             <div className="h-full pt-10">
               <JobFiltersPanel
                 filters={filters}
@@ -96,7 +96,7 @@ export default function JobBoardPage() {
       </div>
 
       {/* Desktop: Left Filter panel */}
-      <aside className="hidden lg:block w-64 shrink-0 border-r border-border h-full overflow-hidden">
+      <aside className="hidden lg:block w-64 shrink-0 border-r border-border dark:border-white/10 h-full overflow-hidden">
         <JobFiltersPanel
           filters={filters}
           onChange={setFilters}
@@ -109,7 +109,7 @@ export default function JobBoardPage() {
       <main
         style={{ width: selectedJob ? `${leftWidth}px` : "100%" }}
         className={`
-          h-full overflow-y-auto bg-muted/5 transition-all duration-300
+          h-full overflow-y-auto bg-muted/5 dark:bg-white/2 transition-all duration-300
           ${selectedJob ? "lg:shrink-0" : "flex-1"}
           px-4 py-5
         `}
@@ -119,7 +119,7 @@ export default function JobBoardPage() {
             <h1 className="text-2xl font-black text-foreground tracking-tighter">İş Elanları</h1>
             <p className="text-xs text-muted-foreground font-medium">Sizin üçün ən uyğun vakansiyalar</p>
           </div>
-          <div className="px-3 py-1.5 rounded-xl bg-card border border-border shadow-sm">
+          <div className="px-3 py-1.5 rounded-xl bg-card dark:bg-[#0f1423] border border-border dark:border-white/10 shadow-sm">
             <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{jobs.length} vakansiya</p>
           </div>
         </div>
@@ -137,7 +137,7 @@ export default function JobBoardPage() {
           className="hidden lg:flex w-1.5 hover:w-1.5 group cursor-col-resize items-center justify-center bg-transparent transition-all relative z-30"
         >
           {/* Visual line */}
-          <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-px bg-border group-hover:bg-primary group-hover:w-[2px] transition-all" />
+          <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-px bg-border dark:bg-white/10 group-hover:bg-primary group-hover:w-[2px] transition-all" />
           
           {/* Handle indicator */}
           <div className="hidden group-hover:flex absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-8 rounded-full bg-primary items-center justify-center text-white shadow-lg shadow-primary/20 pointer-events-none transition-all scale-110">
