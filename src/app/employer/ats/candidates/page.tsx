@@ -29,6 +29,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { CandidateDetailsDrawer } from "@/components/employer/CandidateDetailsDrawer";
 
 const STATUS_CONFIG: Record<CandidateStatus, { label: string; icon: any; color: string; bg: string }> = {
   Applied: { label: "Müraciət", icon: Clock, color: "text-blue-500", bg: "bg-blue-500/10" },
@@ -43,22 +44,50 @@ export default function CandidatesPage() {
   const [candidates, setCandidates] = useState<Candidate[]>(MOCK_CANDIDATES);
   const [searchQuery, setSearchQuery] = useState("");
   const [analysisOpen, setAnalysisOpen] = useState(false);
+  const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const handleAnalysisComplete = (data: any) => {
     const newCandidate: Candidate = {
       id: crypto.randomUUID(),
       name: data.name,
       email: data.email,
-      location: "Naməlum",
+      location: "Bakı, Azərbaycan",
       experienceYears: data.experienceYears,
       skills: data.skills,
-      education: [],
+      education: ["Məlumat yoxdur"],
       matchingScore: data.matchingScore,
       analysisStatus: "completed",
       appliedAt: new Date().toISOString(),
       status: "Applied",
+      appliedJobTitle: "AI Analiz"
     };
     setCandidates(prev => [newCandidate, ...prev]);
+  };
+
+  const handleStatusChange = (id: string, newStatus: CandidateStatus) => {
+    setCandidates(prev => prev.map(c => 
+      c.id === id ? { ...c, status: newStatus } : c
+    ));
+    if (selectedCandidate?.id === id) {
+      setSelectedCandidate(prev => prev ? { ...prev, status: newStatus } : null);
+    }
+  };
+
+  const handleDownloadCV = (name: string) => {
+    // Simulate download
+    const element = document.createElement("a");
+    const file = new Blob(["Mock CV content for " + name], {type: 'text/plain'});
+    element.href = URL.createObjectURL(file);
+    element.download = `${name}_CV.pdf`;
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+  };
+
+  const openDetails = (candidate: Candidate) => {
+    setSelectedCandidate(candidate);
+    setDrawerOpen(true);
   };
 
   const filteredCandidates = candidates.filter(c => 
@@ -206,16 +235,25 @@ export default function CandidatesPage() {
                           </Button>
                         } />
                         <DropdownMenuContent align="end" className="w-48 rounded-2xl p-2 border-border dark:border-white/10 shadow-2xl bg-card dark:bg-[#0f1423]">
-                          <DropdownMenuItem className="cursor-pointer gap-3 px-3 py-2.5 rounded-xl hover:bg-muted transition-all font-medium text-sm">
+                          <DropdownMenuItem 
+                            onClick={() => openDetails(candidate)}
+                            className="cursor-pointer gap-3 px-3 py-2.5 rounded-xl hover:bg-muted transition-all font-medium text-sm"
+                          >
                             <ExternalLink size={16} className="text-muted-foreground opacity-60" />
                             Profili Gör
                           </DropdownMenuItem>
-                          <DropdownMenuItem className="cursor-pointer gap-3 px-3 py-2.5 rounded-xl hover:bg-muted transition-all font-medium text-sm">
+                          <DropdownMenuItem 
+                            onClick={() => handleDownloadCV(candidate.name)}
+                            className="cursor-pointer gap-3 px-3 py-2.5 rounded-xl hover:bg-muted transition-all font-medium text-sm"
+                          >
                             <FileUp size={16} className="text-muted-foreground opacity-60" />
                             CV-ni Yüklə
                           </DropdownMenuItem>
                           <DropdownMenuSeparator className="my-1 bg-border dark:bg-white/10" />
-                          <DropdownMenuItem className="cursor-pointer gap-3 px-3 py-2.5 rounded-xl text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-all font-semibold text-sm">
+                          <DropdownMenuItem 
+                            onClick={() => handleStatusChange(candidate.id, "Rejected")}
+                            className="cursor-pointer gap-3 px-3 py-2.5 rounded-xl text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-all font-semibold text-sm"
+                          >
                             <XCircle size={16} />
                             Rədd Et
                           </DropdownMenuItem>
@@ -229,6 +267,14 @@ export default function CandidatesPage() {
           </table>
         </div>
       </div>
+
+      <CandidateDetailsDrawer 
+        candidate={selectedCandidate}
+        open={drawerOpen}
+        onOpenChange={setDrawerOpen}
+        onStatusChange={(status) => selectedCandidate && handleStatusChange(selectedCandidate.id, status)}
+        onDownloadCV={() => selectedCandidate && handleDownloadCV(selectedCandidate.name)}
+      />
     </div>
   );
 }
