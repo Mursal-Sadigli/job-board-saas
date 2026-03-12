@@ -141,7 +141,7 @@ export function PostJobModal({
         />
       )}
 
-      <DialogContent className="max-w-[560px] w-[calc(100vw-2rem)] sm:w-full p-0 overflow-hidden rounded-xl border border-border bg-background max-h-[90vh] flex flex-col">
+      <DialogContent className="max-w-[560px] w-[calc(100vw-2rem)] sm:w-full p-0 overflow-hidden rounded-xl border border-border dark:border-white/10 bg-background dark:bg-[#0f1423] max-h-[90vh] flex flex-col backdrop-blur-xl shadow-2xl">
         <DialogHeader className="px-5 pt-5 pb-2 shrink-0">
           <DialogTitle className="text-lg font-bold tracking-tight text-foreground">
             {initialData?.id ? "Elanı Redaktə Et" : "Yeni İş Elanı"}

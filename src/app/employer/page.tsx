@@ -286,11 +286,11 @@ function ApplicationsSection({ applicants, jobId }: { applicants: Applicant[]; j
         </button>
       </div>
 
-      <div className="border border-border rounded-xl overflow-hidden bg-muted/10">
+      <div className="border border-border dark:border-white/10 rounded-xl overflow-hidden bg-muted/10 dark:bg-[#0f1423]/50 backdrop-blur-xl">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-border bg-muted/30">
+              <tr className="border-b border-border dark:border-white/10 bg-muted/30 dark:bg-white/5">
                 <th className="px-6 py-4 text-[11px] font-bold text-muted-foreground uppercase tracking-widest">AD</th>
                 <th className="px-6 py-4 text-[11px] font-bold text-muted-foreground uppercase tracking-widest">
                   <div className="flex items-center gap-1">
@@ -322,7 +322,7 @@ function ApplicationsSection({ applicants, jobId }: { applicants: Applicant[]; j
                 <th className="px-6 py-4 w-10"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border">
+            <tbody className="divide-y divide-border dark:divide-white/10">
               {filteredAndSorted.map((app) => (
                 <tr key={app.id} className="hover:bg-muted/20 transition-colors group">
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -335,7 +335,7 @@ function ApplicationsSection({ applicants, jobId }: { applicants: Applicant[]; j
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center gap-2">
-                       <div className="w-5 h-5 rounded-full border border-border flex items-center justify-center bg-muted">
+                       <div className="w-5 h-5 rounded-full border border-border dark:border-white/10 flex items-center justify-center bg-muted dark:bg-white/5">
                           {app.stage === "applied" ? (
                              <span className="text-[10px] font-bold text-muted-foreground">?</span>
                           ) : (
@@ -392,7 +392,7 @@ function ApplicationsSection({ applicants, jobId }: { applicants: Applicant[]; j
         </div>
 
         {/* Cədvəl Altı - Pagination */}
-        <div className="px-4 sm:px-6 py-4 border-t border-border bg-muted/30 flex flex-wrap items-center justify-between gap-4">
+        <div className="px-4 sm:px-6 py-4 border-t border-border dark:border-white/10 bg-muted/30 dark:bg-white/5 flex flex-wrap items-center justify-between gap-4">
            <div className="flex items-center gap-3">
              <span className="text-[11px] font-bold text-muted-foreground">Hər səhifədə</span>
              <div className="relative flex items-center">
@@ -463,8 +463,8 @@ function EmployerJobDetail({
             <span className={cn(
               "h-7 px-3 flex items-center rounded-full text-[11px] font-bold border",
               job.isActive
-                ? "bg-foreground text-background border-foreground"
-                : "bg-muted text-muted-foreground border-border"
+                ? "bg-foreground text-background border-foreground dark:border-white/20"
+                : "bg-muted text-muted-foreground border-border dark:border-white/10"
             )}>
               {job.isActive ? "Aktiv" : "Deaktiv"}
             </span>
@@ -474,29 +474,29 @@ function EmployerJobDetail({
               </span>
             )}
             {job.salary && (
-              <span className="h-7 px-3 flex items-center gap-1.5 rounded-lg border border-border bg-muted/30 text-[11px] font-bold text-muted-foreground">
+              <span className="h-7 px-3 flex items-center gap-1.5 rounded-lg border border-border dark:border-white/10 bg-muted/30 text-[11px] font-bold text-muted-foreground">
                 <Banknote size={12} className="text-muted-foreground/60" />
                 {job.salary}
               </span>
             )}
             {(job.city || job.district) && (
-              <span className="h-7 px-3 flex items-center gap-1.5 rounded-lg border border-border bg-muted/30 text-[11px] font-bold text-muted-foreground">
+              <span className="h-7 px-3 flex items-center gap-1.5 rounded-lg border border-border dark:border-white/10 bg-muted/30 text-[11px] font-bold text-muted-foreground">
                 <MapPin size={12} className="text-muted-foreground/60" />
                 {[job.city, job.district].filter(Boolean).join(", ")}
               </span>
             )}
             {locConfig && (
-              <span className="h-7 px-3 flex items-center gap-1.5 rounded-lg border border-border bg-muted/30 text-[11px] font-bold text-muted-foreground">
+              <span className="h-7 px-3 flex items-center gap-1.5 rounded-lg border border-border dark:border-white/10 bg-muted/30 text-[11px] font-bold text-muted-foreground">
                 <Globe size={12} className="text-muted-foreground/60" />
                 {locConfig.label}
               </span>
             )}
-            <span className="h-7 px-3 flex items-center gap-1.5 rounded-lg border border-border bg-muted/30 text-[11px] font-bold text-muted-foreground">
+            <span className="h-7 px-3 flex items-center gap-1.5 rounded-lg border border-border dark:border-white/10 bg-muted/30 text-[11px] font-bold text-muted-foreground">
               <Briefcase size={12} className="text-muted-foreground/60" />
               {jobTypeLabel}
             </span>
             {job.experienceLevel && (
-              <span className="h-7 px-3 flex items-center gap-1.5 rounded-lg border border-border bg-muted/30 text-[11px] font-bold text-muted-foreground">
+              <span className="h-7 px-3 flex items-center gap-1.5 rounded-lg border border-border dark:border-white/10 bg-muted/30 dark:bg-white/5 text-[11px] font-bold text-muted-foreground">
                 <User size={12} className="text-muted-foreground/60" />
                 {job.experienceLevel === "junior" ? "Kiçik mütəxəssis" : 
                  job.experienceLevel === "mid" ? "Orta mütəxəssis" : 
@@ -509,7 +509,7 @@ function EmployerJobDetail({
           <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => onEdit(job)}
-              className="h-8 px-3 inline-flex items-center justify-center gap-1.5 rounded-lg bg-muted hover:bg-muted/80 text-[11px] font-bold text-foreground transition-all border border-border shadow-sm"
+              className="h-8 px-3 inline-flex items-center justify-center gap-1.5 rounded-lg bg-muted dark:bg-white/5 hover:bg-muted/80 dark:hover:bg-white/10 text-[11px] font-bold text-foreground transition-all border border-border dark:border-white/10 shadow-sm"
             >
               <Pencil size={12} className="text-muted-foreground" />
               Redaktə
@@ -522,7 +522,7 @@ function EmployerJobDetail({
                   setIsPublishDialogOpen(true);
                 }
               }}
-              className="h-8 px-3 inline-flex items-center justify-center gap-1.5 rounded-lg bg-muted hover:bg-muted/80 text-[11px] font-bold text-foreground transition-all border border-border shadow-sm"
+              className="h-8 px-3 inline-flex items-center justify-center gap-1.5 rounded-lg bg-muted hover:bg-muted/80 text-[11px] font-bold text-foreground transition-all border border-border dark:border-white/10 shadow-sm"
             >
               {job.isActive ? (
                 <>
@@ -539,7 +539,7 @@ function EmployerJobDetail({
             {job.isFeatured && (
               <button
                 onClick={() => onToggleFeatured(job.id!)}
-                className="h-8 px-3 inline-flex items-center justify-center gap-1.5 rounded-lg bg-muted hover:bg-muted/80 text-[11px] font-bold text-foreground transition-all border border-border shadow-sm"
+                className="h-8 px-3 inline-flex items-center justify-center gap-1.5 rounded-lg bg-muted hover:bg-muted/80 text-[11px] font-bold text-foreground transition-all border border-border dark:border-white/10 shadow-sm"
               >
                 <Star size={12} className="fill-primary text-primary" />
                 Önə Çıxarma
@@ -547,7 +547,7 @@ function EmployerJobDetail({
             )}
             <button
               onClick={() => onDelete(job.id!)}
-              className="h-8 px-3 inline-flex items-center justify-center gap-1.5 rounded-lg bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive hover:text-destructive-foreground text-[11px] font-bold transition-all shadow-sm"
+              className="h-8 px-3 inline-flex items-center justify-center gap-1.5 rounded-lg bg-destructive/10 text-destructive border border-destructive/20 dark:border-red-900/30 hover:bg-destructive hover:text-destructive-foreground text-[11px] font-bold transition-all shadow-sm dark:bg-red-950/20 dark:hover:bg-red-950/40"
             >
               <Trash2 size={12} />
               Sil
@@ -581,7 +581,7 @@ function EmployerJobDetail({
 
       {/* Internal Dialog */}
       <Dialog open={isPublishDialogOpen} onOpenChange={setIsPublishDialogOpen}>
-        <DialogContent className="max-w-[400px] rounded-3xl border-border bg-card p-8 shadow-2xl">
+        <DialogContent className="max-w-[400px] rounded-3xl border-border dark:border-white/10 bg-card dark:bg-[#0f1423] p-8 shadow-2xl backdrop-blur-xl">
           <DialogHeader className="space-y-3">
             <DialogTitle className="text-xl font-bold text-foreground text-center">
               Vakansiyanı Dərc Et
@@ -604,7 +604,6 @@ function EmployerJobDetail({
   );
 }
 
-// ------- Main Employer Page -------
 // ------- Job Card Component -------
 function JobCard({
   job,
@@ -627,11 +626,11 @@ function JobCard({
   const jobTypeLabel = jobTypeLabels[job.jobType];
   return (
     <div className={cn(
-      "rounded-2xl border border-border bg-card p-5 flex flex-col lg:flex-row lg:items-center gap-4 hover:shadow-md transition-all cursor-pointer group",
-      isSelected && "ring-2 ring-foreground/20"
+      "rounded-2xl border border-border dark:border-white/10 bg-card dark:bg-[#0f1423] p-5 flex flex-col lg:flex-row lg:items-center gap-4 hover:shadow-lg dark:hover:shadow-white/5 transition-all cursor-pointer group backdrop-blur-xl",
+      isSelected && "ring-2 ring-foreground/20 dark:ring-white/20"
     )}>
       {/* Icon */}
-      <div className="w-11 h-11 rounded-xl bg-muted flex items-center justify-center shrink-0">
+      <div className="w-11 h-11 rounded-xl bg-muted dark:bg-white/5 flex items-center justify-center shrink-0">
         <Briefcase size={20} className="text-muted-foreground" />
       </div>
 
@@ -646,7 +645,7 @@ function JobCard({
         <div className="flex flex-wrap items-center gap-2">
           <span className={cn(
             "text-[11px] font-bold px-2 py-0.5 rounded-full",
-            job.isActive ? "bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400" : "bg-muted text-muted-foreground"
+            job.isActive ? "bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400" : "bg-muted dark:bg-white/5 text-muted-foreground"
           )}>
             {job.isActive ? "Aktiv" : "Deaktiv"}
           </span>
@@ -682,14 +681,14 @@ function JobCard({
         )}
         <button
           onClick={onEdit}
-          className="w-8 h-8 flex items-center justify-center rounded-lg border border-border hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+          className="w-8 h-8 flex items-center justify-center rounded-lg border border-border dark:border-white/10 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
           title="Redaktə et"
         >
           <Pencil size={14} />
         </button>
         <button
           onClick={onDelist}
-          className="w-8 h-8 flex items-center justify-center rounded-lg border border-border hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+          className="w-8 h-8 flex items-center justify-center rounded-lg border border-border dark:border-white/10 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
           title={job.isActive ? "Deaktiv et" : "Aktivləşdir"}
         >
           {job.isActive ? <EyeOff size={14} /> : <Eye size={14} className="text-emerald-500" />}
@@ -706,6 +705,7 @@ function JobCard({
   );
 }
 
+// ------- Main Employer Page -------
 export default function EmployerPage() {
   const { user } = useUser();
   const { theme, setTheme } = useTheme();
@@ -880,12 +880,12 @@ export default function EmployerPage() {
       </nav>
 
       {/* Bottom Section */}
-      <div className="mt-auto p-4 border-t border-border flex flex-col gap-4">
+      <div className="mt-auto p-4 border-t border-border dark:border-white/10 flex flex-col gap-4">
         <Link
           href={ROUTES.jobBoard}
           className="flex items-center gap-3 px-3 py-2 rounded-xl text-[13px] font-bold text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all"
         >
-          <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center border border-border">
+          <div className="w-8 h-8 rounded-lg bg-muted dark:bg-white/5 flex items-center justify-center border border-border dark:border-white/10">
             <Building2 size={16} />
           </div>
           Vakansiya Paneli
@@ -894,7 +894,7 @@ export default function EmployerPage() {
         {user && (
           <DropdownMenu>
             <DropdownMenuTrigger className="w-full flex items-center gap-3 px-1 py-2 hover:bg-muted/30 rounded-xl transition-all outline-none group/trigger">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-primary text-primary-foreground shadow-sm overflow-hidden border border-border">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-primary text-primary-foreground shadow-sm overflow-hidden border border-border dark:border-white/10">
                 {user.imageUrl ? (
                   <Image src={user.imageUrl} alt={displayName} width={40} height={40} className="w-full h-full object-cover" />
                 ) : (
@@ -918,7 +918,7 @@ export default function EmployerPage() {
               align="start"
               side="top"
               sideOffset={12}
-              className="w-[260px] rounded-2xl p-2 border-border shadow-2xl bg-card text-foreground"
+              className="w-[260px] rounded-2xl p-2 border-border dark:border-white/10 shadow-2xl bg-card dark:bg-[#0f1423] text-foreground"
             >
               {/* Theme toggle inside dropdown */}
               <div className="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-muted transition-all mb-1">
@@ -937,7 +937,7 @@ export default function EmployerPage() {
                 />
               </div>
 
-              <DropdownMenuSeparator className="my-1 bg-border" />
+              <DropdownMenuSeparator className="my-1 bg-border dark:bg-white/10" />
 
               <DropdownMenuItem
                 className="cursor-pointer gap-3 px-3 py-2.5 rounded-xl hover:bg-muted transition-all font-medium text-sm"
@@ -965,7 +965,7 @@ export default function EmployerPage() {
                 <span>Təşkilatı Dəyiş</span>
               </DropdownMenuItem>
 
-              <DropdownMenuSeparator className="my-1 bg-border" />
+              <DropdownMenuSeparator className="my-1 bg-border dark:bg-white/10" />
 
               <SignOutButton>
                 <DropdownMenuItem
@@ -986,14 +986,14 @@ export default function EmployerPage() {
     <div className="flex bg-background h-screen overflow-hidden">
       {/* Desktop Sidebar - Image style */}
       <div className={cn(
-        "shrink-0 border-r border-border bg-background flex flex-col hidden lg:flex text-muted-foreground transition-all duration-300 ease-in-out overflow-hidden",
+        "shrink-0 border-r border-border dark:border-white/10 bg-background flex flex-col hidden lg:flex text-muted-foreground transition-all duration-300 ease-in-out overflow-hidden",
         isSidebarCollapsed ? "w-0 opacity-0" : "w-[280px] opacity-100"
       )}>
         {renderSidebarContent()}
       </div>
 
       {/* Right Content Pane - Theme aware */}
-      <div className="flex-1 overflow-y-auto bg-background custom-scrollbar border-l border-border/50">
+      <div className="flex-1 overflow-y-auto bg-background custom-scrollbar border-l border-border/50 dark:border-white/5">
         {activeView === "job-detail" && selectedJob ? (
           <div className="p-6 lg:p-10">
             <button
@@ -1019,17 +1019,17 @@ export default function EmployerPage() {
                 {/* Desktop Hamburger */}
                 <button 
                   onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-                  className="hidden lg:flex w-10 h-10 items-center justify-center rounded-xl bg-card border border-border text-muted-foreground hover:text-foreground transition-all shadow-sm active:scale-95 outline-none"
+                  className="hidden lg:flex w-10 h-10 items-center justify-center rounded-xl bg-card dark:bg-[#0f1423] border border-border dark:border-white/10 text-muted-foreground hover:text-foreground transition-all shadow-sm active:scale-95 outline-none"
                 >
                   <Menu size={20} className={cn("transition-transform duration-300", isSidebarCollapsed && "rotate-90")} />
                 </button>
 
                 {/* Mobile Hamburger (Sheet) */}
                 <Sheet>
-                  <SheetTrigger className="lg:hidden w-10 h-10 flex items-center justify-center rounded-xl bg-card border border-border text-muted-foreground hover:text-foreground transition-all shadow-sm active:scale-95 outline-none cursor-pointer">
+                  <SheetTrigger className="lg:hidden w-10 h-10 flex items-center justify-center rounded-xl bg-card dark:bg-[#0f1423] border border-border dark:border-white/10 text-muted-foreground hover:text-foreground transition-all shadow-sm active:scale-95 outline-none cursor-pointer backdrop-blur-xl">
                     <Menu size={20} />
                   </SheetTrigger>
-                  <SheetContent side="left" className="p-0 w-[280px] border-r border-border bg-background">
+                  <SheetContent side="left" className="p-0 w-[280px] border-r border-border dark:border-white/10 bg-background">
                     {renderSidebarContent()}
                   </SheetContent>
                 </Sheet>
@@ -1054,7 +1054,7 @@ export default function EmployerPage() {
                 { label: "Deaktiv Elanlar", value: delistedJobs.length, color: "bg-orange-50 dark:bg-orange-950/30" },
                 { label: "Ümumi Müraciətlər", value: jobs.reduce((s, j) => s + j.applicants.length, 0), color: "bg-purple-50 dark:bg-purple-950/30" },
               ].map((stat) => (
-                <div key={stat.label} className={cn("rounded-2xl p-4 border border-border/60", stat.color)}>
+                <div key={stat.label} className={cn("rounded-2xl p-4 border border-border/60 dark:border-white/10 shadow-sm", stat.color)}>
                   <p className="text-2xl font-black text-foreground">{stat.value}</p>
                   <p className="text-xs font-semibold text-muted-foreground mt-1">{stat.label}</p>
                 </div>
