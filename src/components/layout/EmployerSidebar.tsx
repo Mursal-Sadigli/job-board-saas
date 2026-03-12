@@ -17,6 +17,8 @@ import {
   UserCheck,
   Star,
   Search,
+  Moon,
+  Sun,
 } from "lucide-react";
 import { ROUTES } from "@/routes/paths";
 import { cn } from "@/utils/cn";
@@ -29,6 +31,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useUser, SignOutButton, OrganizationSwitcher } from "@clerk/nextjs";
+import { useTheme } from "next-themes";
+import { Switch } from "@/components/ui/switch";
 
 const FALLBACK_USER = {
   firstName: "Qonaq",
@@ -51,6 +55,7 @@ export default function EmployerSidebar({
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [orgSwitcherOpen, setOrgSwitcherOpen] = useState(false);
 
+  const { theme, setTheme } = useTheme();
   const displayName = user
     ? `${user.firstName}${user.lastName ? " " + user.lastName : ""}`
     : FALLBACK_USER.firstName;
@@ -249,6 +254,24 @@ export default function EmployerSidebar({
               sideOffset={8}
               className="w-[260px] rounded-2xl p-2 border-border shadow-2xl bg-white dark:bg-[#1C1F26] isolate z-100"
             >
+              <div className="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-muted transition-all mb-1">
+                <div className="flex items-center gap-3 text-sm font-medium text-foreground">
+                  {theme === "dark" ? (
+                    <Moon size={16} className="text-indigo-400" />
+                  ) : (
+                    <Sun size={16} className="text-amber-500" />
+                  )}
+                  <span>Tünd Rejim</span>
+                </div>
+                <Switch
+                  checked={theme === "dark"}
+                  onCheckedChange={() => setTheme(theme === "dark" ? "light" : "dark")}
+                  size="sm"
+                />
+              </div>
+
+              <DropdownMenuSeparator className="my-1 bg-border/50" />
+
               <DropdownMenuItem
                 className="cursor-pointer gap-3 px-3 py-2.5 rounded-xl hover:bg-muted transition-all font-medium text-sm"
                 onClick={() => handleNavigate(ROUTES.employer.root)}

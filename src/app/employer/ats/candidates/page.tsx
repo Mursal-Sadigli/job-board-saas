@@ -13,7 +13,8 @@ import {
   XCircle,
   Mail,
   MapPin,
-  ExternalLink
+  ExternalLink,
+  Briefcase
 } from "lucide-react";
 import { MOCK_CANDIDATES } from "@/api/ats";
 import { Candidate, CandidateStatus } from "@/types/ats";
@@ -97,24 +98,25 @@ export default function CandidatesPage() {
   );
 
   return (
-    <div className="p-6 lg:p-10 max-w-7xl mx-auto space-y-8">
+    <div className="p-4 sm:p-6 lg:p-10 max-w-7xl mx-auto space-y-6 sm:space-y-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-black text-foreground tracking-tight">Namizədlər</h1>
-          <p className="text-sm text-muted-foreground mt-1">Bütün müraciətlər və namizəd bazası</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 sm:gap-4">
+        <div className="space-y-1">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-foreground tracking-tight">Namizədlər</h1>
+          <p className="text-xs sm:text-sm text-muted-foreground font-medium">Bütün müraciətlər və namizəd bazası</p>
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" className="rounded-xl gap-2 font-bold text-sm h-11 px-5 border-border dark:border-white/10">
-            <Filter size={16} />
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+          <Button variant="outline" className="rounded-2xl gap-2 font-black text-xs h-10 sm:h-11 px-6 border-border dark:border-white/10 hover:bg-muted/50 transition-all">
+            <Filter size={14} className="sm:size-4" />
             Filtrlər
           </Button>
           <Button 
             onClick={() => setAnalysisOpen(true)}
-            className="rounded-xl gap-2 font-bold text-sm h-11 px-5 bg-primary text-primary-foreground shadow-lg shadow-primary/20"
+            className="rounded-2xl gap-2 font-black text-xs h-10 sm:h-11 px-6 bg-primary text-primary-foreground shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
           >
-            <FileUp size={16} />
-            CV Yüklə və Analiz Et
+            <FileUp size={14} className="sm:size-4" />
+            <span className="sm:hidden">Analiz Et</span>
+            <span className="hidden sm:inline">CV Analiz Et</span>
           </Button>
         </div>
       </div>
@@ -126,147 +128,110 @@ export default function CandidatesPage() {
       />
 
       {/* Search and Stats */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-        <div className="lg:col-span-3 relative group">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/60 transition-colors group-focus-within:text-primary" size={18} />
+      <div className="flex flex-col lg:flex-row gap-4">
+        <div className="flex-1 relative group">
+          <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-muted-foreground/30 transition-colors group-focus-within:text-primary" size={18} />
           <Input 
             placeholder="Ada, email-ə və ya bacarığa görə axtar..." 
-            className="pl-12 h-12 rounded-2xl bg-card border-border dark:border-white/10 focus:ring-2 focus:ring-primary/20 transition-all font-medium"
+            className="pl-13 h-12 sm:h-14 rounded-[24px] bg-card dark:bg-[#0f1423]/50 border-border dark:border-white/5 focus:ring-8 focus:ring-primary/5 transition-all font-bold text-sm shadow-sm backdrop-blur-xl"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-        <div className="h-12 flex items-center justify-between px-6 rounded-2xl bg-muted/30 border border-border dark:border-white/10">
-          <span className="text-xs font-black uppercase text-muted-foreground/40 tracking-widest">Cəmi:</span>
-          <span className="text-lg font-black text-foreground">{filteredCandidates.length}</span>
+        <div className="h-12 sm:h-14 flex items-center justify-between px-8 rounded-[24px] bg-muted/20 dark:bg-white/5 border border-border dark:border-white/5 min-w-0 sm:min-w-[180px] backdrop-blur-md">
+          <span className="text-[10px] font-black uppercase text-muted-foreground/40 tracking-widest shrink-0">Namizəd Sayı:</span>
+          <span className="text-lg sm:text-xl font-black text-foreground ml-4 shrink-0">{filteredCandidates.length}</s      {/* Candidates Grid - Desktop & Mobile */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        {filteredCandidates.map((candidate) => {
+          const Status = STATUS_CONFIG[candidate.status];
+          return (
+            <div 
+              key={candidate.id} 
+              className="group bg-card dark:bg-linear-to-b dark:from-[#0f172a] dark:to-[#020617] rounded-[24px] border border-border dark:border-white/5 p-4 shadow-sm hover:shadow-xl hover:shadow-primary/5 active:scale-[0.98] transition-all relative overflow-hidden cursor-pointer"
+              onClick={() => openDetails(candidate)}
+            >
+              {/* Visual Accent Layer */}
+              <div className="absolute top-0 right-0 w-24 h-24 bg-primary/10 rounded-full -mr-12 -mt-12 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
+              
+              <div className="flex items-center justify-between gap-3 relative z-10">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-12 h-12 rounded-2xl bg-primary/10 dark:bg-primary/5 flex items-center justify-center text-primary font-black text-base shadow-inner shrink-0 border border-primary/10">
+                    {candidate.name.split(" ").map(n => n[0]).join("")}
+                  </div>
+                  <div className="flex flex-col min-w-0">
+                    <h3 className="text-sm font-black text-foreground truncate leading-tight group-hover:text-primary transition-colors">{candidate.name}</h3>
+                    <div className="flex items-center gap-1.5 mt-1">
+                      <div className={cn(
+                        "inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[8px] font-black uppercase tracking-tight",
+                        Status.bg, Status.color, "dark:border dark:border-current/10"
+                      )}>
+                        {Status.label}
+                      </div>
+                      <span className="text-[10px] font-bold text-muted-foreground/40">•</span>
+                      <span className="text-[9px] font-bold text-muted-foreground/60 truncate">{candidate.appliedJobTitle || "Ümumi Baza"}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="relative w-10 h-10 flex items-center justify-center font-black text-[10px] text-foreground shrink-0 bg-muted/20 dark:bg-white/5 rounded-full border border-border/50 dark:border-white/5">
+                  <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 100 100">
+                    <circle className="text-muted/10 dark:text-white/5 stroke-current" strokeWidth="12" cx="50" cy="50" r="40" fill="transparent" />
+                    <circle 
+                      className={cn(
+                        "stroke-current transition-all duration-1000",
+                        candidate.matchingScore > 80 ? "text-emerald-500" : 
+                        candidate.matchingScore > 50 ? "text-orange-500" : "text-red-500"
+                      )}
+                      strokeWidth="12" strokeLinecap="round" cx="50" cy="50" r="40" fill="transparent"
+                      strokeDasharray={`${candidate.matchingScore * 2.51} 251`}
+                    />
+                  </svg>
+                  {candidate.matchingScore}%
+                </div>
+              </div>
+
+              <div className="mt-4 pt-4 border-t border-border dark:border-white/5 flex items-center justify-between relative z-10">
+                <div className="flex flex-wrap gap-1.5">
+                  {candidate.skills.slice(0, 2).map(skill => (
+                    <span key={skill} className="px-2 py-0.5 rounded-lg bg-muted dark:bg-white/5 text-[9px] font-bold text-muted-foreground/60 uppercase tracking-tight border border-border dark:border-white/5">
+                      {skill}
+                    </span>
+                  ))}
+                  {candidate.skills.length > 2 && (
+                    <span className="text-[9px] font-bold text-muted-foreground/20 self-center ml-1">
+                      +{candidate.skills.length - 2}
+                    </span>
+                  )}
+                </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger render={
+                    <Button variant="ghost" size="sm" className="h-8 w-8 rounded-xl bg-muted/20 dark:bg-white/5 hover:bg-muted dark:hover:bg-white/10" onClick={(e) => e.stopPropagation()}>
+                      <MoreHorizontal size={14} className="text-muted-foreground/60" />
+                    </Button>
+                  } />
+                  <DropdownMenuContent align="end" className="w-52 rounded-[24px] p-2 bg-card dark:bg-[#0f172a] border-border dark:border-white/5 shadow-2xl backdrop-blur-2xl">
+                     <DropdownMenuItem onClick={(e) => { e.stopPropagation(); openDetails(candidate); }} className="rounded-xl font-bold gap-3 px-4 py-2.5 text-xs">
+                        <ExternalLink size={14} className="opacity-60" /> Profili Gör
+                     </DropdownMenuItem>
+                     <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleDownloadCV(candidate.name); }} className="rounded-xl font-bold gap-3 px-4 py-2.5 text-xs">
+                        <FileUp size={14} className="opacity-60" /> CV-ni Yüklə
+                     </DropdownMenuItem>
+                     <DropdownMenuSeparator className="my-1.5 bg-border dark:bg-white/5" />
+                     <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleStatusChange(candidate.id, "Rejected"); }} className="rounded-xl font-black text-red-500 gap-3 px-4 py-2.5 text-xs hover:bg-red-50 dark:hover:bg-red-950/20">
+                        <XCircle size={14} /> Rədd Et
+                     </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+          })}
         </div>
       </div>
 
-      {/* Candidates List */}
-      <div className="bg-card dark:bg-[#0f1423] rounded-3xl border border-border dark:border-white/10 shadow-xl overflow-hidden backdrop-blur-xl">
-        <div className="overflow-x-auto custom-scrollbar">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b border-border dark:border-white/10 bg-muted/20">
-                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">Namizəd</th>
-                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">Status / Vakansiya</th>
-                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 text-center">Uyğunluq</th>
-                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">Bacarıqlar</th>
-                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 text-right">Əməliyyat</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border dark:divide-white/5">
-              {filteredCandidates.map((candidate) => {
-                const Status = STATUS_CONFIG[candidate.status];
-                return (
-                  <tr key={candidate.id} className="group hover:bg-muted/30 transition-all duration-300">
-                    <td className="px-6 py-5">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary font-black text-lg shadow-inner">
-                          {candidate.name.split(" ").map(n => n[0]).join("")}
-                        </div>
-                        <div className="flex flex-col min-w-0">
-                          <span className="text-sm font-black text-foreground truncate">{candidate.name}</span>
-                          <span className="text-xs text-muted-foreground truncate font-medium flex items-center gap-1">
-                            <Mail size={12} className="opacity-50" />
-                            {candidate.email}
-                          </span>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-5">
-                      <div className="flex flex-col gap-1.5">
-                        <div className={cn(
-                          "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider w-fit",
-                          Status.bg, Status.color
-                        )}>
-                          <Status.icon size={12} />
-                          {Status.label}
-                        </div>
-                        <span className="text-xs font-bold text-muted-foreground truncate max-w-[150px]">
-                          {candidate.appliedJobTitle || "Ümumi Baza"}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-5">
-                      <div className="flex flex-col items-center gap-1.5">
-                        <div className="relative w-12 h-12 flex items-center justify-center font-black text-xs text-foreground group-hover:scale-110 transition-transform">
-                          <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 100 100">
-                            <circle 
-                              className="text-muted/30 stroke-current" 
-                              strokeWidth="10" 
-                              cx="50" cy="50" r="40" fill="transparent" 
-                            />
-                            <circle 
-                              className={cn(
-                                "stroke-current transition-all duration-1000",
-                                candidate.matchingScore > 80 ? "text-emerald-500" : 
-                                candidate.matchingScore > 50 ? "text-orange-500" : "text-red-500"
-                              )}
-                              strokeWidth="10" 
-                              strokeLinecap="round"
-                              cx="50" cy="50" r="40" fill="transparent"
-                              strokeDasharray={`${candidate.matchingScore * 2.51} 251`}
-                            />
-                          </svg>
-                          {candidate.matchingScore}%
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-5">
-                      <div className="flex flex-wrap gap-1.5 max-w-[200px]">
-                        {candidate.skills.slice(0, 3).map(skill => (
-                          <span key={skill} className="px-2 py-0.5 rounded-md bg-muted text-[10px] font-bold text-muted-foreground">
-                            {skill}
-                          </span>
-                        ))}
-                        {candidate.skills.length > 3 && (
-                          <span className="text-[10px] font-bold text-muted-foreground opacity-60">
-                            +{candidate.skills.length - 3}
-                          </span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-6 py-5 text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger render={
-                          <Button variant="ghost" className="h-9 w-9 p-0 rounded-xl hover:bg-muted">
-                            <MoreHorizontal size={18} className="text-muted-foreground" />
-                          </Button>
-                        } />
-                        <DropdownMenuContent align="end" className="w-48 rounded-2xl p-2 border-border dark:border-white/10 shadow-2xl bg-card dark:bg-[#0f1423]">
-                          <DropdownMenuItem 
-                            onClick={() => openDetails(candidate)}
-                            className="cursor-pointer gap-3 px-3 py-2.5 rounded-xl hover:bg-muted transition-all font-medium text-sm"
-                          >
-                            <ExternalLink size={16} className="text-muted-foreground opacity-60" />
-                            Profili Gör
-                          </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            onClick={() => handleDownloadCV(candidate.name)}
-                            className="cursor-pointer gap-3 px-3 py-2.5 rounded-xl hover:bg-muted transition-all font-medium text-sm"
-                          >
-                            <FileUp size={16} className="text-muted-foreground opacity-60" />
-                            CV-ni Yüklə
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator className="my-1 bg-border dark:bg-white/10" />
-                          <DropdownMenuItem 
-                            onClick={() => handleStatusChange(candidate.id, "Rejected")}
-                            className="cursor-pointer gap-3 px-3 py-2.5 rounded-xl text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-all font-semibold text-sm"
-                          >
-                            <XCircle size={16} />
-                            Rədd Et
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </div>
 
       <CandidateDetailsDrawer 
         candidate={selectedCandidate}

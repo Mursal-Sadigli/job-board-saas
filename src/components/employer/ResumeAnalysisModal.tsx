@@ -15,7 +15,6 @@ import {
 } from "lucide-react";
 import { cn } from "@/utils/cn";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress"; // Assuming shadcn progress exists or will be simulated
 import { 
   Dialog, 
   DialogContent, 
