@@ -23,12 +23,17 @@ import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Candidate, CandidateStatus } from "@/types/ats";
 import { cn } from "@/utils/cn";
+import { toast } from "@/hooks/use-toast";
+import { useRouter } from "next/navigation";
+import { ROUTES } from "@/routes/paths";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { OfferModal } from "./OfferModal";
+import { useState } from "react";
 
 interface CandidateDetailsDrawerProps {
   candidate: Candidate | null;
@@ -46,7 +51,6 @@ const STATUS_CONFIG: Record<CandidateStatus, { label: string; icon: any; color: 
   Hired: { label: "İşə Alındı", icon: CheckCircle2, color: "text-green-500", bg: "bg-green-500/10" },
   Rejected: { label: "İmtina", icon: XCircle, color: "text-red-500", bg: "bg-red-500/10" },
 };
-
 export function CandidateDetailsDrawer({ 
   candidate, 
   open, 
@@ -54,6 +58,9 @@ export function CandidateDetailsDrawer({
   onStatusChange,
   onDownloadCV
 }: CandidateDetailsDrawerProps) {
+  const router = useRouter();
+  const [offerModalOpen, setOfferModalOpen] = useState(false);
+
   if (!candidate) return null;
 
   const Status = STATUS_CONFIG[candidate.status];
@@ -177,7 +184,18 @@ export function CandidateDetailsDrawer({
         <div className="p-6 sm:p-8 bg-white dark:bg-[#020617] border-t border-slate-100 dark:border-white/5 shrink-0">
           <div className="flex items-center gap-3">
             <Button 
-              onClick={() => onStatusChange("Interview")}
+              onClick={() => {
+                onStatusChange("Interview");
+                toast({
+                  title: "Müsahibə Mərhələsi",
+                  description: `${candidate.name} müsahibə mərhələsinə keçirildi.`,
+                  type: "success",
+                  action: {
+                    label: "Təqvimdə Gör",
+                    onClick: () => router.push(ROUTES.employer.ats.interviews)
+                  }
+                });
+              }}
               className="flex-1 rounded-2xl font-black bg-slate-900 text-white dark:bg-white dark:text-slate-900 hover:scale-[1.02] active:scale-[0.98] transition-all h-14 text-sm shadow-2xl shadow-black/10 dark:shadow-white/5"
             >
               Müsahibə
@@ -190,16 +208,35 @@ export function CandidateDetailsDrawer({
                 </Button>
               } />
               <DropdownMenuContent align="end" className="w-56 p-2.5 rounded-[24px] border-slate-200 dark:border-white/10 bg-white dark:bg-[#0f172a] shadow-2xl backdrop-blur-3xl">
-                 <DropdownMenuItem onClick={() => onStatusChange("Offered")} className="rounded-xl px-4 py-3 font-black gap-3 cursor-pointer text-xs">
+                 <DropdownMenuItem 
+                   onClick={() => setOfferModalOpen(true)} 
+                   className="rounded-xl px-4 py-3 font-black gap-3 cursor-pointer text-xs"
+                 >
                     <Star size={16} className="text-emerald-500" /> İŞ TƏKLİF ET
                  </DropdownMenuItem>
-                 <DropdownMenuItem onClick={() => onStatusChange("Rejected")} className="rounded-xl px-4 py-3 font-black gap-3 text-red-500 hover:bg-red-500/10 cursor-pointer text-xs">
+                 <DropdownMenuItem 
+                   onClick={() => {
+                     onStatusChange("Rejected");
+                     toast({
+                       title: "Müraciət İmtina Edildi",
+                       description: `${candidate.name} müraciətinə imtina verildi.`,
+                       type: "error"
+                     });
+                   }} 
+                   className="rounded-xl px-4 py-3 font-black gap-3 text-red-500 hover:bg-red-500/10 cursor-pointer text-xs"
+                 >
                     <XCircle size={16} /> İMTİNA ET
                  </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
         </div>
+        <OfferModal 
+            open={offerModalOpen}
+            onOpenChange={setOfferModalOpen}
+            candidate={candidate}
+            onSuccess={() => onStatusChange("Offered")}
+        />
       </SheetContent>
     </Sheet>
   );
