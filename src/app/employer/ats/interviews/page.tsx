@@ -172,54 +172,54 @@ export default function InterviewsPage() {
       />
 
       {view === "list" ? (
-        <div className="space-y-4">
+        <div className="bg-card rounded-[32px] border border-border dark:border-white/20 overflow-hidden divide-y divide-border dark:divide-white/20">
           {interviews.map((interview) => {
             const isUpcoming = interview.status === "Upcoming";
             return (
               <div 
                 key={interview.id}
-                className="group bg-card p-5 rounded-3xl border border-border dark:border-white/10 hover:border-primary/50 transition-all duration-300 shadow-sm hover:shadow-xl hover:shadow-primary/5"
+                className="group py-3 px-4 sm:py-4 sm:px-8 hover:bg-muted/30 transition-colors relative cursor-pointer w-full"
               >
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
-                      <User size={24} />
+                    <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                      <User size={20} className="sm:size-[22px]" />
                     </div>
                     <div>
-                      <h3 className="font-black text-foreground">{interview.candidateName}</h3>
-                      <p className="text-xs text-muted-foreground font-medium">{interview.role}</p>
+                      <h3 className="text-sm font-black text-foreground leading-tight group-hover:text-primary transition-colors">{interview.candidateName}</h3>
+                      <p className="text-[11px] text-muted-foreground font-bold mt-0.5">{interview.role}</p>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 flex-1">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                        <CalendarIcon size={14} />
-                        <span className="text-xs font-bold uppercase tracking-wider">Tarix və Vaxt</span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 flex-1">
+                    <div className="space-y-0.5">
+                      <div className="flex items-center gap-2 text-muted-foreground/50">
+                        <CalendarIcon size={12} />
+                        <span className="text-[9px] font-black uppercase tracking-wider">Tarix və Vaxt</span>
                       </div>
-                      <p className="text-sm font-bold text-foreground">
+                      <p className="text-xs font-bold text-foreground">
                         {interview.date.includes("-") ? new Date(interview.date).toLocaleDateString("az-AZ", { day: 'numeric', month: 'long' }) : interview.date}
-                        <span className="text-muted-foreground ml-2 font-medium">{interview.time}</span>
+                        <span className="text-muted-foreground/60 ml-2 font-medium">{interview.time}</span>
                       </p>
                     </div>
 
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                        {interview.type === "Online" ? <Video size={14} /> : <MapPin size={14} />}
-                        <span className="text-xs font-bold uppercase tracking-wider">Məkan / Növ</span>
+                    <div className="space-y-0.5">
+                      <div className="flex items-center gap-2 text-muted-foreground/50">
+                        {interview.type === "Online" ? <Video size={12} /> : <MapPin size={12} />}
+                        <span className="text-[9px] font-black uppercase tracking-wider">Məkan / Növ</span>
                       </div>
-                      <p className="text-sm font-bold text-foreground">
+                      <p className="text-xs font-bold text-foreground">
                         {interview.type} 
-                        {interview.location && <span className="text-muted-foreground ml-2 font-medium">({interview.location})</span>}
+                        {interview.location && <span className="text-muted-foreground/60 ml-2 font-medium text-[11px]">({interview.location})</span>}
                       </p>
                     </div>
 
-                    <div className="space-y-1 hidden lg:block">
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                        <User size={14} />
-                        <span className="text-xs font-bold uppercase tracking-wider">Müsahibəçi</span>
+                    <div className="space-y-0.5 hidden lg:block">
+                      <div className="flex items-center gap-2 text-muted-foreground/50">
+                        <User size={12} />
+                        <span className="text-[9px] font-black uppercase tracking-wider">Müsahibəçi</span>
                       </div>
-                      <p className="text-sm font-bold text-foreground">{interview.interviewer}</p>
+                      <p className="text-xs font-bold text-foreground">{interview.interviewer}</p>
                     </div>
                   </div>
 
@@ -227,7 +227,7 @@ export default function InterviewsPage() {
                     <Badge 
                       variant={isUpcoming ? "default" : "secondary"}
                       className={cn(
-                        "rounded-lg px-3 py-1 font-bold text-[10px] uppercase tracking-wider",
+                        "rounded-lg px-2.5 py-0.5 font-bold text-[9px] uppercase tracking-wider",
                         isUpcoming ? "bg-blue-500/10 text-blue-500 border-blue-500/20" : "bg-muted text-muted-foreground"
                       )}
                     >
@@ -236,20 +236,20 @@ export default function InterviewsPage() {
                     
                     <DropdownMenu>
                       <DropdownMenuTrigger render={
-                        <Button variant="ghost" size="icon" className="rounded-xl h-10 w-10 hover:bg-muted group-hover:bg-muted/50 transition-colors">
-                          <MoreHorizontal size={18} className="text-muted-foreground" />
+                        <Button variant="ghost" size="icon" className="rounded-lg h-8 w-8 hover:bg-muted group-hover:bg-muted/50 transition-colors">
+                          <MoreHorizontal size={16} className="text-muted-foreground/60" />
                         </Button>
                       } />
-                      <DropdownMenuContent align="end" className="rounded-xl border-border dark:border-white/10 bg-card dark:bg-[#0f172a]">
+                      <DropdownMenuContent align="end" className="w-48 rounded-2xl border-border dark:border-white/10 bg-card dark:bg-[#0f172a] shadow-2xl p-2">
                         <DropdownMenuItem 
                             onClick={() => handleEdit(interview)}
-                            className="rounded-lg font-bold gap-2 focus:bg-primary/10 focus:text-primary cursor-pointer"
+                            className="rounded-xl font-bold gap-3 px-4 py-2 text-xs focus:bg-primary/10 focus:text-primary cursor-pointer"
                         >
-                            <CalendarIcon size={14} /> Redaktə et
+                            <CalendarIcon size={14} className="opacity-60" /> Redaktə et
                         </DropdownMenuItem>
                         <DropdownMenuItem 
                             onClick={() => handleDelete(interview.id)}
-                            className="rounded-lg font-bold gap-2 text-red-500 focus:bg-red-500/10 focus:text-red-500 cursor-pointer"
+                            className="rounded-xl font-black gap-3 px-4 py-2 text-xs text-red-500 focus:bg-red-500/10 focus:text-red-500 cursor-pointer"
                         >
                             <X size={14} /> Sil
                         </DropdownMenuItem>

@@ -26,23 +26,23 @@ function ToastItem({ toast, onDismiss }: { toast: Toast; onDismiss: () => void }
   }, []);
 
   const icons = {
-    success: <CheckCircle2 className="text-emerald-500" size={18} />,
-    error: <AlertCircle className="text-red-500" size={18} />,
-    warning: <AlertTriangle className="text-amber-500" size={18} />,
-    info: <Info className="text-blue-500" size={18} />,
+    success: <CheckCircle2 className="text-emerald-500" size={22} />,
+    error: <AlertCircle className="text-red-500" size={22} />,
+    warning: <AlertTriangle className="text-amber-500" size={22} />,
+    info: <Info className="text-blue-500" size={22} />,
   };
 
   const bgs = {
-    success: "bg-emerald-500/5 border-emerald-500/10",
-    error: "bg-red-500/5 border-red-500/10",
-    warning: "bg-amber-500/5 border-amber-500/10",
-    info: "bg-blue-500/5 border-blue-500/10",
+    success: "border-l-emerald-500 bg-emerald-50/90 dark:bg-emerald-500/10",
+    error: "border-l-red-500 bg-red-50/90 dark:bg-red-500/10",
+    warning: "border-l-amber-500 bg-amber-50/90 dark:bg-amber-500/10",
+    info: "border-l-blue-500 bg-blue-50/90 dark:bg-blue-500/10",
   }[toast.type || "info"];
 
   return (
     <div
       className={cn(
-        "pointer-events-auto flex items-start gap-4 p-4 rounded-2xl bg-card border shadow-2xl backdrop-blur-3xl transition-all duration-300 ease-out translate-x-12 opacity-0",
+        "pointer-events-auto flex items-start gap-4 p-4 rounded-xl bg-card border border-l-4 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.2)] dark:shadow-[0_10px_40px_-10px_rgba(0,0,0,0.5)] backdrop-blur-xl transition-all duration-300 ease-out translate-x-12 opacity-0",
         isVisible && "translate-x-0 opacity-100",
         bgs
       )}
@@ -50,12 +50,12 @@ function ToastItem({ toast, onDismiss }: { toast: Toast; onDismiss: () => void }
       <div className="mt-0.5 shrink-0">{icons[toast.type || "info"]}</div>
       <div className="flex-1 space-y-1">
         {toast.title && (
-          <h4 className="text-sm font-black text-foreground leading-none tracking-tight">
+          <h4 className="text-[13px] font-black text-foreground leading-none tracking-tight">
             {toast.title}
           </h4>
         )}
         {toast.description && (
-          <p className="text-xs text-muted-foreground font-medium leading-relaxed">
+          <p className="text-xs text-muted-foreground font-bold leading-relaxed">
             {toast.description}
           </p>
         )}
@@ -73,9 +73,9 @@ function ToastItem({ toast, onDismiss }: { toast: Toast; onDismiss: () => void }
       </div>
       <button
         onClick={onDismiss}
-        className="shrink-0 text-muted-foreground/40 hover:text-foreground transition-colors"
+        className="shrink-0 text-muted-foreground/40 hover:text-foreground transition-colors p-1"
       >
-        <X size={14} />
+        <X size={16} />
       </button>
     </div>
   );

@@ -132,17 +132,17 @@ export default function CandidatesPage() {
   return (
     <div className="p-6 pt-0 lg:px-20 lg:py-12 max-w-7xl mx-auto space-y-6 sm:space-y-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 sm:gap-4 lg:pl-16 pl-12">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 sm:gap-4 lg:pl-16 pl-12 pr-12 sm:pr-0 pt-6 sm:pt-0">
         <div className="space-y-1">
           <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-foreground tracking-tight">Namizədlər</h1>
           <p className="text-xs sm:text-sm text-muted-foreground font-medium">Bütün müraciətlər və namizəd bazası</p>
         </div>
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full sm:w-auto">
           <Button 
             variant="outline" 
             onClick={() => setFiltersOpen(true)}
             className={cn(
-              "rounded-2xl gap-2 font-black text-xs h-10 sm:h-11 px-6 border-border dark:border-white/10 hover:bg-muted/50 transition-all",
+              "rounded-2xl gap-2 font-black text-xs h-10 sm:h-11 px-6 border-border dark:border-white/10 hover:bg-muted/50 transition-all w-full sm:w-auto",
               (filters.status.length > 0 || filters.experience !== "all" || filters.minScore > 0 || filters.location) && "bg-primary/5 border-primary text-primary"
             )}
           >
@@ -154,7 +154,7 @@ export default function CandidatesPage() {
           </Button>
           <Button 
             onClick={() => setAnalysisOpen(true)}
-            className="rounded-2xl gap-2 font-black text-xs h-10 sm:h-11 px-6 bg-primary text-primary-foreground shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+            className="rounded-2xl gap-2 font-black text-xs h-10 sm:h-11 px-6 bg-primary text-primary-foreground shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all w-full sm:w-auto"
           >
             <FileUp size={14} className="sm:size-4" />
             <span className="sm:hidden">Analiz Et</span>
@@ -187,13 +187,13 @@ export default function CandidatesPage() {
       </div>
 
       {/* Candidates List - Simplified & Compact */}
-      <div className="bg-card rounded-[32px] border border-border dark:border-white/10 overflow-hidden divide-y divide-border/50 dark:divide-white/5">
+      <div className="bg-card rounded-[32px] border border-border dark:border-white/20 overflow-hidden divide-y divide-border dark:divide-white/20">
         {filteredCandidates.map((candidate) => {
           const Status = STATUS_CONFIG[candidate.status];
           return (
             <div 
               key={candidate.id} 
-              className="group p-3 sm:py-4 sm:px-6 hover:bg-muted/30 transition-colors relative cursor-pointer w-full"
+              className="group py-4 px-4 sm:py-5 sm:px-8 hover:bg-muted/30 transition-colors relative cursor-pointer w-full"
               onClick={() => openDetails(candidate)}
             >
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
