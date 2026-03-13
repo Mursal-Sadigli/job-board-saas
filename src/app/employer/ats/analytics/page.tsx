@@ -31,10 +31,10 @@ const PIPELINE_DATA = [
 
 export default function AnalyticsPage() {
   return (
-    <div className="p-6 lg:p-10 max-w-7xl mx-auto space-y-8">
+    <div className="p-4 sm:p-6 lg:px-20 lg:py-12 max-w-7xl mx-auto space-y-6 sm:space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-black text-foreground tracking-tight">Analitika</h1>
+        <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-foreground tracking-tight">Analitika</h1>
         <p className="text-sm text-muted-foreground mt-1">İşə qəbul prosesinin statistik göstəriciləri</p>
       </div>
 

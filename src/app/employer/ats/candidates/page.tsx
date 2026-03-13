@@ -31,6 +31,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { CandidateDetailsDrawer } from "@/components/employer/CandidateDetailsDrawer";
+import { CandidateFiltersDrawer } from "@/components/employer/CandidateFiltersDrawer";
 
 const STATUS_CONFIG: Record<CandidateStatus, { label: string; icon: any; color: string; bg: string }> = {
   Applied: { label: "Müraciət", icon: Clock, color: "text-blue-500", bg: "bg-blue-500/10" },
@@ -47,6 +48,13 @@ export default function CandidatesPage() {
   const [analysisOpen, setAnalysisOpen] = useState(false);
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [filters, setFilters] = useState({
+    status: [] as CandidateStatus[],
+    experience: "all",
+    minScore: 0,
+    location: ""
+  });
 
   const handleAnalysisComplete = (data: any) => {
     const newCandidate: Candidate = {
@@ -91,14 +99,38 @@ export default function CandidatesPage() {
     setDrawerOpen(true);
   };
 
-  const filteredCandidates = candidates.filter(c => 
-    c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    c.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    c.skills.some(s => s.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+  const filteredCandidates = candidates.filter(c => {
+    // Search Query (Name, Email, Skills)
+    const matchesSearch = 
+      c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      c.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      c.skills.some(s => s.toLowerCase().includes(searchQuery.toLowerCase()));
+
+    // Status Filter
+    const matchesStatus = filters.status.length === 0 || filters.status.includes(c.status);
+
+    // Experience Filter
+    let matchesExperience = true;
+    if (filters.experience !== "all") {
+      const exp = c.experienceYears;
+      if (filters.experience === "0-1") matchesExperience = exp <= 1;
+      else if (filters.experience === "1-3") matchesExperience = exp > 1 && exp <= 3;
+      else if (filters.experience === "3-5") matchesExperience = exp > 3 && exp <= 5;
+      else if (filters.experience === "5-10") matchesExperience = exp > 5 && exp <= 10;
+      else if (filters.experience === "10+") matchesExperience = exp > 10;
+    }
+
+    // Matching Score Filter
+    const matchesScore = c.matchingScore >= filters.minScore;
+
+    // Location Filter
+    const matchesLocation = !filters.location || c.location.toLowerCase().includes(filters.location.toLowerCase());
+
+    return matchesSearch && matchesStatus && matchesExperience && matchesScore && matchesLocation;
+  });
 
   return (
-    <div className="p-4 sm:p-6 lg:p-10 max-w-7xl mx-auto space-y-6 sm:space-y-8">
+    <div className="p-4 sm:p-6 lg:px-20 lg:py-12 max-w-7xl mx-auto space-y-6 sm:space-y-8">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 sm:gap-4">
         <div className="space-y-1">
@@ -106,9 +138,19 @@ export default function CandidatesPage() {
           <p className="text-xs sm:text-sm text-muted-foreground font-medium">Bütün müraciətlər və namizəd bazası</p>
         </div>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
-          <Button variant="outline" className="rounded-2xl gap-2 font-black text-xs h-10 sm:h-11 px-6 border-border dark:border-white/10 hover:bg-muted/50 transition-all">
+          <Button 
+            variant="outline" 
+            onClick={() => setFiltersOpen(true)}
+            className={cn(
+              "rounded-2xl gap-2 font-black text-xs h-10 sm:h-11 px-6 border-border dark:border-white/10 hover:bg-muted/50 transition-all",
+              (filters.status.length > 0 || filters.experience !== "all" || filters.minScore > 0 || filters.location) && "bg-primary/5 border-primary text-primary"
+            )}
+          >
             <Filter size={14} className="sm:size-4" />
             Filtrlər
+            {(filters.status.length > 0 || filters.experience !== "all" || filters.minScore > 0 || filters.location) && (
+              <span className="ml-1 w-2 h-2 rounded-full bg-primary" />
+            )}
           </Button>
           <Button 
             onClick={() => setAnalysisOpen(true)}
@@ -140,7 +182,11 @@ export default function CandidatesPage() {
         </div>
         <div className="h-12 sm:h-14 flex items-center justify-between px-8 rounded-[24px] bg-muted/20 dark:bg-white/5 border border-border dark:border-white/5 min-w-0 sm:min-w-[180px] backdrop-blur-md">
           <span className="text-[10px] font-black uppercase text-muted-foreground/40 tracking-widest shrink-0">Namizəd Sayı:</span>
-          <span className="text-lg sm:text-xl font-black text-foreground ml-4 shrink-0">{filteredCandidates.length}</s      {/* Candidates Grid - Desktop & Mobile */}
+          <span className="text-lg sm:text-xl font-black text-foreground ml-4 shrink-0">{filteredCandidates.length}</span>
+        </div>
+      </div>
+
+      {/* Candidates Grid - Desktop & Mobile */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         {filteredCandidates.map((candidate) => {
           const Status = STATUS_CONFIG[candidate.status];
@@ -227,10 +273,6 @@ export default function CandidatesPage() {
           );
         })}
       </div>
-    );
-          })}
-        </div>
-      </div>
 
 
       <CandidateDetailsDrawer 
@@ -239,6 +281,13 @@ export default function CandidatesPage() {
         onOpenChange={setDrawerOpen}
         onStatusChange={(status) => selectedCandidate && handleStatusChange(selectedCandidate.id, status)}
         onDownloadCV={() => selectedCandidate && handleDownloadCV(selectedCandidate.name)}
+      />
+
+      <CandidateFiltersDrawer 
+        open={filtersOpen}
+        onOpenChange={setFiltersOpen}
+        onApplyFilters={setFilters}
+        initialFilters={filters}
       />
     </div>
   );

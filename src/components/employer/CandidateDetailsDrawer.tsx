@@ -23,6 +23,12 @@ import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Candidate, CandidateStatus } from "@/types/ats";
 import { cn } from "@/utils/cn";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface CandidateDetailsDrawerProps {
   candidate: Candidate | null;
@@ -94,22 +100,22 @@ export function CandidateDetailsDrawer({
             
             {/* Quick Stats Grid - Mimicking شэкиl structure */}
             <div className="grid grid-cols-2 gap-3 sm:gap-4">
-               <div className="bg-slate-50 dark:bg-white/[0.03] p-4 rounded-2xl border border-slate-100 dark:border-white/5 shadow-sm flex flex-col gap-1 items-center text-center group transition-all min-w-0">
+               <div className="bg-slate-50 dark:bg-white/3 p-4 rounded-2xl border border-slate-100 dark:border-white/5 shadow-sm flex flex-col gap-1 items-center text-center group transition-all min-w-0">
                   <Status.icon size={18} className={cn(Status.color, "opacity-80 shrink-0")} />
                   <span className="text-[10px] font-black text-slate-400 dark:text-white/20 uppercase tracking-[0.2em] mt-1 shrink-0">STATUS</span>
                   <span className={cn("text-xs font-black truncate w-full", Status.color)}>{Status.label}</span>
                </div>
-               <div className="bg-slate-50 dark:bg-white/[0.03] p-4 rounded-2xl border border-slate-100 dark:border-white/5 shadow-sm flex flex-col gap-1 items-center text-center group transition-all min-w-0">
+               <div className="bg-slate-50 dark:bg-white/3 p-4 rounded-2xl border border-slate-100 dark:border-white/5 shadow-sm flex flex-col gap-1 items-center text-center group transition-all min-w-0">
                   <Star size={18} className="text-amber-400 opacity-80 shrink-0" />
                   <span className="text-[10px] font-black text-slate-400 dark:text-white/20 uppercase tracking-[0.2em] mt-1 shrink-0">UYĞUNLUQ</span>
                   <span className="text-xs font-black text-slate-900 dark:text-white truncate w-full">{candidate.matchingScore}%</span>
                </div>
-               <div className="bg-slate-50 dark:bg-white/[0.03] p-4 rounded-2xl border border-slate-100 dark:border-white/5 shadow-sm flex flex-col gap-1 items-center text-center group transition-all min-w-0">
+               <div className="bg-slate-50 dark:bg-white/3 p-4 rounded-2xl border border-slate-100 dark:border-white/5 shadow-sm flex flex-col gap-1 items-center text-center group transition-all min-w-0">
                   <Briefcase size={18} className="text-slate-400 dark:text-white/30 opacity-80 shrink-0" />
                   <span className="text-[10px] font-black text-slate-400 dark:text-white/20 uppercase tracking-[0.2em] mt-1 shrink-0">TƏCRÜBƏ</span>
                   <span className="text-xs font-black text-slate-900 dark:text-white truncate w-full">{candidate.experienceYears}+ il</span>
                </div>
-               <div className="bg-slate-50 dark:bg-white/[0.03] p-4 rounded-2xl border border-slate-100 dark:border-white/5 shadow-sm flex flex-col gap-1 items-center text-center group transition-all min-w-0">
+               <div className="bg-slate-50 dark:bg-white/3 p-4 rounded-2xl border border-slate-100 dark:border-white/5 shadow-sm flex flex-col gap-1 items-center text-center group transition-all min-w-0">
                   <MapPin size={18} className="text-slate-400 dark:text-white/30 opacity-80 shrink-0" />
                   <span className="text-[10px] font-black text-slate-400 dark:text-white/20 uppercase tracking-[0.2em] mt-1 shrink-0">MƏKAN</span>
                   <span className="text-xs font-black text-slate-900 dark:text-white truncate w-full">{candidate.location.split(",")[0]}</span>
@@ -178,11 +184,11 @@ export function CandidateDetailsDrawer({
             </Button>
             
             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
+              <DropdownMenuTrigger render={
                 <Button variant="ghost" className="rounded-2xl h-14 w-14 border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-white/5 flex items-center justify-center">
                    <Info size={20} className="text-slate-400 dark:text-white/40" />
                 </Button>
-              </DropdownMenuTrigger>
+              } />
               <DropdownMenuContent align="end" className="w-56 p-2.5 rounded-[24px] border-slate-200 dark:border-white/10 bg-white dark:bg-[#0f172a] shadow-2xl backdrop-blur-3xl">
                  <DropdownMenuItem onClick={() => onStatusChange("Offered")} className="rounded-xl px-4 py-3 font-black gap-3 cursor-pointer text-xs">
                     <Star size={16} className="text-emerald-500" /> İŞ TƏKLİF ET
@@ -198,11 +204,3 @@ export function CandidateDetailsDrawer({
     </Sheet>
   );
 }
-
-// Sub-components for better organization
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";

@@ -46,12 +46,12 @@ export default function EmployerLayout({
           </h1>
         </header>
 
-        {/* Desktop Collapse Toggle Overlay (Invisible trigger or visible button) */}
+        {/* Desktop Collapse Toggle Overlay */}
         <button 
           onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-          className="hidden lg:flex absolute left-4 top-4 w-10 h-10 items-center justify-center rounded-xl bg-card dark:bg-[#0f1423] border border-border dark:border-white/10 text-muted-foreground hover:text-foreground transition-all shadow-sm active:scale-95 outline-none z-50 backdrop-blur-sm"
+          className="hidden lg:flex absolute left-6 top-6 w-11 h-11 items-center justify-center rounded-2xl bg-card dark:bg-[#0f1423] border border-border dark:border-white/10 text-muted-foreground hover:text-foreground transition-all shadow-xl active:scale-95 outline-none z-50 backdrop-blur-xl"
         >
-          <Menu size={20} className={cn("transition-transform duration-300", isSidebarCollapsed && "rotate-90")} />
+          <Menu size={22} className={cn("transition-transform duration-300", isSidebarCollapsed && "rotate-90")} />
         </button>
 
         <main className="flex-1 overflow-y-auto w-full h-full relative custom-scrollbar">
