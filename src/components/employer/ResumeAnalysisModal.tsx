@@ -102,8 +102,8 @@ export function ResumeAnalysisModal({ open, onOpenChange, onAnalysisComplete }: 
 
   return (
     <Dialog open={open} onOpenChange={(v) => { if (status !== "analyzing") onOpenChange(v); if (!v) reset(); }}>
-      <DialogContent className="sm:max-w-[500px] rounded-3xl border-border/60 bg-card overflow-hidden p-0 gap-0">
-        <DialogHeader className="p-6 bg-muted/30 border-b border-border/50">
+      <DialogContent className="sm:max-w-[500px] rounded-3xl border-border/60 dark:border-white/5 bg-card dark:bg-[#020617] backdrop-blur-3xl overflow-hidden p-0 gap-0">
+        <DialogHeader className="p-6 bg-muted/30 dark:bg-white/5 border-b border-border/50 dark:border-white/5">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
               <Sparkles size={20} />
@@ -124,7 +124,7 @@ export function ResumeAnalysisModal({ open, onOpenChange, onAnalysisComplete }: 
               className="border-2 border-dashed border-border dark:border-white/10 rounded-3xl p-10 flex flex-col items-center justify-center gap-4 cursor-pointer hover:border-primary/40 hover:bg-primary/5 transition-all group"
             >
               <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept=".pdf,.doc,.docx" />
-              <div className="w-16 h-16 rounded-2xl bg-muted group-hover:bg-primary/10 flex items-center justify-center text-muted-foreground group-hover:text-primary transition-all">
+              <div className="w-16 h-16 rounded-2xl bg-muted dark:bg-white/5 group-hover:bg-primary/10 flex items-center justify-center text-muted-foreground/60 group-hover:text-primary transition-all">
                 <FileUp size={32} />
               </div>
               <div className="text-center">
@@ -151,9 +151,9 @@ export function ResumeAnalysisModal({ open, onOpenChange, onAnalysisComplete }: 
                   </span>
                   <span className="text-xs font-black text-foreground">{Math.round(progress)}%</span>
                 </div>
-                <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+                <div className="h-2 w-full bg-muted dark:bg-white/5 rounded-full overflow-hidden">
                   <div 
-                    className="h-full bg-primary transition-all duration-300 rounded-full shadow-[0_0_15px_rgba(var(--primary),0.5)]" 
+                    className="h-full bg-primary transition-all duration-300 rounded-full shadow-[0_0_15px_rgba(59,130,246,0.5)] dark:shadow-[0_0_20px_rgba(59,130,246,0.5)]" 
                     style={{ width: `${progress}%` }} 
                   />
                 </div>
@@ -202,7 +202,7 @@ export function ResumeAnalysisModal({ open, onOpenChange, onAnalysisComplete }: 
           )}
         </div>
 
-        <div className="p-6 bg-muted/30 border-t border-border/50 flex flex-col gap-3">
+        <div className="p-6 bg-muted/30 dark:bg-white/5 border-t border-border/50 dark:border-white/5 flex flex-col gap-3">
           {status === "idle" ? (
             <Button 
               disabled={!file} 

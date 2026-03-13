@@ -288,7 +288,7 @@ function ApplicationsSection({ applicants, jobId }: { applicants: Applicant[]; j
         </button>
       </div>
 
-      <div className="border border-border dark:border-white/10 rounded-xl overflow-hidden bg-muted/10 dark:bg-[#0f1423]/50 backdrop-blur-xl">
+      <div className="border border-border dark:border-white/10 rounded-xl overflow-hidden bg-muted/10 dark:bg-card backdrop-blur-xl">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
@@ -583,7 +583,7 @@ function EmployerJobDetail({
 
       {/* Internal Dialog */}
       <Dialog open={isPublishDialogOpen} onOpenChange={setIsPublishDialogOpen}>
-        <DialogContent className="max-w-[400px] rounded-3xl border-border dark:border-white/10 bg-card dark:bg-[#0f1423] p-8 shadow-2xl backdrop-blur-xl">
+        <DialogContent className="max-w-[400px] rounded-3xl border-border dark:border-white/10 bg-card p-8 shadow-2xl backdrop-blur-xl">
           <DialogHeader className="space-y-3">
             <DialogTitle className="text-xl font-bold text-foreground text-center">
               Vakansiyanı Dərc Et
@@ -628,7 +628,7 @@ function JobCard({
   const jobTypeLabel = jobTypeLabels[job.jobType];
   return (
     <div className={cn(
-      "rounded-2xl border border-border dark:border-white/10 bg-card dark:bg-[#0f1423] p-5 flex flex-col lg:flex-row lg:items-center gap-4 hover:shadow-lg dark:hover:shadow-white/5 transition-all cursor-pointer group backdrop-blur-xl",
+      "rounded-2xl border border-border dark:border-white/10 bg-card p-5 flex flex-col lg:flex-row lg:items-center gap-4 hover:shadow-lg dark:hover:shadow-white/5 transition-all cursor-pointer group backdrop-blur-xl",
       isSelected && "ring-2 ring-foreground/20 dark:ring-white/20"
     )}>
       {/* Icon */}
@@ -898,7 +898,7 @@ export default function EmployerPage() {
       {/* Job Detail View - Overlays the list when active */}
       {activeView === "job-detail" && selectedJob && (
         <div className="fixed inset-0 z-60 bg-background/80 backdrop-blur-sm flex justify-end">
-          <div className="w-full max-w-4xl bg-background border-l border-border h-full overflow-y-auto animate-in slide-in-from-right duration-300">
+          <div className="w-full max-w-4xl bg-card border-l border-border h-full overflow-y-auto animate-in slide-in-from-right duration-300">
             <div className="p-6 lg:p-10">
               <button
                 onClick={() => setActiveView("jobs")}
@@ -926,7 +926,7 @@ export default function EmployerPage() {
             className="absolute inset-0 bg-black/50 backdrop-blur-sm"
             onClick={() => setOrgSwitcherOpen(false)}
           />
-          <div className="relative bg-white dark:bg-[#1C1F26] rounded-3xl shadow-2xl border border-border p-6 z-10 min-w-[320px]">
+          <div className="relative bg-card rounded-3xl shadow-2xl border border-border p-6 z-10 min-w-[320px]">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-base font-bold text-foreground">Təşkilatı Dəyiş</h3>
               <button

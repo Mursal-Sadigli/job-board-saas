@@ -69,8 +69,8 @@ export function CandidateDetailsDrawer({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent showCloseButton={false} className="w-full sm:max-w-xl p-0 border-l border-border dark:border-white/10 bg-background dark:bg-[#020617] overflow-hidden flex flex-col shadow-2xl transition-all duration-300">
         {/* Superior Header - Lighter Mimicking user image */}
-        <div className="relative h-44 sm:h-52 bg-linear-to-br from-slate-100 via-slate-200 to-slate-300 dark:from-slate-800 dark:via-slate-900 dark:to-[#020617] p-5 sm:p-8 flex flex-col justify-between overflow-hidden shrink-0 border-b border-black/5 dark:border-white/5">
-          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5 mix-blend-overlay" />
+        <div className="relative h-44 sm:h-52 bg-linear-to-br from-slate-100 via-slate-200 to-slate-300 dark:from-slate-900/40 dark:via-slate-900/20 dark:to-[#020617] p-5 sm:p-8 flex flex-col justify-between overflow-hidden shrink-0 border-b border-black/5 dark:border-white/5">
+          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.pattern')] opacity-5 mix-blend-overlay" />
           
           <div className="flex items-center justify-between relative z-10">
             <Badge className="bg-black/5 dark:bg-white/10 backdrop-blur-md text-black/60 dark:text-white/60 border-transparent px-3 py-1 font-black tracking-[0.2em] text-[9px] uppercase rounded-full">
@@ -105,9 +105,9 @@ export function CandidateDetailsDrawer({
         <div className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar bg-white dark:bg-[#020617]">
           <div className="p-6 sm:p-8 space-y-8">
             
-            {/* Quick Stats Grid - Mimicking شэкиl structure */}
+            {/* Quick Stats Grid - Mimicking shэkil structure */}
             <div className="grid grid-cols-2 gap-3 sm:gap-4">
-               <div className="bg-slate-50 dark:bg-white/3 p-4 rounded-2xl border border-slate-100 dark:border-white/5 shadow-sm flex flex-col gap-1 items-center text-center group transition-all min-w-0">
+               <div className="bg-slate-50 dark:bg-white/5 p-4 rounded-2xl border border-slate-100 dark:border-white/5 shadow-sm flex flex-col gap-1 items-center text-center group transition-all min-w-0 backdrop-blur-3xl">
                   <Status.icon size={18} className={cn(Status.color, "opacity-80 shrink-0")} />
                   <span className="text-[10px] font-black text-slate-400 dark:text-white/20 uppercase tracking-[0.2em] mt-1 shrink-0">STATUS</span>
                   <span className={cn("text-xs font-black truncate w-full", Status.color)}>{Status.label}</span>
@@ -138,11 +138,11 @@ export function CandidateDetailsDrawer({
                   </h3>
                   <div className="space-y-4">
                      <div className="flex flex-col gap-1">
-                        <span className="text-[9px] font-black text-slate-300 dark:text-white/10 uppercase tracking-widest">EMAIL</span>
+                        <span className="text-[9px] font-black text-slate-300 dark:text-white/20 uppercase tracking-widest">EMAIL</span>
                         <span className="text-sm font-black text-slate-700 dark:text-white tracking-tight">{candidate.email}</span>
                      </div>
                      <div className="flex flex-col gap-1">
-                        <span className="text-[9px] font-black text-slate-300 dark:text-white/10 uppercase tracking-widest">MƏKAN</span>
+                        <span className="text-[9px] font-black text-slate-300 dark:text-white/20 uppercase tracking-widest">MƏKAN</span>
                         <span className="text-sm font-black text-slate-700 dark:text-white tracking-tight">{candidate.location}</span>
                      </div>
                   </div>
@@ -203,11 +203,11 @@ export function CandidateDetailsDrawer({
             
             <DropdownMenu>
               <DropdownMenuTrigger render={
-                <Button variant="ghost" className="rounded-2xl h-14 w-14 border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-white/5 flex items-center justify-center">
+               <Button variant="ghost" className="rounded-2xl h-14 w-14 border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 flex items-center justify-center">
                    <Info size={20} className="text-slate-400 dark:text-white/40" />
                 </Button>
               } />
-              <DropdownMenuContent align="end" className="w-56 p-2.5 rounded-[24px] border-slate-200 dark:border-white/10 bg-white dark:bg-[#0f172a] shadow-2xl backdrop-blur-3xl">
+              <DropdownMenuContent align="end" className="w-56 p-2.5 rounded-[24px] border-slate-200 dark:border-white/10 bg-white dark:bg-[#020617] shadow-2xl backdrop-blur-3xl">
                  <DropdownMenuItem 
                    onClick={() => setOfferModalOpen(true)} 
                    className="rounded-xl px-4 py-3 font-black gap-3 cursor-pointer text-xs"

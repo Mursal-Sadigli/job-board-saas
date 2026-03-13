@@ -64,7 +64,7 @@ export default function JobCard({ job, onClick, isSelected }: JobCardProps) {
         "border rounded-2xl p-4 sm:p-5 cursor-pointer group transition-all duration-200 relative overflow-hidden backdrop-blur-xl",
         job.featured 
           ? "bg-white dark:bg-[#1e1424] shadow-lg shadow-purple-500/5 dark:shadow-purple-500/10" 
-          : "bg-card dark:bg-[#0f1423]",
+          : "bg-card",
         isSelected
           ? "border-primary ring-2 ring-primary/20 shadow-md dark:ring-white/10"
           : job.featured

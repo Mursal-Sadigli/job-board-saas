@@ -175,7 +175,7 @@ export default function CandidatesPage() {
           <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-muted-foreground/30 transition-colors group-focus-within:text-primary" size={18} />
           <Input 
             placeholder="Ada, email-ə və ya bacarığa görə axtar..." 
-            className="pl-13 h-12 sm:h-14 rounded-[24px] bg-card dark:bg-[#0f1423]/50 border-border dark:border-white/5 focus:ring-8 focus:ring-primary/5 transition-all font-bold text-sm shadow-sm backdrop-blur-xl"
+            className="pl-13 h-12 sm:h-14 rounded-[24px] bg-card dark:bg-white/5 border-border dark:border-white/5 focus:ring-8 focus:ring-primary/5 transition-all font-bold text-sm shadow-sm backdrop-blur-xl"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -193,7 +193,7 @@ export default function CandidatesPage() {
           return (
             <div 
               key={candidate.id} 
-              className="group bg-card dark:bg-linear-to-b dark:from-[#0f172a] dark:to-[#020617] rounded-[24px] border border-border dark:border-white/5 p-4 shadow-sm hover:shadow-xl hover:shadow-primary/5 active:scale-[0.98] transition-all relative overflow-hidden cursor-pointer"
+              className="group bg-card rounded-[24px] border border-border dark:border-white/10 p-4 shadow-sm hover:shadow-xl hover:shadow-primary/10 active:scale-[0.98] transition-all relative overflow-hidden cursor-pointer"
               onClick={() => openDetails(candidate)}
             >
               {/* Visual Accent Layer */}

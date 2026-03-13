@@ -81,7 +81,7 @@ export function CandidateFiltersDrawer({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent showCloseButton={false} className="w-full sm:max-w-md p-0 border-l border-border dark:border-white/10 bg-background dark:bg-[#020617] overflow-hidden flex flex-col shadow-2xl">
         {/* Header */}
-        <div className="p-6 sm:p-8 flex items-center justify-between border-b border-border dark:border-white/5 bg-slate-50/50 dark:bg-white/2">
+        <div className="p-6 sm:p-8 flex items-center justify-between border-b border-border dark:border-white/5 bg-slate-50/50 dark:bg-white/5 backdrop-blur-md">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
               <Filter size={20} />
@@ -212,7 +212,7 @@ export function CandidateFiltersDrawer({
         </div>
 
         {/* Footer */}
-        <div className="p-6 sm:p-8 border-t border-border dark:border-white/5 bg-slate-50/50 dark:bg-white/2 flex items-center gap-3">
+        <div className="p-6 sm:p-8 border-t border-border dark:border-white/5 bg-slate-50/50 dark:bg-white/5 backdrop-blur-md flex items-center gap-3">
           <Button 
             variant="outline" 
             onClick={handleReset}

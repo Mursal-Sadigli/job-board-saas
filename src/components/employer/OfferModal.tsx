@@ -8,7 +8,8 @@ import {
   FileText, 
   CheckCircle2,
   Sparkles,
-  Info
+  Info,
+  Briefcase
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -46,26 +47,16 @@ export function OfferModal({ open, onOpenChange, candidate, onSuccess }: OfferMo
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[95vw] sm:max-w-[550px] p-0 overflow-hidden border-none bg-background dark:bg-[#020617] rounded-3xl sm:rounded-[40px] shadow-2xl max-h-[90vh] flex flex-col">
+      <DialogContent className="w-[95vw] sm:max-w-[550px] p-0 overflow-hidden border-none bg-background dark:bg-[#020617] backdrop-blur-3xl rounded-3xl sm:rounded-[40px] shadow-2xl max-h-[90vh] flex flex-col">
         <DialogHeader className="p-6 sm:p-10 pb-0 shrink-0">
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <DialogTitle className="text-xl sm:text-2xl font-black text-foreground tracking-tight flex items-center gap-2">
-                <Sparkles className="text-primary animate-pulse shrink-0" size={24} />
-                İş Təklifi Hazırla
-              </DialogTitle>
-              <p className="text-xs sm:text-sm text-muted-foreground font-medium">
-                {candidate.name} üçün rəsmi təklif detalları
-              </p>
-            </div>
-            <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={() => onOpenChange(false)}
-                className="rounded-full hover:bg-muted h-9 w-9 sm:h-10 sm:w-10"
-            >
-                <X size={18} />
-            </Button>
+          <div className="space-y-1 pr-8 sm:pr-0">
+            <DialogTitle className="text-xl sm:text-2xl font-black text-foreground tracking-tight flex items-center gap-2">
+              <Sparkles className="text-primary animate-pulse shrink-0" size={24} />
+              İş Təklifi Hazırla
+            </DialogTitle>
+            <p className="text-xs sm:text-sm text-muted-foreground font-medium">
+              {candidate.name} üçün rəsmi təklif detalları
+            </p>
           </div>
         </DialogHeader>
 
@@ -77,7 +68,7 @@ export function OfferModal({ open, onOpenChange, candidate, onSuccess }: OfferMo
               <Input 
                   placeholder="Məs: Senior Frontend Developer" 
                   defaultValue={candidate.appliedJobTitle}
-                  className="pl-11 h-12 sm:h-14 rounded-2xl bg-muted/20 border-border dark:border-white/5 focus:ring-4 focus:ring-primary/5 font-bold text-sm sm:text-base"
+                className="pl-11 h-12 sm:h-14 rounded-2xl bg-muted/20 dark:bg-white/5 border-border dark:border-white/5 focus:ring-4 focus:ring-primary/5 font-bold text-sm sm:text-base pr-4"
               />
             </div>
           </div>
@@ -88,8 +79,8 @@ export function OfferModal({ open, onOpenChange, candidate, onSuccess }: OfferMo
               <div className="relative group">
                 <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/40 group-focus-within:text-primary transition-colors" size={16} />
                 <Input 
-                    placeholder="Məs: 2500" 
-                    className="pl-11 h-12 sm:h-14 rounded-2xl bg-muted/20 border-border dark:border-white/5 focus:ring-4 focus:ring-primary/5 font-bold text-sm sm:text-base"
+                  placeholder="Məs: 15-20 AZN / saat və ya 2500 AZN / ay" 
+                  className="pl-11 h-12 sm:h-14 rounded-2xl bg-muted/20 dark:bg-white/5 border-border dark:border-white/5 focus:ring-4 focus:ring-primary/5 font-bold text-sm sm:text-base"
                 />
               </div>
             </div>
@@ -107,10 +98,12 @@ export function OfferModal({ open, onOpenChange, candidate, onSuccess }: OfferMo
 
           <div className="space-y-2">
             <label className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-muted-foreground ml-1">İş haqqında məlumat</label>
-            <Textarea 
-              placeholder="İşin təsviri, tələblər və əlavə qeydlər..." 
-              className="min-h-[120px] sm:min-h-[160px] p-4 sm:p-5 rounded-2xl bg-muted/20 border-border dark:border-white/5 focus:ring-4 focus:ring-primary/5 font-medium text-sm sm:text-base leading-relaxed resize-none"
-            />
+            <div className="relative group">
+              <Textarea 
+                  placeholder="İşin əsas öhdəlikləri, tələblər, iş vaxtı və digər detalları qeyd edin..." 
+                  className="w-full min-h-[120px] p-5 rounded-2xl bg-muted/20 dark:bg-white/5 border border-border dark:border-white/5 focus:ring-4 focus:ring-primary/5 outline-hidden font-bold text-sm sm:text-base resize-none custom-scrollbar"
+              />
+            </div>
           </div>
 
           <div className="p-4 sm:p-5 rounded-2xl bg-primary/5 border border-primary/10 flex gap-4 items-start">
@@ -131,14 +124,14 @@ export function OfferModal({ open, onOpenChange, candidate, onSuccess }: OfferMo
             <Button 
                 variant="outline" 
                 onClick={() => onOpenChange(false)}
-                className="order-2 sm:order-1 flex-1 h-12 sm:h-14 rounded-2xl font-black border-border dark:border-white/10 hover:bg-muted text-sm"
+                className="order-2 sm:order-1 w-full sm:flex-1 h-12 sm:h-14 rounded-2xl font-black border-border dark:border-white/10 hover:bg-muted text-sm"
             >
                 Ləğv Et
             </Button>
             <Button 
                 onClick={handleSend}
                 disabled={loading}
-                className="order-1 sm:order-2 flex-2 h-12 sm:h-14 rounded-2xl font-black bg-primary text-primary-foreground shadow-2xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all text-sm"
+                className="order-1 sm:order-2 w-full sm:flex-2 h-12 sm:h-14 rounded-2xl font-black bg-primary text-primary-foreground shadow-2xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all text-sm"
             >
                 {loading ? (
                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
