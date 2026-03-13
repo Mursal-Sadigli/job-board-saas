@@ -126,12 +126,12 @@ export default function InterviewsPage() {
   return (
     <div className="p-6 pt-0 lg:px-20 lg:py-12 max-w-7xl mx-auto space-y-6 sm:space-y-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 lg:pl-16 pl-12">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 lg:pl-16 pl-12 pr-12 sm:pr-0">
         <div>
           <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-foreground tracking-tight">Müsahibələr</h1>
           <p className="text-sm text-muted-foreground mt-1">Planlaşdırılmış görüşlər və müsahibə cədvəli</p>
         </div>
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto text-center">
           <div className="flex bg-muted/30 p-1 rounded-xl border border-border/50 order-2 sm:order-1">
             <button 
               onClick={() => setView("list")}

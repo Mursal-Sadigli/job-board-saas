@@ -186,88 +186,86 @@ export default function CandidatesPage() {
         </div>
       </div>
 
-      {/* Candidates Grid - Desktop & Mobile */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+      {/* Candidates List - Simplified & Compact */}
+      <div className="bg-card rounded-[32px] border border-border dark:border-white/10 overflow-hidden divide-y divide-border/50 dark:divide-white/5">
         {filteredCandidates.map((candidate) => {
           const Status = STATUS_CONFIG[candidate.status];
           return (
             <div 
               key={candidate.id} 
-              className="group bg-card rounded-[24px] border border-border dark:border-white/10 p-4 shadow-sm hover:shadow-xl hover:shadow-primary/10 active:scale-[0.98] transition-all relative overflow-hidden cursor-pointer"
+              className="group p-3 sm:py-4 sm:px-6 hover:bg-muted/30 transition-colors relative cursor-pointer w-full"
               onClick={() => openDetails(candidate)}
             >
-              {/* Visual Accent Layer */}
-              <div className="absolute top-0 right-0 w-24 h-24 bg-primary/10 rounded-full -mr-12 -mt-12 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
-              
-              <div className="flex items-center justify-between gap-3 relative z-10">
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-12 h-12 rounded-2xl bg-primary/10 dark:bg-primary/5 flex items-center justify-center text-primary font-black text-base shadow-inner shrink-0 border border-primary/10">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
+                <div className="flex items-center gap-4 min-w-0">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-primary/10 dark:bg-primary/5 flex items-center justify-center text-primary font-black text-sm sm:text-base shadow-inner shrink-0 border border-primary/10">
                     {candidate.name.split(" ").map(n => n[0]).join("")}
                   </div>
                   <div className="flex flex-col min-w-0">
-                    <h3 className="text-sm font-black text-foreground truncate leading-tight group-hover:text-primary transition-colors">{candidate.name}</h3>
-                    <div className="flex items-center gap-1.5 mt-1">
+                    <h3 className="text-[13px] sm:text-sm font-black text-foreground truncate leading-tight group-hover:text-primary transition-colors">{candidate.name}</h3>
+                    <div className="flex flex-wrap items-center gap-2 mt-1">
                       <div className={cn(
-                        "inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[8px] font-black uppercase tracking-tight",
-                        Status.bg, Status.color, "dark:border dark:border-current/10"
+                        "inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-tight",
+                        Status.bg, Status.color
                       )}>
                         {Status.label}
                       </div>
-                      <span className="text-[10px] font-bold text-muted-foreground/40">•</span>
-                      <span className="text-[9px] font-bold text-muted-foreground/60 truncate">{candidate.appliedJobTitle || "Ümumi Baza"}</span>
+                      <span className="text-[10px] font-bold text-muted-foreground/40 sm:block hidden">•</span>
+                      <span className="text-[10px] font-bold text-muted-foreground/60 truncate">{candidate.appliedJobTitle || "Ümumi Baza"}</span>
+                      <span className="hidden md:inline text-[10px] font-bold text-muted-foreground/40">•</span>
+                      <span className="hidden md:inline text-[10px] font-bold text-muted-foreground/60">{candidate.experienceYears}+ il təcrübə</span>
                     </div>
                   </div>
                 </div>
-                
-                <div className="relative w-10 h-10 flex items-center justify-center font-black text-[10px] text-foreground shrink-0 bg-muted/20 dark:bg-white/5 rounded-full border border-border/50 dark:border-white/5">
-                  <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 100 100">
-                    <circle className="text-muted/10 dark:text-white/5 stroke-current" strokeWidth="12" cx="50" cy="50" r="40" fill="transparent" />
-                    <circle 
-                      className={cn(
-                        "stroke-current transition-all duration-1000",
-                        candidate.matchingScore > 80 ? "text-emerald-500" : 
-                        candidate.matchingScore > 50 ? "text-orange-500" : "text-red-500"
-                      )}
-                      strokeWidth="12" strokeLinecap="round" cx="50" cy="50" r="40" fill="transparent"
-                      strokeDasharray={`${candidate.matchingScore * 2.51} 251`}
-                    />
-                  </svg>
-                  {candidate.matchingScore}%
-                </div>
-              </div>
 
-              <div className="mt-4 pt-4 border-t border-border dark:border-white/5 flex items-center justify-between relative z-10">
-                <div className="flex flex-wrap gap-1.5">
-                  {candidate.skills.slice(0, 2).map(skill => (
-                    <span key={skill} className="px-2 py-0.5 rounded-lg bg-muted dark:bg-white/5 text-[9px] font-bold text-muted-foreground/60 uppercase tracking-tight border border-border dark:border-white/5">
-                      {skill}
-                    </span>
-                  ))}
-                  {candidate.skills.length > 2 && (
-                    <span className="text-[9px] font-bold text-muted-foreground/20 self-center ml-1">
-                      +{candidate.skills.length - 2}
-                    </span>
-                  )}
+                <div className="flex items-center justify-between sm:justify-end gap-6">
+                  {/* Skills tags - hidden on small screens */}
+                  <div className="hidden lg:flex flex-wrap gap-1.5 max-w-[180px] justify-end">
+                    {candidate.skills.slice(0, 2).map(skill => (
+                      <span key={skill} className="px-1.5 py-0.5 rounded-md bg-muted dark:bg-white/5 text-[8px] font-bold text-muted-foreground/50 uppercase tracking-tight border border-border dark:border-white/5 whitespace-nowrap">
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+
+                  <div className="flex items-center gap-4">
+                    <div className="relative w-9 h-9 flex items-center justify-center font-black text-[9px] text-foreground shrink-0 bg-muted/20 dark:bg-white/5 rounded-full border border-border/50 dark:border-white/5 shadow-sm">
+                      <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 100 100">
+                        <circle className="text-muted/10 dark:text-white/5 stroke-current" strokeWidth="10" cx="50" cy="50" r="40" fill="transparent" />
+                        <circle 
+                          className={cn(
+                            "stroke-current transition-all duration-1000",
+                            candidate.matchingScore > 80 ? "text-emerald-500" : 
+                            candidate.matchingScore > 50 ? "text-orange-500" : "text-red-500"
+                          )}
+                          strokeWidth="10" strokeLinecap="round" cx="50" cy="50" r="40" fill="transparent"
+                          strokeDasharray={`${candidate.matchingScore * 2.51} 251`}
+                        />
+                      </svg>
+                      {candidate.matchingScore}%
+                    </div>
+
+                    <DropdownMenu>
+                      <DropdownMenuTrigger render={
+                        <Button variant="ghost" size="sm" className="h-8 w-8 rounded-lg bg-muted/20 dark:bg-white/5 hover:bg-muted dark:hover:bg-white/10" onClick={(e) => e.stopPropagation()}>
+                          <MoreHorizontal size={14} className="text-muted-foreground/60" />
+                        </Button>
+                      } />
+                      <DropdownMenuContent align="end" className="w-52 rounded-[20px] p-2 bg-card dark:bg-[#0f172a] border-border dark:border-white/5 shadow-2xl backdrop-blur-2xl">
+                         <DropdownMenuItem onClick={(e) => { e.stopPropagation(); openDetails(candidate); }} className="rounded-xl font-bold gap-3 px-4 py-2 text-xs">
+                            <ExternalLink size={14} className="opacity-60" /> Profili Gör
+                         </DropdownMenuItem>
+                         <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleDownloadCV(candidate.name); }} className="rounded-xl font-bold gap-3 px-4 py-2 text-xs">
+                            <FileUp size={14} className="opacity-60" /> CV-ni Yüklə
+                         </DropdownMenuItem>
+                         <DropdownMenuSeparator className="my-1 bg-border dark:bg-white/5" />
+                         <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleStatusChange(candidate.id, "Rejected"); }} className="rounded-xl font-black text-red-500 gap-3 px-4 py-2 text-xs hover:bg-red-50 dark:hover:bg-red-950/20">
+                            <XCircle size={14} /> Rədd Et
+                         </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                 </div>
-                <DropdownMenu>
-                  <DropdownMenuTrigger render={
-                    <Button variant="ghost" size="sm" className="h-8 w-8 rounded-xl bg-muted/20 dark:bg-white/5 hover:bg-muted dark:hover:bg-white/10" onClick={(e) => e.stopPropagation()}>
-                      <MoreHorizontal size={14} className="text-muted-foreground/60" />
-                    </Button>
-                  } />
-                  <DropdownMenuContent align="end" className="w-52 rounded-[24px] p-2 bg-card dark:bg-[#0f172a] border-border dark:border-white/5 shadow-2xl backdrop-blur-2xl">
-                     <DropdownMenuItem onClick={(e) => { e.stopPropagation(); openDetails(candidate); }} className="rounded-xl font-bold gap-3 px-4 py-2.5 text-xs">
-                        <ExternalLink size={14} className="opacity-60" /> Profili Gör
-                     </DropdownMenuItem>
-                     <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleDownloadCV(candidate.name); }} className="rounded-xl font-bold gap-3 px-4 py-2.5 text-xs">
-                        <FileUp size={14} className="opacity-60" /> CV-ni Yüklə
-                     </DropdownMenuItem>
-                     <DropdownMenuSeparator className="my-1.5 bg-border dark:bg-white/5" />
-                     <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleStatusChange(candidate.id, "Rejected"); }} className="rounded-xl font-black text-red-500 gap-3 px-4 py-2.5 text-xs hover:bg-red-50 dark:hover:bg-red-950/20">
-                        <XCircle size={14} /> Rədd Et
-                     </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
               </div>
             </div>
           );

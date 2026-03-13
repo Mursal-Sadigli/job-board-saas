@@ -60,6 +60,8 @@ import {
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useTheme } from "next-themes";
 import Image from "next/image";
+import { CandidateDetailsDrawer } from "@/components/employer/CandidateDetailsDrawer";
+import { Candidate as ATSCandidate, CandidateStatus } from "@/types/ats";
 
 // ------- Types -------
 const FALLBACK_USER = {
@@ -240,6 +242,43 @@ function ApplicationsSection({ applicants, jobId }: { applicants: Applicant[]; j
   const [sortField, setSortField] = useState<SortField>("appliedAt");
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
 
+  // Candidate Details Drawer
+  const [selectedForDetails, setSelectedForDetails] = useState<ATSCandidate | null>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  // Status mapping
+  const stageToStatus = (stage: Stage): CandidateStatus => {
+    const map: Record<Stage, CandidateStatus> = {
+      applied: "Applied",
+      screening: "Screening",
+      interview: "Interview",
+      offer: "Offered",
+      hired: "Hired",
+      rejected: "Rejected",
+    };
+    return map[stage];
+  };
+
+  const openCandidateDetails = (app: Applicant) => {
+    // Create a full Candidate object from Applicant for the drawer
+    const candidate: ATSCandidate = {
+      id: app.id,
+      name: app.name,
+      email: `${app.name.toLowerCase().replace(" ", ".")}@example.com`,
+      location: "Bakı, Azərbaycan",
+      experienceYears: 4,
+      skills: ["React", "TypeScript", "Node.js", "UI/UX"],
+      education: ["Bakı Dövlət Universiteti - Kompüter Elmləri"],
+      matchingScore: 85,
+      analysisStatus: "completed",
+      appliedAt: app.appliedAt,
+      status: stageToStatus(app.stage),
+      appliedJobTitle: "UX Mühəndis",
+    };
+    setSelectedForDetails(candidate);
+    setDrawerOpen(true);
+  };
+
   const updateApplicant = (id: string, patch: Partial<Applicant>) => {
     setList((prev) => prev.map((a) => (a.id === id ? { ...a, ...patch } : a)));
   };
@@ -410,7 +449,10 @@ function ApplicationsSection({ applicants, jobId }: { applicants: Applicant[]; j
                         </button>
                       } />
                       <DropdownMenuContent align="end" className="w-40 rounded-xl border-border bg-card">
-                        <DropdownMenuItem className="text-xs font-bold gap-2 cursor-pointer focus:bg-muted py-2.5">
+                        <DropdownMenuItem 
+                          className="text-xs font-bold gap-2 cursor-pointer focus:bg-muted py-2.5"
+                          onClick={() => openCandidateDetails(app)}
+                        >
                           <Eye size={14} /> Namizədə bax
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
@@ -460,6 +502,29 @@ function ApplicationsSection({ applicants, jobId }: { applicants: Applicant[]; j
            </div>
         </div>
       </div>
+
+      <CandidateDetailsDrawer 
+        candidate={selectedForDetails}
+        open={drawerOpen}
+        onOpenChange={setDrawerOpen}
+        onStatusChange={(status) => {
+          if (selectedForDetails) {
+            // Find applicant and update stage
+            const stageMap: Record<CandidateStatus, Stage> = {
+              "Applied": "applied",
+              "Screening": "screening",
+              "Interview": "interview",
+              "Offered": "offer",
+              "Hired": "hired",
+              "Rejected": "rejected"
+            };
+            updateApplicant(selectedForDetails.id, { stage: stageMap[status] });
+            // Update local selection for drawer visual update
+            setSelectedForDetails({ ...selectedForDetails, status });
+          }
+        }}
+        onDownloadCV={() => {}}
+      />
     </div>
   );
 }
