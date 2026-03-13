@@ -204,9 +204,9 @@ export default function TalentPoolPage() {
   });
 
   return (
-    <div className="p-6 pt-24 lg:p-10 lg:pt-10 max-w-7xl mx-auto space-y-8">
+    <div className="p-6 pt-0 lg:p-10 lg:pt-6 max-w-7xl mx-auto space-y-4">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pl-16 sm:pl-0">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pl-12 lg:pl-16">
         <div>
           <h1 className="text-2xl font-black text-foreground tracking-tight">İstedad Hovuzu</h1>
           <p className="text-sm text-muted-foreground mt-1">Gələcək vakansiyalar üçün potensial namizədlər bazası</p>

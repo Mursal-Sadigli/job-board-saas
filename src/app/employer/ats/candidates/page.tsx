@@ -130,9 +130,9 @@ export default function CandidatesPage() {
   });
 
   return (
-    <div className="p-4 sm:p-6 lg:px-20 lg:py-12 max-w-7xl mx-auto space-y-6 sm:space-y-8">
+    <div className="p-6 pt-0 lg:px-20 lg:py-12 max-w-7xl mx-auto space-y-6 sm:space-y-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 sm:gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 sm:gap-4 lg:pl-16 pl-12">
         <div className="space-y-1">
           <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-foreground tracking-tight">Namizədlər</h1>
           <p className="text-xs sm:text-sm text-muted-foreground font-medium">Bütün müraciətlər və namizəd bazası</p>

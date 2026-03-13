@@ -789,15 +789,15 @@ export default function EmployerPage() {
 
 
   return (
-    <div className="p-6 lg:p-10 max-w-5xl mx-auto">
+    <div className="p-6 pt-0 lg:p-10 lg:pt-10 max-w-5xl mx-auto">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pl-12 pr-6 lg:pl-16 sm:pr-0">
         <div>
           <h1 className="text-xl sm:text-2xl font-black text-foreground tracking-tight">Vakansiyalar</h1>
           <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 sm:mt-1 font-medium">İş elanlarınızı idarə edin</p>
         </div>
         <PostJobModal onSuccess={addJob}>
-          <button className="h-10 px-5 flex items-center justify-center gap-2 rounded-xl bg-foreground text-background text-sm font-bold shadow-sm hover:opacity-90 active:scale-95 transition-all w-full sm:w-auto">
+          <button className="h-11 px-6 flex items-center justify-center gap-2 rounded-xl bg-foreground text-background text-sm font-bold shadow-sm hover:opacity-90 active:scale-95 transition-all w-full sm:w-auto mt-2 sm:mt-0">
             <Plus size={16} />
             Yeni Vakansiya
           </button>
