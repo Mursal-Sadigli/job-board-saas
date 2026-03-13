@@ -139,24 +139,25 @@ export default function NotificationsPage() {
           <div className="space-y-6">
             
             {/* Push Notifications */}
-            <div className="bg-primary dark:bg-[#0f1423] border-transparent dark:border-white/10 border text-primary-foreground dark:text-foreground rounded-[2.5rem] p-8 shadow-2xl shadow-primary/20 dark:shadow-shadow/5 relative overflow-hidden transition-all backdrop-blur-xl">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 dark:bg-primary/20 rounded-full -mr-16 -mt-16 blur-xl dark:blur-2xl" />
+            <div className="bg-card dark:bg-[#0f1423] border border-border dark:border-white/10 rounded-[2.5rem] p-8 shadow-xl shadow-shadow/5 relative overflow-hidden transition-all backdrop-blur-xl">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 dark:bg-primary/20 rounded-full -mr-16 -mt-16 blur-2xl" />
               
-              <h3 className="text-lg font-black mb-6 flex items-center gap-3 relative z-10">
-                <Smartphone size={20} className="dark:text-blue-500" />
+              <h3 className="text-lg font-black text-foreground mb-6 flex items-center gap-3 relative z-10">
+                <Smartphone size={20} className="text-blue-500" />
                 Push Bildirişlər
               </h3>
               
-              <p className="text-sm text-primary-foreground/90 dark:text-muted-foreground mb-6 leading-relaxed relative z-10">
+              <p className="text-sm text-muted-foreground mb-6 leading-relaxed relative z-10">
                 Brauzerinizdən çıxsanız belə dərhal ekranınıza bildirişlərin gəlməsini istəyirsiniz?
               </p>
 
-              <div className="flex items-center justify-between bg-black/20 dark:bg-white/5 rounded-2xl p-4 border border-white/10 dark:border-white/10 relative z-10 backdrop-blur-md">
-                <span className="font-bold text-sm">Aktivləşdir</span>
+
+              <div className="flex items-center justify-between bg-muted/50 dark:bg-white/5 rounded-2xl p-4 border border-border dark:border-white/10 relative z-10 backdrop-blur-md">
+                <span className="font-bold text-sm text-foreground">Aktivləşdir</span>
                 <Switch 
                   checked={settings.pushNotifications} 
                   onCheckedChange={() => toggleSetting('pushNotifications')}
-                  className="data-unchecked:bg-white/20 data-checked:bg-emerald-500 border-transparent shadow-inner"
+                  className="data-unchecked:bg-muted dark:data-unchecked:bg-slate-700 data-checked:bg-emerald-500 border-transparent"
                 />
               </div>
             </div>

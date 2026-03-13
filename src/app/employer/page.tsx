@@ -269,6 +269,15 @@ function ApplicationsSection({ applicants, jobId }: { applicants: Applicant[]; j
       return sortOrder === "asc" ? comparison : -comparison;
     });
 
+  const handleSort = (field: SortField) => {
+    if (sortField === field) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortField(field);
+      setSortOrder("desc");
+    }
+  };
+
   return (
     <div className="mt-12 border-t border-border pt-12">
       <h3 className="text-xl font-bold text-foreground mb-8">
@@ -293,31 +302,50 @@ function ApplicationsSection({ applicants, jobId }: { applicants: Applicant[]; j
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-border dark:border-white/10 bg-muted/30 dark:bg-white/5">
-                <th className="px-6 py-4 text-[11px] font-bold text-muted-foreground uppercase tracking-widest">AD</th>
-                <th className="px-6 py-4 text-[11px] font-bold text-muted-foreground uppercase tracking-widest">
+                <th 
+                  className="px-6 py-4 text-[11px] font-bold text-muted-foreground uppercase tracking-widest cursor-pointer hover:text-foreground transition-colors"
+                  onClick={() => handleSort("name")}
+                >
+                  <div className="flex items-center gap-1">
+                    AD
+                    {sortField === "name" && (
+                      sortOrder === "asc" ? <ChevronUp size={10} /> : <ChevronDown size={10} />
+                    )}
+                  </div>
+                </th>
+                <th 
+                  className="px-6 py-4 text-[11px] font-bold text-muted-foreground uppercase tracking-widest cursor-pointer hover:text-foreground transition-colors"
+                  onClick={() => handleSort("stage")}
+                >
                   <div className="flex items-center gap-1">
                     MƏRHƏLƏ
                     <div className="flex flex-col">
-                      <ChevronUp size={10} className="text-muted-foreground/60 -mb-0.5" />
-                      <ChevronDown size={10} className="text-muted-foreground/60 -mt-0.5 shadow-sm" />
+                      <ChevronUp size={10} className={cn("transition-colors", sortField === "stage" && sortOrder === "asc" ? "text-primary" : "text-muted-foreground/60")} />
+                      <ChevronDown size={10} className={cn("transition-colors", sortField === "stage" && sortOrder === "desc" ? "text-primary" : "text-muted-foreground/60")} />
                     </div>
                   </div>
                 </th>
-                <th className="px-6 py-4 text-[11px] font-bold text-muted-foreground uppercase tracking-widest">
+                <th 
+                  className="px-6 py-4 text-[11px] font-bold text-muted-foreground uppercase tracking-widest cursor-pointer hover:text-foreground transition-colors"
+                  onClick={() => handleSort("rating")}
+                >
                   <div className="flex items-center gap-1">
                     REYTİNQ
                     <div className="flex flex-col">
-                      <ChevronUp size={10} className="text-muted-foreground/60 -mb-0.5" />
-                      <ChevronDown size={10} className="text-muted-foreground/60 -mt-0.5" />
+                      <ChevronUp size={10} className={cn("transition-colors", sortField === "rating" && sortOrder === "asc" ? "text-primary" : "text-muted-foreground/60")} />
+                      <ChevronDown size={10} className={cn("transition-colors", sortField === "rating" && sortOrder === "desc" ? "text-primary" : "text-muted-foreground/60")} />
                     </div>
                   </div>
                 </th>
-                <th className="px-6 py-4 text-[11px] font-bold text-muted-foreground uppercase tracking-widest">
+                <th 
+                  className="px-6 py-4 text-[11px] font-bold text-muted-foreground uppercase tracking-widest cursor-pointer hover:text-foreground transition-colors"
+                  onClick={() => handleSort("appliedAt")}
+                >
                   <div className="flex items-center gap-1">
                     TƏQDİM TARİXİ
                     <div className="flex flex-col">
-                      <ChevronUp size={10} className="text-muted-foreground/60 -mb-0.5" />
-                      <ChevronDown size={10} className="text-muted-foreground/60 -mt-0.5" />
+                      <ChevronUp size={10} className={cn("transition-colors", sortField === "appliedAt" && sortOrder === "asc" ? "text-primary" : "text-muted-foreground/60")} />
+                      <ChevronDown size={10} className={cn("transition-colors", sortField === "appliedAt" && sortOrder === "desc" ? "text-primary" : "text-muted-foreground/60")} />
                     </div>
                   </div>
                 </th>
@@ -362,18 +390,10 @@ function ApplicationsSection({ applicants, jobId }: { applicants: Applicant[]; j
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center gap-1">
-                      {[1, 2, 3, 4, 5].map((s) => (
-                        <Star
-                          key={s}
-                          size={12}
-                          className={cn(
-                            app.rating >= s ? "fill-foreground text-foreground" : "fill-none text-muted-foreground/30"
-                          )}
-                        />
-                      ))}
-                      <ChevronDown size={12} className="ml-1 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </div>
+                    <StarRating 
+                      value={app.rating} 
+                      onChange={(val) => updateApplicant(app.id, { rating: val })} 
+                    />
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-[13px] font-medium text-muted-foreground">
                     {new Date(app.appliedAt).toLocaleDateString("az-AZ", {
@@ -383,9 +403,25 @@ function ApplicationsSection({ applicants, jobId }: { applicants: Applicant[]; j
                     })}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right">
-                    <button className="text-muted-foreground hover:text-foreground transition-colors">
-                      <MoreHorizontal size={16} />
-                    </button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger render={
+                        <button className="text-muted-foreground hover:text-foreground transition-colors p-1">
+                          <MoreHorizontal size={16} />
+                        </button>
+                      } />
+                      <DropdownMenuContent align="end" className="w-40 rounded-xl border-border bg-card">
+                        <DropdownMenuItem className="text-xs font-bold gap-2 cursor-pointer focus:bg-muted py-2.5">
+                          <Eye size={14} /> Namizədə bax
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem 
+                          className="text-xs font-bold gap-2 cursor-pointer text-red-500 focus:text-red-500 focus:bg-red-500/10 py-2.5"
+                          onClick={() => updateApplicant(app.id, { stage: "rejected" })}
+                        >
+                          <Trash2 size={14} /> İmtina et
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </td>
                 </tr>
               ))}
@@ -789,9 +825,10 @@ export default function EmployerPage() {
 
 
   return (
-    <div className="p-6 pt-0 lg:p-10 lg:pt-10 max-w-5xl mx-auto">
-      {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pl-12 pr-6 lg:pl-16 sm:pr-0">
+    <div className="relative min-h-full">
+      <div className="p-6 pt-0 lg:p-10 lg:pt-10 max-w-5xl mx-auto">
+        {/* Page Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pl-12 pr-6 lg:pl-16 sm:pr-0">
         <div>
           <h1 className="text-xl sm:text-2xl font-black text-foreground tracking-tight">Vakansiyalar</h1>
           <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 sm:mt-1 font-medium">İş elanlarınızı idarə edin</p>
@@ -894,27 +931,26 @@ export default function EmployerPage() {
           )}
         </div>
       )}
+    </div>
 
       {/* Job Detail View - Overlays the list when active */}
       {activeView === "job-detail" && selectedJob && (
-        <div className="fixed inset-0 z-60 bg-background/80 backdrop-blur-sm flex justify-end">
-          <div className="w-full max-w-4xl bg-card border-l border-border h-full overflow-y-auto animate-in slide-in-from-right duration-300">
-            <div className="p-6 lg:p-10">
-              <button
-                onClick={() => setActiveView("jobs")}
-                className="mb-6 flex items-center gap-2 text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <ArrowLeft size={16} />
-                Elanlar Siyahısına Qayıt
-              </button>
-              <EmployerJobDetail
-                job={selectedJob}
-                onEdit={handleEdit}
-                onDelist={handleDelist}
-                onToggleFeatured={handleToggleFeatured}
-                onDelete={handleDelete}
-              />
-            </div>
+        <div className="absolute inset-0 z-40 bg-background h-full overflow-y-auto animate-in fade-in duration-300">
+          <div className="max-w-5xl mx-auto p-6 lg:p-10">
+            <button
+              onClick={() => setActiveView("jobs")}
+              className="mb-6 flex items-center gap-2 text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <ArrowLeft size={16} />
+              Elanlar Siyahısına Qayıt
+            </button>
+            <EmployerJobDetail
+              job={selectedJob}
+              onEdit={handleEdit}
+              onDelist={handleDelist}
+              onToggleFeatured={handleToggleFeatured}
+              onDelete={handleDelete}
+            />
           </div>
         </div>
       )}
