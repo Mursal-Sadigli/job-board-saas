@@ -204,39 +204,41 @@ export default function TalentPoolPage() {
   });
 
   return (
-    <div className="p-6 lg:p-10 max-w-7xl mx-auto space-y-8">
+    <div className="p-6 pt-24 lg:p-10 lg:pt-10 max-w-7xl mx-auto space-y-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pl-16 sm:pl-0">
         <div>
           <h1 className="text-2xl font-black text-foreground tracking-tight">İstedad Hovuzu</h1>
           <p className="text-sm text-muted-foreground mt-1">Gələcək vakansiyalar üçün potensial namizədlər bazası</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0">
           <Button 
             onClick={handleExport}
             variant="outline" 
-            className="rounded-xl gap-2 font-bold text-sm h-11 px-5 border-border dark:border-white/10"
+            className="flex-1 sm:flex-initial rounded-xl gap-2 font-bold text-xs sm:text-sm h-11 px-3 sm:px-5 border-border dark:border-white/10"
           >
-            <Download size={18} />
-            Eksport
+            <Download size={16} />
+            <span className="hidden xs:inline">Eksport</span>
+            <span className="xs:hidden">CSV</span>
           </Button>
           <Button 
             onClick={() => setAnalysisOpen(true)}
-            className="rounded-xl gap-2 font-bold text-sm h-11 px-5 shadow-xl shadow-primary/10"
+            className="flex-1 sm:flex-initial rounded-xl gap-2 font-bold text-xs sm:text-sm h-11 px-3 sm:px-5 shadow-xl shadow-primary/10"
           >
-            <UserPlus size={18} />
-            Namizəd Əlavə Et
+            <UserPlus size={16} />
+            <span className="hidden xs:inline">Namizəd Əlavə Et</span>
+            <span className="xs:hidden">Əlavə et</span>
           </Button>
         </div>
       </div>
 
       {/* Search & Filter */}
-      <div className="flex flex-col md:flex-row gap-4">
+      <div className="flex flex-col xs:flex-row gap-3">
         <div className="relative flex-1 group">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/60 transition-colors group-focus-within:text-primary" size={18} />
           <Input 
-            placeholder="İstedad axtar (məs: DevOps, Architecture)..." 
-            className="pl-12 h-12 rounded-2xl bg-card border-border dark:border-white/10 focus:ring-2 focus:ring-primary/20 transition-all font-medium"
+            placeholder="Axtar..." 
+            className="pl-12 h-12 rounded-2xl bg-card border-border dark:border-white/10 focus:ring-2 focus:ring-primary/20 transition-all font-medium text-sm"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -245,46 +247,105 @@ export default function TalentPoolPage() {
           variant="outline" 
           onClick={() => setFiltersOpen(true)}
           className={cn(
-            "h-12 px-6 rounded-2xl gap-2 border-border dark:border-white/10 font-bold",
+            "h-12 px-4 rounded-2xl gap-2 border-border dark:border-white/10 font-bold text-sm shrink-0",
             (filters.status.length > 0 || filters.experience !== "all" || filters.minScore > 0 || filters.location) && "bg-primary/5 border-primary text-primary"
           )}
         >
           <Filter size={18} />
-          Filtrlər
+          <span className="hidden xs:inline">Filtrlər</span>
           {(filters.status.length > 0 || filters.experience !== "all" || filters.minScore > 0 || filters.location) && (
             <span className="ml-1 w-2 h-2 rounded-full bg-primary" />
           )}
         </Button>
       </div>
 
-      {/* Talent Cards List */}
-      <div className="flex flex-col gap-4">
+      {/* Talent Cards List - Stuck together style */}
+      <div className="flex flex-col border border-border dark:border-white/10 rounded-3xl bg-card overflow-hidden divide-y divide-border dark:divide-white/5 shadow-sm">
         {filteredCandidates.map((talent) => {
           const ratingStars = Math.round(talent.matchingScore / 20); // Simulating 5-star rating scale
           const displayStatus = talent.status === "Offered" || talent.status === "Hired" ? "Məşğul" : "Açıq";
 
           return (
-          <div key={talent.id} className="group p-6 rounded-4xl border border-border dark:border-white/10 bg-card shadow-sm hover:shadow-2xl hover:shadow-primary/5 transition-all duration-500 cursor-pointer" onClick={() => openDetails(talent)}>
-            <div className="flex items-start justify-between mb-6">
+          <div key={talent.id} className="group p-4 sm:p-5 bg-card hover:bg-muted/30 transition-all duration-300 cursor-pointer flex flex-col md:flex-row md:items-center gap-4 md:gap-6" onClick={() => openDetails(talent)}>
+            
+            {/* Avatar & Info */}
+            <div className="flex items-center justify-between md:justify-start gap-4 md:w-[30%] shrink-0">
               <div className="flex items-center gap-4">
-                <div className="w-14 h-14 rounded-2xl bg-linear-to-br from-primary/20 to-primary/5 flex items-center justify-center text-primary border border-primary/10 shadow-inner shrink-0 text-xl font-black uppercase">
+                <div className="w-12 h-12 rounded-2xl bg-linear-to-br from-primary/20 to-primary/5 flex items-center justify-center text-primary border border-primary/10 shadow-inner shrink-0 text-lg font-black uppercase">
                   {talent.name.substring(0, 2)}
                 </div>
                 <div>
-                  <h3 className="text-lg font-black text-foreground group-hover:text-primary transition-colors">{talent.name}</h3>
-                  <p className="text-sm text-muted-foreground font-semibold uppercase tracking-wider line-clamp-1">{(talent as any).role || talent.appliedJobTitle}</p>
+                  <h3 className="text-base font-black text-foreground group-hover:text-primary transition-colors line-clamp-1">{talent.name}</h3>
+                  <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider line-clamp-1">{(talent as any).role || talent.appliedJobTitle}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-1">
-                <Badge className={cn(
-                  "rounded-lg px-2 py-1 font-bold text-[9px] uppercase tracking-tighter shrink-0",
-                  displayStatus === "Açıq" ? "bg-emerald-500/10 text-emerald-500" : "bg-orange-500/10 text-orange-500"
-                )}>
-                  {displayStatus}
-                </Badge>
+              {/* Mobile Only Status Badge */}
+              <div className="md:hidden flex flex-col items-end gap-1">
+                 <Badge className={cn("rounded-lg px-2 py-0.5 font-bold text-[9px] uppercase tracking-tighter", displayStatus === "Açıq" ? "bg-emerald-500/10 text-emerald-500" : "bg-orange-500/10 text-orange-500")}>
+                    {displayStatus}
+                 </Badge>
+              </div>
+            </div>
+
+            {/* Tags - Hidden on small mobile, visible on desktop */}
+            <div className="hidden sm:flex flex-wrap items-center gap-1.5 flex-1 min-w-0">
+              {talent.skills.slice(0, 4).map(tag => (
+                <div key={tag} className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-muted/40 text-muted-foreground text-[10px] font-bold border border-border/50 whitespace-nowrap">
+                  {tag}
+                </div>
+              ))}
+              {talent.skills.length > 4 && (
+                <div className="px-2 py-1 rounded-lg bg-muted/20 text-muted-foreground text-[10px] font-bold border border-border/30">
+                  +{talent.skills.length - 4}
+                </div>
+              )}
+            </div>
+
+            {/* Actions & Meta */}
+            <div className="flex items-center justify-between md:justify-end gap-3 md:gap-6 shrink-0 border-t border-border/50 md:border-none pt-3 md:pt-0 mt-1 md:mt-0">
+              <div className="flex items-center gap-2 shrink-0">
+                <div className="flex items-center gap-1 bg-amber-500/10 px-2 py-1 rounded-lg text-amber-500">
+                  <Star size={12} className="fill-amber-500" />
+                  <span className="text-xs font-black">{ratingStars}.0</span>
+                </div>
+                <div className="flex items-center gap-1 text-muted-foreground bg-muted/30 px-2 py-1 rounded-lg">
+                  <ShieldCheck size={12} />
+                  <span className="text-[10px] sm:text-xs font-bold">{talent.experienceYears} il</span>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <div className="hidden md:block mr-2">
+                  <Badge className={cn("rounded-lg px-2 py-1 font-bold text-[9px] uppercase tracking-tighter shrink-0", displayStatus === "Açıq" ? "bg-emerald-500/10 text-emerald-500" : "bg-orange-500/10 text-orange-500")}>
+                    {displayStatus}
+                  </Badge>
+                </div>
+
+                <Button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    window.location.href = `mailto:${talent.email}`;
+                    toast({
+                       title: "E-poçt ünvanı hazırlandı",
+                       description: "Poçt xidmətiniz açılır...",
+                    });
+                  }}
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-9 w-9 rounded-xl hover:bg-primary/10 hover:text-primary transition-all text-muted-foreground"
+                >
+                  <Mail size={16} />
+                </Button>
+                <Button 
+                  onClick={(e) => { e.stopPropagation(); openDetails(talent); }}
+                  className="h-9 px-4 rounded-xl font-bold bg-foreground text-background hover:opacity-90 hidden sm:flex text-xs transition-all active:scale-95"
+                >
+                  Profil
+                </Button>
+
                 <DropdownMenu>
                   <DropdownMenuTrigger 
-                    className="flex text-muted-foreground items-center justify-center rounded-xl h-8 w-8 hover:bg-muted dark:hover:bg-white/5 outline-none focus:outline-none" 
+                    className="flex text-muted-foreground items-center justify-center rounded-xl h-9 w-9 hover:bg-muted dark:hover:bg-white/5 outline-none focus:outline-none transition-colors border border-transparent hover:border-border" 
                     onClick={(e) => e.stopPropagation()}
                   >
                     <MoreHorizontal size={16} />
@@ -317,51 +378,6 @@ export default function TalentPoolPage() {
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
-              </div>
-            </div>
-
-            <div className="flex flex-wrap gap-2 mb-6 h-[56px] overflow-hidden">
-              {talent.skills.slice(0, 5).map(tag => (
-                <div key={tag} className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-muted/30 text-muted-foreground text-xs font-bold border border-border/50">
-                  <Tag size={12} className="opacity-50" />
-                  {tag}
-                </div>
-              ))}
-            </div>
-
-            <div className="flex items-center justify-between pt-6 border-t border-border dark:border-white/5">
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-1">
-                  <Star size={14} className="text-amber-400 fill-amber-400" />
-                  <span className="text-sm font-black text-foreground">{ratingStars}.0</span>
-                </div>
-                <div className="flex items-center gap-1 text-muted-foreground">
-                  <ShieldCheck size={14} />
-                  <span className="text-xs font-bold">{talent.experienceYears} il təcrübə</span>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Button 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    window.location.href = `mailto:${talent.email}`;
-                    toast({
-                       title: "E-poçt ünvanı hazırlandı",
-                       description: "Poçt xidmətiniz açılır...",
-                    });
-                  }}
-                  variant="outline" 
-                  size="icon" 
-                  className="h-10 w-10 rounded-xl hover:bg-primary/10 hover:text-primary transition-all active:scale-90"
-                >
-                  <Mail size={18} />
-                </Button>
-                <Button 
-                  onClick={(e) => { e.stopPropagation(); openDetails(talent); }}
-                  className="h-10 px-4 rounded-xl font-bold bg-foreground text-background hover:opacity-90 transition-all active:scale-95"
-                >
-                  Profil
-                </Button>
               </div>
             </div>
           </div>
