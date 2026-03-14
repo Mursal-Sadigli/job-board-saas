@@ -82,7 +82,7 @@ export default function InterviewsPage() {
     setLoading(true);
     try {
       const token = await getToken();
-      const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
       const response = await fetch(`${API_BASE}/api/interviews`, {
         headers: {
           Authorization: `Bearer ${token}`
@@ -113,7 +113,7 @@ export default function InterviewsPage() {
 
       try {
         const token = await getToken();
-        const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+        const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
         const response = await fetch(`${API_BASE}/api/interviews/${id}`, {
           method: 'DELETE',
           headers: {

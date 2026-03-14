@@ -5,7 +5,7 @@ import { formatFileSize } from "@/utils/formatters";
 import { useAuth } from "@clerk/nextjs";
 import { toast } from "@/hooks/use-toast";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
 
 export function useResume() {
   const [resumes, setResumes] = useState<ResumeFile[]>([]);

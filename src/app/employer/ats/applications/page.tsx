@@ -60,7 +60,7 @@ export default function ApplicationsPage() {
   const handleStageChange = async (appId: string, newStage: string) => {
     try {
       const token = await getToken();
-      const response = await fetch(`http://localhost:5000/api/applications/${appId}`, {
+      const response = await fetch(`http://localhost:5001/api/applications/${appId}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -89,7 +89,7 @@ export default function ApplicationsPage() {
   const handleRatingChange = async (appId: string, newRating: number) => {
     try {
       const token = await getToken();
-      const response = await fetch(`http://localhost:5000/api/applications/${appId}`, {
+      const response = await fetch(`http://localhost:5001/api/applications/${appId}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -121,8 +121,8 @@ export default function ApplicationsPage() {
 
       const token = await getToken();
       const deleteUrl = isVirtual 
-        ? `http://localhost:5000/api/users/resumes/${appId.replace('resume-', '')}`
-        : `http://localhost:5000/api/applications/${appId}`;
+        ? `http://localhost:5001/api/users/resumes/${appId.replace('resume-', '')}`
+        : `http://localhost:5001/api/applications/${appId}`;
 
       const response = await fetch(deleteUrl, {
         method: "DELETE",

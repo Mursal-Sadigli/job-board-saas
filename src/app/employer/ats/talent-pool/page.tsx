@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useAuth } from "@clerk/nextjs";
 import { 
   Users, 
   Search, 
@@ -15,7 +16,8 @@ import {
   Plus,
   Share2,
   Trash2,
-  CalendarPlus
+  CalendarPlus,
+  Loader2
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -37,19 +39,20 @@ import { toast } from "@/hooks/use-toast";
 
 import { useCandidateStore, TalentCandidate } from "@/store/useCandidateStore";
 
+const API_BASE = "http://localhost:5001";
+
 export default function TalentPoolPage() {
+  const { getToken } = useAuth();
   const { 
-    candidates, 
     searchQuery, 
     filters, 
     setSearchQuery, 
-    setFilters, 
-    addCandidate, 
-    updateCandidateStatus,
-    deleteCandidate
+    setFilters
   } = useCandidateStore();
 
   const [isHydrated, setIsHydrated] = useState(false);
+  const [candidates, setCandidates] = useState<TalentCandidate[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [selectedCandidate, setSelectedCandidate] = useState<TalentCandidate | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -57,44 +60,124 @@ export default function TalentPoolPage() {
   const [interviewModalOpen, setInterviewModalOpen] = useState(false);
   const [interviewCandidateName, setInterviewCandidateName] = useState("");
   const [interviewCandidateEmail, setInterviewCandidateEmail] = useState("");
+  const [userProfile, setUserProfile] = useState<any>(null);
 
-  // Fix hydration mismatch for persisted store
+  const fetchUserProfile = useCallback(async () => {
+    try {
+      const token = await getToken();
+      const res = await fetch(`${API_BASE}/api/users/profile`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setUserProfile(data);
+      }
+    } catch (e) {
+      console.error("Fetch profile error:", e);
+    }
+  }, [getToken]);
+
+  const fetchTalentPool = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const token = await getToken();
+      const res = await fetch(`${API_BASE}/api/applications/talent-pool`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (!res.ok) throw new Error("Talent pool fetch failed");
+      const data = await res.json();
+      setCandidates(data);
+    } catch (error) {
+      console.error("Fetch talent pool error:", error);
+      toast({
+        title: "Xəta",
+        description: "İstedad hovuzunu yükləyərkən problem yarandı.",
+        type: "error"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [getToken]);
+
   useEffect(() => {
     setIsHydrated(true);
-  }, []);
+    fetchTalentPool();
+    fetchUserProfile();
+  }, [fetchTalentPool, fetchUserProfile]);
 
-  const handleAnalysisComplete = (data: any) => {
-    const newCandidate: TalentCandidate = {
-      id: crypto.randomUUID(),
-      name: data.name,
-      email: data.email,
-      location: data.location || "Bakı, Azərbaycan",
-      experienceYears: data.experienceYears,
-      skills: data.skills,
-      tags: data.skills.slice(0, 3),
-      education: ["Məlumat yoxdur"],
-      matchingScore: data.matchingScore,
-      analysisStatus: "completed",
-      appliedAt: new Date().toISOString(),
-      status: "Applied",
-      appliedJobTitle: "Ümumi İstedad Hovuzu"
-    };
-    addCandidate(newCandidate);
+  const handleAnalysisComplete = async () => {
+    await fetchTalentPool();
+    await fetchUserProfile();
     toast({
-      title: "Namizəd Əlavə Edildi",
-      description: `${data.name} uğurla istedad hovuzuna daxil edildi.`,
+      title: "Uğurlu",
+      description: "Yeni namizəd təhlil edildi və hovuza əlavə olundu.",
       type: "success"
     });
   };
 
-  const handleStatusChange = (id: string, newStatus: CandidateStatus) => {
-    updateCandidateStatus(id, newStatus);
-    if (selectedCandidate?.id === id) {
-      setSelectedCandidate(prev => prev ? { ...prev, status: newStatus } : null);
+  const handleStatusChange = async (id: string, newStatus: CandidateStatus) => {
+    try {
+      const token = await getToken();
+      const currentCandidate = candidates.find(c => c.id === id);
+      
+      if (currentCandidate?.applicationId) {
+        const res = await fetch(`${API_BASE}/api/applications/${currentCandidate.applicationId}`, {
+          method: "PATCH",
+          headers: { 
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}` 
+          },
+          body: JSON.stringify({ stage: newStatus })
+        });
+        if (!res.ok) throw new Error("Status update failed");
+      }
+
+      setCandidates(prev => prev.map(c => c.id === id ? { ...c, status: newStatus } : c));
+      
+      if (selectedCandidate?.id === id) {
+        setSelectedCandidate(prev => prev ? { ...prev, status: newStatus } : null);
+      }
+    } catch (error) {
+      toast({ title: "Xəta", description: "Statusu yeniləmək mümkün olmadı.", type: "error" });
     }
   };
 
-  if (!isHydrated) return null; // Avoid hydration mismatch
+  const handleRemove = async (id: string, name: string) => {
+    try {
+      const token = await getToken();
+      const res = await fetch(`${API_BASE}/api/applications/talent-pool/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      if (!res.ok) throw new Error("Delete failed");
+
+      setCandidates(prev => prev.filter(c => c.id !== id));
+      toast({
+        title: "Namizəd Silindi",
+        description: `${name} hovuzdan uğurla çıxarıldı.`,
+      });
+    } catch (error) {
+      toast({ title: "Xəta", description: "Namizədi silmək mümkün olmadı.", type: "error" });
+    }
+  };
+
+  const handleShare = async (id: string, name: string) => {
+    const shareUrl = `${window.location.origin}/employer/ats/candidates/${id}`;
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `${name} - İstedad Profili`,
+          text: `Zəhmət olmasa bu namizədin profilini nəzərdən keçirin: ${name}`,
+          url: shareUrl,
+        });
+      } catch (err) {}
+    } else {
+      navigator.clipboard.writeText(shareUrl);
+      toast({ title: "Link Kopyalandı", description: "Namizədin profil linki buferə kopyalandı." });
+    }
+  };
 
   const handleDownloadCV = (name: string) => {
     toast({
@@ -109,39 +192,7 @@ export default function TalentPoolPage() {
     setDrawerOpen(true);
   };
 
-  const handleRemove = (id: string, name: string) => {
-    deleteCandidate(id);
-    toast({
-      title: "Namizəd Silindi",
-      description: `${name} hovuzdan uğurla çıxarıldı.`,
-    });
-  };
-
-  const handleShare = async (id: string, name: string) => {
-    const shareUrl = `${window.location.origin}/employer/ats/candidates/${id}`;
-    
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: `${name} - İstedad Profili`,
-          text: `Zəhmət olmasa bu namizədin profilini nəzərdən keçirin: ${name}`,
-          url: shareUrl,
-        });
-        toast({ title: "Paylaşıldı", description: "Profil uğurla paylaşıldı." });
-      } catch (err) {
-        // İmtina etdikdə heç nə etmə
-      }
-    } else {
-      navigator.clipboard.writeText(shareUrl);
-      toast({
-        title: "Link Kopyalandı",
-        description: "Namizədin linki müvəffəqiyyətlə buferə kopyalandı.",
-      });
-    }
-  };
-
   const handleExport = () => {
-    // CSV formatında hazırlanan data
     const headers = ["ID", "Ad", "E-poçt", "Rol", "Təcrübə (il)", "Lokasiya", "Status", "Xal"];
     const rows = filteredCandidates.map(c => [
       c.id, 
@@ -176,19 +227,16 @@ export default function TalentPoolPage() {
   };
 
   const filteredCandidates = candidates.filter(c => {
-    // Search Query (Name, Skills, Role)
     const matchesSearch = 
       c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (c as any).role?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       c.skills.some(s => s.toLowerCase().includes(searchQuery.toLowerCase()));
 
-    // Status Filter
     const matchesStatus = filters.status.length === 0 || filters.status.includes(c.status);
 
-    // Experience Filter
     let matchesExperience = true;
     if (filters.experience !== "all") {
-      const exp = c.experienceYears;
+      const exp = c.experienceYears || 0;
       if (filters.experience === "0-1") matchesExperience = exp <= 1;
       else if (filters.experience === "1-3") matchesExperience = exp > 1 && exp <= 3;
       else if (filters.experience === "3-5") matchesExperience = exp > 3 && exp <= 5;
@@ -196,187 +244,219 @@ export default function TalentPoolPage() {
       else if (filters.experience === "10+") matchesExperience = exp > 10;
     }
 
-    // Matching Score Filter
-    const matchesScore = c.matchingScore >= filters.minScore;
-
-    // Location Filter
+    const matchesScore = (c.matchingScore || 0) >= filters.minScore;
     const matchesLocation = !filters.location || c.location.toLowerCase().includes(filters.location.toLowerCase());
 
     return matchesSearch && matchesStatus && matchesExperience && matchesScore && matchesLocation;
   });
 
+  if (!isHydrated) return null;
+
   return (
-    <div className="p-6 pt-0 lg:p-10 lg:pt-6 max-w-7xl mx-auto space-y-4">
+    <div className="p-4 pt-0 sm:p-6 lg:px-20 lg:py-12 max-w-7xl mx-auto space-y-4 sm:space-y-8 animate-in fade-in duration-700">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pl-12 lg:pl-16">
-        <div>
-          <h1 className="text-2xl font-black text-foreground tracking-tight">İstedad Hovuzu</h1>
-          <p className="text-sm text-muted-foreground mt-1">Gələcək vakansiyalar üçün potensial namizədlər bazası</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-4 lg:pl-16 pl-2 pr-2 sm:pr-0 pt-4 sm:pt-0">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <h1 className="text-lg sm:text-2xl lg:text-3xl font-black text-foreground tracking-tight">İstedad Hovuzu</h1>
+            {userProfile && userProfile.plan === "FREE" && (
+              <Badge variant="outline" className="text-[8px] sm:text-[9px] font-black border-primary/30 text-primary bg-primary/5 uppercase px-1.5 py-0 border-dashed shrink-0">
+                FREE
+              </Badge>
+            )}
+          </div>
+          <p className="text-[10px] sm:text-sm text-muted-foreground font-medium uppercase tracking-tighter">İstedadların təhlili və idarə edilməsi</p>
         </div>
-        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0">
+        
+        <div className="flex flex-row items-center gap-2 w-full sm:w-auto">
+          {/* Limit Indicator for Free Users */}
+          {userProfile && userProfile.plan === "FREE" && (
+            <div className="hidden lg:flex flex-col items-end mr-4 text-right">
+              <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest leading-none mb-1.5">CV Limiti</p>
+              <div className="flex items-center gap-2">
+                <div className="h-1.5 w-24 bg-muted dark:bg-white/5 rounded-full overflow-hidden">
+                  <div 
+                    className={cn(
+                      "h-full transition-all duration-500 rounded-full",
+                      (userProfile.cvUploadCount || 0) >= 3 ? "bg-destructive" : (userProfile.cvUploadCount || 0) >= 2 ? "bg-orange-500" : "bg-primary"
+                    )}
+                    style={{ width: `${Math.min(((userProfile.cvUploadCount || 0) / 3) * 100, 100)}%` }}
+                  />
+                </div>
+                <span className="text-[10px] font-black text-foreground">{userProfile.cvUploadCount || 0}/3</span>
+              </div>
+            </div>
+          )}
+
           <Button 
-            onClick={handleExport}
             variant="outline" 
-            className="flex-1 sm:flex-initial rounded-xl gap-2 font-bold text-xs sm:text-sm h-11 px-3 sm:px-5 border-border dark:border-white/10"
+            onClick={() => setFiltersOpen(true)}
+            size="sm"
+            className={cn(
+              "rounded-xl gap-1.5 font-bold text-[10px] sm:text-xs h-9 sm:h-11 px-3 sm:px-6 border-border dark:border-white/10 hover:bg-muted/50 transition-all flex-1 sm:flex-none",
+              (filters.status.length > 0 || filters.experience !== "all" || filters.minScore > 0 || filters.location) && "bg-primary/5 border-primary text-primary"
+            )}
           >
-            <Download size={16} />
-            <span className="hidden xs:inline">Eksport</span>
-            <span className="xs:hidden">CSV</span>
+            <Filter size={12} className="sm:size-4" />
+            Filtrlər
           </Button>
           <Button 
+            size="sm"
             onClick={() => setAnalysisOpen(true)}
-            className="flex-1 sm:flex-initial rounded-xl gap-2 font-bold text-xs sm:text-sm h-11 px-3 sm:px-5 shadow-xl shadow-primary/10"
+            className="rounded-xl gap-1.5 font-bold text-[10px] sm:text-xs h-9 sm:h-11 px-3 sm:px-6 bg-primary text-primary-foreground shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex-[1.5] sm:flex-none"
           >
-            <UserPlus size={16} />
-            <span className="hidden xs:inline">Namizəd Əlavə Et</span>
-            <span className="xs:hidden">Əlavə et</span>
+            <Plus size={14} className="sm:size-4" />
+            Namizəd
           </Button>
         </div>
       </div>
 
-      {/* Search & Filter */}
-      <div className="flex flex-col sm:flex-row gap-3 max-w-2xl">
+      {/* Stats Quick View */}
+      <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-3 lg:pl-16 pl-2 pr-2 sm:pr-0 overflow-x-auto pb-2 scrollbar-none snap-x h-full">
+        {[
+          { label: "BÜTÜN", value: candidates.length, color: "text-foreground" },
+          { label: "YÜKSƏK XAL", value: candidates.filter(c => c.matchingScore >= 80).length, color: "text-primary" },
+          { label: "SON 30 GÜN", value: candidates.filter(c => {
+             const thirtyDaysAgo = new Date();
+             thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+             return new Date(c.appliedAt) > thirtyDaysAgo;
+          }).length, color: "text-emerald-500" },
+          { label: "MÜSAHİBƏ", value: candidates.filter(c => c.status === "Interview").length, color: "text-orange-500" }
+        ].map((stat, i) => (
+          <div key={i} className="bg-card/50 backdrop-blur-sm border border-border dark:border-white/5 p-3 sm:p-4 rounded-2xl sm:rounded-3xl min-w-[120px] sm:min-w-0 hover:border-primary/20 transition-all group snap-start shrink-0 sm:shrink">
+             <p className="text-[8px] sm:text-[10px] font-black text-muted-foreground uppercase tracking-widest">{stat.label}</p>
+             <p className={cn("text-lg sm:text-2xl font-black mt-0.5 sm:mt-1 group-hover:scale-110 transition-transform origin-left", stat.color)}>{stat.value}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Search and Sort */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 lg:pl-16 pl-2 pr-2 sm:pr-0">
         <div className="relative flex-1 group">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/60 transition-colors group-focus-within:text-primary" size={18} />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground/40 group-focus-within:text-primary transition-colors" size={16} />
           <Input 
             placeholder="Axtar..." 
-            className="pl-12 h-12 rounded-2xl bg-card border-border dark:border-white/10 focus:ring-2 focus:ring-primary/20 transition-all font-medium text-sm"
+            className="pl-10 h-10 sm:h-12 rounded-2xl border-border dark:border-white/10 bg-card/40 focus:bg-card focus:ring-primary/20 transition-all font-medium text-xs sm:text-sm"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
         <Button 
           variant="outline" 
-          onClick={() => setFiltersOpen(true)}
-          className={cn(
-            "h-12 px-4 rounded-2xl gap-2 border-border dark:border-white/10 font-bold text-sm shrink-0",
-            (filters.status.length > 0 || filters.experience !== "all" || filters.minScore > 0 || filters.location) && "bg-primary/5 border-primary text-primary"
-          )}
+          size="sm"
+          onClick={handleExport}
+          className="h-10 sm:h-12 px-4 rounded-2xl gap-2 font-bold text-[10px] sm:text-xs border-border dark:border-white/10 hover:bg-muted/50 transition-all"
         >
-          <Filter size={18} />
-          <span className="hidden xs:inline">Filtrlər</span>
-          {(filters.status.length > 0 || filters.experience !== "all" || filters.minScore > 0 || filters.location) && (
-            <span className="ml-1 w-2 h-2 rounded-full bg-primary" />
-          )}
+          <Download size={14} />
+          <span className="hidden sm:inline">Eksport</span>
         </Button>
       </div>
 
-      {/* Talent Cards List - Stuck together style */}
-      <div className="flex flex-col border border-border dark:border-white/10 rounded-3xl bg-card overflow-hidden divide-y divide-border dark:divide-white/5 shadow-sm">
-        {filteredCandidates.map((talent) => {
-          const ratingStars = Math.round(talent.matchingScore / 20); // Simulating 5-star rating scale
-          const displayStatus = talent.status === "Offered" || talent.status === "Hired" ? "Məşğul" : "Açıq";
-
-          return (
-          <div key={talent.id} className="group p-4 sm:p-5 bg-card hover:bg-muted/30 transition-all duration-300 cursor-pointer flex flex-col md:flex-row md:items-center gap-4 md:gap-6" onClick={() => openDetails(talent)}>
-            
-            {/* Avatar & Info */}
-            <div className="flex items-center justify-between md:justify-start gap-4 md:w-[30%] shrink-0">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-linear-to-br from-primary/20 to-primary/5 flex items-center justify-center text-primary border border-primary/10 shadow-inner shrink-0 text-lg font-black uppercase">
-                  {talent.name.substring(0, 2)}
-                </div>
-                <div>
-                  <h3 className="text-base font-black text-foreground group-hover:text-primary transition-colors">{talent.name}</h3>
-                  <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider line-clamp-1">{(talent as any).role || talent.appliedJobTitle}</p>
-                </div>
+      {/* Candidates List - Row Layout */}
+      <div className="flex flex-col gap-3 lg:pl-16 pl-2 pr-2 sm:pr-0">
+        {isLoading ? (
+          Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="h-16 rounded-xl bg-muted/20 animate-pulse border border-border/50" />
+          ))
+        ) : filteredCandidates.map((talent) => (
+          <div 
+            key={talent.id} 
+            onClick={() => openDetails(talent)}
+            className="group relative bg-card hover:bg-muted/5 rounded-xl sm:rounded-[20px] p-3 sm:p-4 border border-border dark:border-white/5 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 cursor-pointer"
+          >
+            <div className="flex items-center gap-3 sm:gap-6">
+              {/* Avatar */}
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-linear-to-br from-primary/20 to-primary/5 flex items-center justify-center text-primary font-black text-sm sm:text-lg border border-primary/10 shrink-0">
+                {talent.name.substring(0, 2).toUpperCase()}
               </div>
-              {/* Mobile Only Status Badge */}
-              <div className="md:hidden flex flex-col items-end gap-1">
-                 <Badge className={cn("rounded-lg px-2 py-0.5 font-bold text-[9px] uppercase tracking-tighter", displayStatus === "Açıq" ? "bg-emerald-500/10 text-emerald-500" : "bg-orange-500/10 text-orange-500")}>
-                    {displayStatus}
-                 </Badge>
-              </div>
-            </div>
 
-            {/* Tags - Hidden on small mobile, visible on desktop */}
-            <div className="hidden sm:flex flex-wrap items-center gap-1.5 flex-1 min-w-0">
-              {talent.skills.slice(0, 4).map(tag => (
-                <div key={tag} className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-muted/40 text-muted-foreground text-[10px] font-bold border border-border/50 whitespace-nowrap">
-                  {tag}
-                </div>
-              ))}
-              {talent.skills.length > 4 && (
-                <div className="px-2 py-1 rounded-lg bg-muted/20 text-muted-foreground text-[10px] font-bold border border-border/30">
-                  +{talent.skills.length - 4}
-                </div>
-              )}
-            </div>
-
-            {/* Actions & Meta */}
-            <div className="flex items-center justify-between md:justify-end gap-3 md:gap-6 shrink-0 border-t border-border/50 md:border-none pt-3 md:pt-0 mt-1 md:mt-0">
-              <div className="flex items-center gap-2 shrink-0">
-                <div className="flex items-center gap-1 bg-amber-500/10 px-2 py-1 rounded-lg text-amber-500">
-                  <Star size={12} className="fill-amber-500" />
-                  <span className="text-xs font-black">{ratingStars}.0</span>
-                </div>
-                <div className="flex items-center gap-1 text-muted-foreground bg-muted/30 px-2 py-1 rounded-lg">
-                  <ShieldCheck size={12} />
-                  <span className="text-[10px] sm:text-xs font-bold">{talent.experienceYears} il</span>
-                </div>
-              </div>
-              
-              <div className="flex items-center gap-2">
-                <div className="hidden md:block mr-2">
-                  <Badge className={cn("rounded-lg px-2 py-1 font-bold text-[9px] uppercase tracking-tighter shrink-0", displayStatus === "Açıq" ? "bg-emerald-500/10 text-emerald-500" : "bg-orange-500/10 text-orange-500")}>
-                    {displayStatus}
+              {/* Basic Info */}
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <h3 className="text-sm sm:text-base font-black text-foreground truncate group-hover:text-primary transition-colors italic leading-tight">{talent.name}</h3>
+                  <Badge className="bg-primary/10 text-primary h-4 sm:h-5 px-1 sm:px-1.5 rounded-md font-black text-[8px] sm:text-[9px] border border-primary/20 shrink-0">
+                    {talent.matchingScore}%
                   </Badge>
                 </div>
+                <p className="text-[8px] sm:text-[10px] font-bold text-muted-foreground uppercase tracking-tighter mt-0.5 truncate italic">{talent.appliedJobTitle || "İstedad Hovuzu"}</p>
+              </div>
 
+              {/* Middle: Details (Hidden on mobile) */}
+              <div className="hidden md:flex items-center gap-8 px-6 border-x border-border/30 h-10 shrink-0">
+                <div className="flex flex-col justify-center items-center text-center w-16">
+                   <p className="text-[8px] font-black text-muted-foreground/50 uppercase tracking-widest leading-none mb-1">Tarix</p>
+                   <p className="text-[11px] font-black text-foreground italic">{new Date(talent.appliedAt).toLocaleDateString("az-AZ", { day: '2-digit', month: '2-digit' })}</p>
+                </div>
+                <div className="flex flex-col justify-center items-center text-center w-16">
+                   <p className="text-[8px] font-black text-muted-foreground/50 uppercase tracking-widest leading-none mb-1">Təcrübə</p>
+                   <p className="text-[11px] font-black text-foreground italic">{talent.experienceYears}+ İl</p>
+                </div>
+              </div>
+
+              {/* Desktop Skills */}
+              <div className="hidden lg:flex flex-wrap gap-1.5 justify-end max-w-[200px]">
+                {talent.skills.slice(0, 3).map((tag, idx) => (
+                  <Badge key={idx} variant="secondary" className="rounded-md px-1.5 py-0 font-bold text-[8px] uppercase tracking-tighter bg-muted/40 text-muted-foreground/60 border border-border/30">
+                    {tag}
+                  </Badge>
+                ))}
+              </div>
+
+              {/* Actions */}
+              <div className="flex items-center gap-1 sm:gap-2 shrink-0">
                 <Button 
                   onClick={(e) => {
                     e.stopPropagation();
                     window.location.href = `mailto:${talent.email}`;
-                    toast({
-                       title: "E-poçt ünvanı hazırlandı",
-                       description: "Poçt xidmətiniz açılır...",
-                    });
                   }}
                   variant="ghost" 
                   size="icon" 
-                  className="h-9 w-9 rounded-xl hover:bg-primary/10 hover:text-primary transition-all text-muted-foreground"
+                  className="h-8 w-8 rounded-lg hover:bg-primary/10 hover:text-primary transition-all text-muted-foreground hidden sm:flex"
                 >
-                  <Mail size={16} />
+                  <Mail size={14} />
                 </Button>
-                <Button 
-                  onClick={(e) => { e.stopPropagation(); openDetails(talent); }}
-                  className="h-9 px-4 rounded-xl font-bold bg-foreground text-background hover:opacity-90 hidden sm:flex text-xs transition-all active:scale-95"
-                >
-                  Profil
-                </Button>
+                
+                <div className="h-6 w-px bg-border/40 mx-1 hidden sm:block" />
 
                 <DropdownMenu>
                   <DropdownMenuTrigger 
-                    className="flex text-muted-foreground items-center justify-center rounded-xl h-9 w-9 hover:bg-muted dark:hover:bg-white/5 outline-none focus:outline-none transition-colors border border-transparent hover:border-border" 
+                    className="flex text-muted-foreground items-center justify-center rounded-lg h-8 w-8 hover:bg-muted dark:hover:bg-white/5 outline-none focus:outline-none transition-colors border border-transparent hover:border-border" 
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <MoreHorizontal size={16} />
+                    <MoreHorizontal size={14} />
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48 rounded-2xl" onClick={(e) => e.stopPropagation()}>
+                  <DropdownMenuContent align="end" className="w-48 rounded-xl" onClick={(e) => e.stopPropagation()}>
+                    <DropdownMenuItem 
+                      onClick={() => openDetails(talent)}
+                      className="gap-2 cursor-pointer font-medium p-2 text-xs"
+                    >
+                      <ShieldCheck size={14} className="text-emerald-500" />
+                      <span>Tam profilə bax</span>
+                    </DropdownMenuItem>
                     <DropdownMenuItem 
                       onClick={() => {
                         setInterviewCandidateName(talent.name);
                         setInterviewCandidateEmail(talent.email);
                         setInterviewModalOpen(true);
                       }}
-                      className="gap-2 cursor-pointer font-medium p-2.5"
+                      className="gap-2 cursor-pointer font-medium p-2 text-xs"
                     >
-                      <CalendarPlus size={15} className="text-primary" />
+                      <CalendarPlus size={14} className="text-primary" />
                       <span>Müsahibəyə dəvət et</span>
                     </DropdownMenuItem>
                     <DropdownMenuItem 
                       onClick={() => handleShare(talent.id, talent.name)}
-                      className="gap-2 cursor-pointer font-medium p-2.5"
+                      className="gap-2 cursor-pointer font-medium p-2 text-xs"
                     >
-                      <Share2 size={15} className="text-muted-foreground" />
+                      <Share2 size={14} className="text-muted-foreground" />
                       <span>Profili bölüş</span>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem 
                       onClick={() => handleRemove(talent.id, talent.name)}
-                      className="gap-2 cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10 font-bold p-2.5"
+                      className="gap-2 cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10 font-bold p-2 text-xs"
                     >
-                      <Trash2 size={15} />
+                      <Trash2 size={14} />
                       <span>Hovuzdan sil</span>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
@@ -384,30 +464,16 @@ export default function TalentPoolPage() {
               </div>
             </div>
           </div>
-        )})}
+        ))}
       </div>
 
-      {filteredCandidates.length === 0 && (
+      {filteredCandidates.length === 0 && !isLoading && (
          <div className="flex flex-col items-center justify-center py-16 text-center rounded-4xl border border-dashed border-border dark:border-white/10 bg-card/50">
            <Search size={32} className="text-muted-foreground/30 mb-4" />
            <p className="text-sm font-bold text-foreground">Uyğun namizəd tapılmadı</p>
            <p className="text-xs text-muted-foreground mt-1">Axtarış sözlərini və ya filtrləri dəyişin</p>
          </div>
       )}
-
-      {/* Empty State / More info */}
-      <div 
-        onClick={() => setAnalysisOpen(true)}
-        className="cursor-pointer p-8 rounded-4xl bg-linear-to-r from-primary/5 via-transparent to-primary/5 border border-dashed border-border dark:border-white/10 flex flex-col items-center justify-center text-center space-y-4 hover:bg-primary/5 transition-colors"
-      >
-        <div className="w-12 h-12 rounded-2xl bg-card border border-border flex items-center justify-center text-muted-foreground">
-           <Plus size={24} />
-        </div>
-        <div>
-          <p className="text-sm font-bold text-foreground">Daha çox namizəd əlavə edin</p>
-          <p className="text-xs text-muted-foreground mt-1">Gələcəyin ulduzlarını hovuzda saxlayın</p>
-        </div>
-      </div>
 
       {/* Modals & Drawers */}
       <CandidateDetailsDrawer 
@@ -437,7 +503,6 @@ export default function TalentPoolPage() {
         initialCandidateName={interviewCandidateName}
         initialCandidateEmail={interviewCandidateEmail}
         onSuccess={(data) => {
-          // Statusu tapan və dəyişən vizual geribildirim
           const candidate = candidates.find(c => c.name === data.candidateName);
           if (candidate) handleStatusChange(candidate.id, "Interview");
         }}

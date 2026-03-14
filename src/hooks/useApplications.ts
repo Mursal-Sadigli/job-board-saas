@@ -12,7 +12,7 @@ export function useApplications() {
     setIsLoading(true);
     try {
       const token = await getToken();
-      const response = await fetch('http://localhost:5000/api/applications', {
+      const response = await fetch('http://localhost:5001/api/applications', {
         headers: {
           'Authorization': `Bearer ${token}`
         }

@@ -36,7 +36,7 @@ import { CandidateFiltersDrawer } from "@/components/employer/CandidateFiltersDr
 import { useAuth } from "@clerk/nextjs";
 import { toast } from "@/hooks/use-toast";
 
-const API_BASE = "http://localhost:5000";
+const API_BASE = "http://localhost:5001";
 
 const STATUS_CONFIG: Record<CandidateStatus, { label: string; icon: any; color: string; bg: string }> = {
   Applied: { label: "Müraciət", icon: Clock, color: "text-blue-500", bg: "bg-blue-500/10" },

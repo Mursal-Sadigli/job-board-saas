@@ -2,25 +2,23 @@ import { Request, Response } from 'express';
 import Stripe from 'stripe';
 import prisma from '../lib/prisma';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-01-27.acacia' as any,
-});
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder');
+
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 
 export const createCheckoutSession = async (req: any, res: Response) => {
   try {
-    const clerkId = req.auth?.sessionClaims?.sub as string;
-    if (!clerkId) {
-      return res.status(401).json({ message: 'Unauthorized' });
-    }
+    const userId = req.auth.userId;
 
     const user = await prisma.user.findUnique({
-      where: { clerkId },
+      where: { clerkId: userId }
     });
 
     if (!user) {
       return res.status(404).json({ message: 'İstifadəçi tapılmadı' });
     }
 
+    // Create Stripe Checkout Session
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [
@@ -28,58 +26,77 @@ export const createCheckoutSession = async (req: any, res: Response) => {
           price_data: {
             currency: 'usd',
             product_data: {
-              name: 'LIFETIME Premium - Sınırsız CV Yükləmə',
-              description: 'Birdəfəlik ödənişlə bütün CV yükləmə limitlərini ləğv edin.',
+              name: 'Premium Plan - Sınırsız CV Yükləmə',
+              description: 'İstedad hovuzuna sınırsız namizəd əlavə edin və AI analizlərindən limitsiz yararlanın.',
             },
-            unit_amount: 1000, // $10.00
+            unit_amount: 2900, // $29.00
           },
           quantity: 1,
         },
       ],
       mode: 'payment',
-      success_url: `${process.env.FRONTEND_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.FRONTEND_URL}/upgrade`,
+      success_url: `${FRONTEND_URL}/employer/ats/talent-pool?session_id={CHECKOUT_SESSION_ID}&success=true`,
+      cancel_url: `${FRONTEND_URL}/employer/upgrade?canceled=true`,
       metadata: {
-        clerkId: user.clerkId,
-        userId: user.id,
+        userId: userId,
       },
     });
 
-    res.status(200).json({ url: session.url });
-  } catch (error) {
-    console.error('Create checkout session error:', error);
-    res.status(500).json({ message: 'Ödəniş seansı yaradılarkən xəta baş verdi' });
+    res.status(200).json({ sessionId: session.id, url: session.url });
+  } catch (error: any) {
+    console.error('Stripe Checkout Error:', error);
+    res.status(500).json({ message: 'Ödəniş sessiyası yaradıla bilmədi', error: error.message });
   }
 };
 
 export const handleWebhook = async (req: Request, res: Response) => {
-  const sig = req.headers['stripe-signature'] as string;
-  let event: Stripe.Event;
+  const sig = req.headers['stripe-signature'];
+
+  let event;
 
   try {
     event = stripe.webhooks.constructEvent(
       req.body,
-      sig,
-      process.env.STRIPE_WEBHOOK_SECRET!
+      sig as string,
+      process.env.STRIPE_WEBHOOK_SECRET || 'whsec_placeholder'
     );
   } catch (err: any) {
-    console.error('Webhook signature verification failed.', err.message);
+    console.error(`Webhook Error: ${err.message}`);
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
   // Handle the event
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session;
-    const clerkId = session.metadata?.clerkId;
+    const userId = session.metadata?.userId;
 
-    if (clerkId) {
+    if (userId) {
+      console.log(`Payment successful for user: ${userId}`);
+      
+      // Upgrade user to PREMIUM and reset/ignore limits
       await prisma.user.update({
-        where: { clerkId },
-        data: {
-          plan: 'LIFETIME',
-        },
+        where: { clerkId: userId },
+        data: { 
+          plan: 'PREMIUM',
+          // We can also record subscription details in Subscription model if needed
+        }
       });
-      console.log(`User ${clerkId} upgraded to LIFETIME plan`);
+      
+      // Update or create Subscription record
+      await prisma.subscription.upsert({
+        where: { clerkId: userId },
+        update: {
+          status: 'active',
+          plan: 'PREMIUM',
+          stripeCustomerId: session.customer as string,
+        },
+        create: {
+          clerkId: userId,
+          status: 'active',
+          plan: 'PREMIUM',
+          stripeCustomerId: session.customer as string,
+        }
+      });
     }
   }
 

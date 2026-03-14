@@ -66,7 +66,7 @@ import { CandidateDetailsDrawer } from "@/components/employer/CandidateDetailsDr
 import { Candidate as ATSCandidate, CandidateStatus } from "@/types/ats";
 import { toast } from "@/hooks/use-toast";
 
-const API_BASE = "http://localhost:5000";
+const API_BASE = "http://localhost:5001";
 
 // ------- Types -------
 const FALLBACK_USER = {

@@ -11,7 +11,7 @@ import webhookRoutes from './routes/webhookRoutes';
 import stripeRoutes from './routes/stripeRoutes';
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 
 // Request Logger
 app.use((req, res, next) => {
@@ -47,6 +47,7 @@ import jobRoutes from './routes/jobRoutes';
 import applicationRoutes from './routes/applicationRoutes';
 import userRoutes from './routes/userRoutes';
 import interviewRoutes from './routes/interviewRoutes';
+import analyticsRoutes from './routes/analyticsRoutes';
 import { inngest, helloWorld } from './lib/inngest';
 import { serve } from 'inngest/express';
 
@@ -61,12 +62,13 @@ app.get('/health', (req: Request, res: Response) => {
 
 // Inngest
 app.use("/api/inngest", serve({ client: inngest, functions: [helloWorld] }));
-
 // Routes Registration
 app.use('/api/jobs', jobRoutes);
 app.use('/api/applications', applicationRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/interviews', interviewRoutes);
+app.use('/api/analytics', analyticsRoutes);
+app.use('/inngest', serve({ client: inngest, functions: [helloWorld] }));
 
 // Global Error Handler
 app.use((err: any, req: Request, res: Response, next: any) => {

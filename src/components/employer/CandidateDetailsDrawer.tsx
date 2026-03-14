@@ -154,12 +154,24 @@ export function CandidateDetailsDrawer({
                      <GraduationCap size={14} strokeWidth={3} /> TƏHSİL
                   </h3>
                   <div className="space-y-4">
-                     {candidate.education.map((edu, idx) => (
-                       <div key={idx} className="flex items-start gap-3">
-                          <div className="mt-1.5 w-2 h-2 rounded-full bg-slate-900 dark:bg-white shrink-0 shadow-[0_0_10px_rgba(255,255,255,0.3)]" />
-                          <p className="text-sm font-black text-slate-700 dark:text-white leading-tight tracking-tight">{edu}</p>
-                       </div>
-                     ))}
+                      {candidate.education.map((edu, idx) => {
+                        const eduText = typeof edu === 'string' ? edu : `${edu.degree} - ${edu.school}`;
+                        return (
+                          <div key={idx} className="flex items-start gap-4 p-3 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5 group hover:border-primary/20 transition-all">
+                             <div className="w-8 h-8 rounded-lg bg-white dark:bg-white/10 flex items-center justify-center text-primary shrink-0 border border-slate-200 dark:border-white/10 group-hover:scale-110 transition-transform">
+                                <GraduationCap size={16} />
+                             </div>
+                             <div className="min-w-0 flex-1">
+                                <p className="text-sm font-black text-slate-700 dark:text-white leading-tight tracking-tight italic truncate">
+                                  {typeof edu === 'string' ? edu : edu.degree}
+                                </p>
+                                <p className="text-[10px] font-bold text-slate-400 dark:text-white/40 uppercase tracking-tighter mt-1 truncate">
+                                  {typeof edu === 'string' ? "Məlumat yoxdur" : edu.school}
+                                </p>
+                             </div>
+                          </div>
+                        );
+                      })}
                   </div>
                </div>
 

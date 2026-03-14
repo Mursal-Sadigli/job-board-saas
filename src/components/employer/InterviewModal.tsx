@@ -83,7 +83,7 @@ export function InterviewModal({ open, onOpenChange, onSuccess, initialCandidate
     setLoading(true);
     try {
       const token = await getToken();
-      const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
       
       const url = editingInterview 
         ? `${API_BASE}/api/interviews/${editingInterview.id}`

@@ -15,6 +15,8 @@ import {
 } from "lucide-react";
 import { cn } from "@/utils/cn";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/hooks/use-toast";
+import { useAuth } from "@clerk/nextjs";
 import { 
   Dialog, 
   DialogContent, 
@@ -23,7 +25,7 @@ import {
   DialogDescription 
 } from "@/components/ui/dialog";
 
-// Simulation of AI Extraction steps
+// AI Extraction steps
 const EXTRACTION_STEPS = [
   "Mətn çıxarılır (OCR)...",
   "Semantik analiz aparılır...",
@@ -40,6 +42,7 @@ interface ResumeAnalysisModalProps {
 }
 
 export function ResumeAnalysisModal({ open, onOpenChange, onAnalysisComplete }: ResumeAnalysisModalProps) {
+  const { getToken } = useAuth();
   const [file, setFile] = useState<File | null>(null);
   const [status, setStatus] = useState<"idle" | "uploading" | "analyzing" | "completed">("idle");
   const [progress, setProgress] = useState(0);
@@ -59,59 +62,75 @@ export function ResumeAnalysisModal({ open, onOpenChange, onAnalysisComplete }: 
     }
   };
 
-  const startAnalysis = () => {
+  const startAnalysis = async () => {
     if (!file) return;
     setStatus("uploading");
     
-    // Simulate upload
-    let uploadProgress = 0;
-    const interval = setInterval(() => {
-      uploadProgress += Math.random() * 30;
-      if (uploadProgress >= 100) {
-        uploadProgress = 100;
-        clearInterval(interval);
-        setStatus("analyzing");
-        startAIProcessing();
-      }
-      setProgress(uploadProgress);
-    }, 400);
-  };
+    try {
+      const token = await getToken();
+      const formData = new FormData();
+      formData.append("resume", file);
 
-  const startAIProcessing = () => {
-    let step = 0;
-    const stepInterval = setInterval(() => {
-      setCurrentStep(step);
-      step++;
-      if (step >= EXTRACTION_STEPS.length) {
+      // Simulation of steps in background for UX
+      let stepSize = 100 / EXTRACTION_STEPS.length;
+      let currentProgress = 0;
+      
+      const stepInterval = setInterval(() => {
+        setCurrentStep(prev => {
+          if (prev < EXTRACTION_STEPS.length - 2) {
+             currentProgress += stepSize;
+             setProgress(currentProgress);
+             return prev + 1;
+          }
+          return prev;
+        });
+      }, 1500);
+
+      const res = await fetch("http://localhost:5001/api/applications/analyze", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData
+      });
+
+      if (res.status === 403) {
         clearInterval(stepInterval);
+        toast({
+          title: "Limit Dolub",
+          description: "Pulsuz CV yükləmə limitiniz bitib. Lütfən planınızı yeniləyin.",
+          type: "error"
+        });
         setTimeout(() => {
-          setStatus("completed");
-          // Mock name extraction from file name
-          const fileName = file?.name || "Yeni Namizəd";
-          const extractedName = fileName
-            .split(".")[0]
-            .replace(/[_-]/g, " ")
-            .split(/\s+/)
-            .filter(word => !["cv", "resume", "pdf", "doc", "docx"].includes(word.toLowerCase()))
-            .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-            .join(" ") || "Yeni Namizəd";
-
-          const mockResult = {
-            name: extractedName,
-            email: "extracted@example.com",
-            location: "Bakı, Azərbaycan", // Simulating location extraction
-            skills: ["React", "TypeScript", "Node.js"],
-            matchingScore: Math.floor(Math.random() * (95 - 70 + 1)) + 70,
-            experienceYears: Math.floor(Math.random() * 10) + 1
-          };
-          onAnalysisComplete(mockResult);
-        }, 800);
+          onOpenChange(false);
+          window.location.href = "/employer/upgrade";
+        }, 1500);
+        return;
       }
-    }, 1200);
+
+      if (!res.ok) throw new Error("Analysis failed");
+      
+      const data = await res.json();
+      
+      clearInterval(stepInterval);
+      setCurrentStep(EXTRACTION_STEPS.length - 1);
+      setProgress(100);
+      setStatus("completed");
+      
+      // Notify parent to refresh list
+      onAnalysisComplete(data.aiData);
+      
+    } catch (error) {
+      console.error("Analysis error:", error);
+      toast({
+        title: "Xəta",
+        description: "CV analiz edilərkən xəta baş verdi.",
+        type: "error"
+      });
+      setStatus("idle");
+    }
   };
 
   return (
-    <Dialog open={open} onOpenChange={(v) => { if (status !== "analyzing") onOpenChange(v); if (!v) reset(); }}>
+    <Dialog open={open} onOpenChange={(v) => { if (status !== "uploading" && status !== "analyzing") onOpenChange(v); if (!v) reset(); }}>
       <DialogContent className="w-[calc(100vw-2rem)] sm:max-w-[500px] rounded-3xl border-border/60 dark:border-white/5 bg-card dark:bg-[#020617] backdrop-blur-3xl overflow-hidden p-0 gap-0">
         <DialogHeader className="p-4 sm:p-6 bg-muted/30 dark:bg-white/5 border-b border-border/50 dark:border-white/5">
           <div className="flex items-center gap-3">
@@ -156,7 +175,7 @@ export function ResumeAnalysisModal({ open, onOpenChange, onAnalysisComplete }: 
               <div className="relative">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs font-black uppercase tracking-widest text-primary flex items-center gap-2">
-                    {status === "uploading" ? <Loader2 size={14} className="animate-spin" /> : <Brain size={14} className="animate-pulse" />}
+                    <Loader2 size={14} className="animate-spin" />
                     {status === "uploading" ? "Yüklənir..." : "Analiz Edilir..."}
                   </span>
                   <span className="text-xs font-black text-foreground">{Math.round(progress)}%</span>
@@ -198,22 +217,18 @@ export function ResumeAnalysisModal({ open, onOpenChange, onAnalysisComplete }: 
               <p className="text-sm text-muted-foreground text-center max-w-xs mb-8">
                 Namizəd məlumatları uğurla çıxarıldı və profil yaradıldı.
               </p>
-              <div className="grid grid-cols-2 gap-3 w-full">
-                <div className="p-4 rounded-2xl bg-muted/30 border border-border/50 text-center">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 mb-1">Matching Score</p>
-                  <p className="text-2xl font-black text-emerald-500">92%</p>
-                </div>
-                <div className="p-4 rounded-2xl bg-muted/30 border border-border/50 text-center">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 mb-1">Təcrübə</p>
-                  <p className="text-2xl font-black text-foreground">6 il</p>
-                </div>
-              </div>
+              <Button 
+                onClick={() => onOpenChange(false)}
+                className="w-full h-12 rounded-2xl bg-emerald-500 text-white font-black text-sm shadow-xl hover:bg-emerald-600 transition-all"
+              >
+                Tamamla
+              </Button>
             </div>
           )}
         </div>
 
         <div className="p-6 bg-muted/30 dark:bg-white/5 border-t border-border/50 dark:border-white/5 flex flex-col gap-3">
-          {status === "idle" ? (
+          {status === "idle" && (
             <Button 
               disabled={!file} 
               onClick={startAnalysis}
@@ -221,14 +236,8 @@ export function ResumeAnalysisModal({ open, onOpenChange, onAnalysisComplete }: 
             >
               Analizə Başla
             </Button>
-          ) : status === "completed" ? (
-            <Button 
-              onClick={() => onOpenChange(false)}
-              className="w-full h-12 rounded-2xl bg-emerald-500 text-white font-black text-sm shadow-xl hover:bg-emerald-600 transition-all"
-            >
-              Profilə Get
-            </Button>
-          ) : (
+          )}
+          {(status === "uploading" || status === "analyzing") && (
             <div className="flex items-center justify-center gap-6 py-2">
               <div className="flex flex-col items-center gap-1">
                 <Cpu size={18} className="text-primary/40" />

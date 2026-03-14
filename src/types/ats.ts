@@ -1,5 +1,14 @@
 export type CandidateStatus = "Applied" | "Screening" | "Interview" | "Offered" | "Hired" | "Rejected";
 
+export interface Education {
+  id: string;
+  field: string;
+  degree: string;
+  school: string;
+  startDate?: string;
+  endDate?: string;
+}
+
 export interface Candidate {
   id: string;
   name: string;
@@ -10,7 +19,7 @@ export interface Candidate {
   currentRole?: string;
   experienceYears: number;
   skills: string[];
-  education: string[];
+  education: (string | Education)[];
   resumeUrl?: string;
   matchingScore: number;
   analysisStatus: "pending" | "completed" | "failed";

@@ -47,7 +47,7 @@ export default function NotificationsPage() {
     minRating: "any"
   });
 
-  const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+  const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
 
   useEffect(() => {
     const fetchSettings = async () => {

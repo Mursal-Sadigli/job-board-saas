@@ -63,7 +63,7 @@ export default function JobDetailPanel({ job, onClose, onApply }: JobDetailPanel
   return (
     <div className="flex flex-col h-full bg-card dark:bg-[#0b0e14] border-l border-border dark:border-white/10 relative overflow-hidden backdrop-blur-xl">
       {/* Scrollable Content Area */}
-      <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar">
+      <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar w-full overflow-x-visible">
         {/* Header Section */}
         <div className="px-6 pt-8 pb-6 relative border-b border-border/40 dark:border-white/5">
           {/* Minimalist Close button */}
@@ -93,7 +93,7 @@ export default function JobDetailPanel({ job, onClose, onApply }: JobDetailPanel
               )}
             </div>
             <div className="flex-1 min-w-0 pr-10">
-              <h2 className="text-xl sm:text-2xl font-bold leading-tight tracking-tight text-foreground wrap-break-word">
+              <h2 className="text-xl sm:text-2xl font-bold leading-tight tracking-tight text-foreground wrap-break-word whitespace-normal">
                 {job.title}
               </h2>
               <p className="text-sm sm:text-base font-semibold mt-1 text-muted-foreground/80">
@@ -141,17 +141,19 @@ export default function JobDetailPanel({ job, onClose, onApply }: JobDetailPanel
         </div>
 
         {/* Description Section */}
-        <div className="px-6 py-10 pb-28">
-          <h3 className="text-[11px] font-black uppercase tracking-[0.25em] text-muted-foreground/30 mb-8">İş haqqında məlumat</h3>
+        <div className="px-6 py-10 pb-28 w-full min-w-0">
+          <h3 className="text-[11px] font-black uppercase tracking-[0.25em] text-muted-foreground/30 mb-8 font-jakarta">İş haqqında məlumat</h3>
           {job.description ? (
             <div
-              className="prose prose-sm dark:prose-invert max-w-none
-                [&_h2]:text-base [&_h2]:font-bold [&_h2]:text-foreground [&_h2]:mb-2 [&_h2]:mt-6 [&_h2]:first:mt-0
-                [&_p]:text-[15px] [&_p]:text-muted-foreground [&_p]:leading-relaxed [&_p]:mb-4
-                [&_ul]:space-y-2 [&_ul]:mb-4 [&_ul]:pl-0 [&_ul]:list-none
-                [&_li]:text-[15px] [&_li]:text-muted-foreground [&_li]:leading-relaxed
-                [&_li]:flex [&_li]:items-start [&_li]:gap-2.5
-                [&_li]:before:content-['•'] [&_li]:before:text-primary/60 [&_li]:before:font-bold [&_li]:before:mt-0"
+              className="prose prose-sm dark:prose-invert max-w-none w-full min-w-0 wrap-anywhere [word-break:break-word]
+                [&_h2]:text-base [&_h2]:font-bold [&_h2]:text-foreground [&_h2]:mb-4 [&_h2]:mt-8 [&_h2]:first:mt-0 
+                [&_p]:text-[15px] [&_p]:text-muted-foreground/90 [&_p]:leading-relaxed [&_p]:mb-5 
+                [&_p]:wrap-break-word [&_p]:whitespace-normal [&_p]:w-full
+                [&_ul]:space-y-4 [&_ul]:mb-6 [&_ul]:pl-0 [&_ul]:list-none [&_ul]:w-full
+                [&_li]:text-[15px] [&_li]:text-muted-foreground/90 [&_li]:leading-relaxed 
+                [&_li]:wrap-break-word [&_li]:whitespace-normal [&_li]:w-full
+                [&_li]:grid [&_li]:grid-cols-[20px_minmax(0,1fr)] [&_li]:items-start [&_li]:gap-2
+                [&_li]:before:content-['•'] [&_li]:before:text-primary [&_li]:before:font-black [&_li]:before:text-xl [&_li]:before:leading-none [&_li]:before:mt-0.5"
               dangerouslySetInnerHTML={{ __html: job.description }}
             />
           ) : (

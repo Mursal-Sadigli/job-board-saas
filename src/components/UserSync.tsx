@@ -12,7 +12,7 @@ export default function UserSync() {
         try {
           const token = await getToken();
           
-          const response = await fetch("http://localhost:5000/api/users/sync", {
+          const response = await fetch("http://localhost:5001/api/users/sync", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",

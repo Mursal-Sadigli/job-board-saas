@@ -11,7 +11,7 @@ export function useJobs() {
   useEffect(() => {
     async function fetchJobs() {
       try {
-        const response = await fetch("http://localhost:5000/api/jobs");
+        const response = await fetch("http://localhost:5001/api/jobs");
         if (response.ok) {
           const data = await response.json();
           // Map backend Job to frontend Job type if necessary

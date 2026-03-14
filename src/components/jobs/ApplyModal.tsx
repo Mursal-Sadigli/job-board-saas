@@ -50,7 +50,7 @@ export function ApplyModal({ children, jobId, jobTitle, companyName, onSuccess }
       formData.append("jobId", jobId);
       formData.append("resume", file);
 
-      const response = await fetch("http://localhost:5000/api/applications/apply", {
+      const response = await fetch("http://localhost:5001/api/applications/apply", {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${token}`

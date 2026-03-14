@@ -13,6 +13,15 @@ export const applyForJob = async (req: any, res: Response) => {
     const userId = req.auth.userId;
     const file = req.file;
 
+    // 0. Check Limits
+    const currentUser = await prisma.user.findUnique({ where: { clerkId: userId } });
+    if (currentUser?.plan === 'FREE' && currentUser.cvUploadCount >= 3) {
+      return res.status(403).json({ 
+        message: 'CV yükləmə limiti dolub. Zəhmət olmasa planınızı yeniləyin.',
+        limitReached: true 
+      });
+    }
+
     if (!file) {
       return res.status(400).json({ message: 'CV faylı yüklənməyib' });
     }
@@ -106,19 +115,25 @@ export const applyForJob = async (req: any, res: Response) => {
     }
 
     // 5. Save to database
-    console.log('6. Saving application to DB...');
+    console.log('6. Create Application record');
     const application = await prisma.application.create({
       data: {
-        jobId,
         candidateId: user.id,
+        jobId: jobId,
         resumeUrl: cloudinaryResult.secure_url,
-        resumeText: JSON.stringify(aiAnalysis),
+        resumeText: resumeText,
+        rating: aiAnalysis.rating || 0,
         stage: 'Applied',
-        rating: aiAnalysis.rating ? parseInt(aiAnalysis.rating.toString()) : 0
       }
     });
 
-    // 6. Trigger notification (Async - don't block response)
+    // 7. Increment upload count
+    await prisma.user.update({
+      where: { clerkId: userId },
+      data: { cvUploadCount: { increment: 1 } }
+    });
+
+    // 8. Trigger notification (Async - don't block response)
     sendNewApplicationNotification(application.id);
 
     console.log('--- Application Completed Successfully ---');
@@ -585,5 +600,127 @@ export const getCandidateById = async (req: any, res: Response) => {
   } catch (error: any) {
     console.error('getCandidateById error:', error);
     res.status(500).json({ message: 'Namizəd məlumatlarını gətirərkən xəta baş verdi', error: error.message });
+  }
+};
+
+export const analyzeAndAddToPool = async (req: any, res: Response) => {
+  try {
+    const userId = req.auth?.userId;
+    const file = req.file;
+
+    if (userId) {
+      const currentUser = await prisma.user.findUnique({ where: { clerkId: userId } });
+      if (currentUser?.plan === 'FREE' && currentUser.cvUploadCount >= 3) {
+        return res.status(403).json({ 
+          message: 'Limit dolub. Yeni namizəd əlavə etmək üçün planınızı yeniləyin.',
+          limitReached: true 
+        });
+      }
+    }
+    if (!file) {
+      return res.status(400).json({ message: 'CV faylı yüklənməyib' });
+    }
+
+    console.log('--- Talent Pool AI Analysis Started ---');
+
+    // 1. Extract text from PDF
+    const pdfData = await pdf(file.buffer);
+    const resumeText = pdfData.text;
+
+    // 2. AI Analysis with Groq
+    const prompt = `
+      Sən peşəkar bir HR köməkçisisən. Aşağıdakı CV mətnini analiz et və mənə JSON formatında geri qaytar.
+      Mütləq bu formatda olsun (heç bir əlavə mətn yazma):
+      {
+        "name": "Namizədin adı",
+        "email": "namizədin@emaili.com",
+        "skills": ["bacarıq1", "bacarıq2"],
+        "summary": "Qısa xülasə/bio",
+        "location": "Şəhər, Ölkə",
+        "experienceYears": 5,
+        "education": [{"school": "Universitet", "degree": "Bakalavr"}]
+      }
+
+      CV Mətni:
+      ${resumeText}
+    `;
+
+    const chatCompletion = await groq.chat.completions.create({
+      messages: [{ role: "user", content: prompt }],
+      model: "llama-3.1-8b-instant",
+      response_format: { type: "json_object" },
+    });
+
+    const aiData = JSON.parse(chatCompletion.choices[0].message.content || '{}');
+    
+    // 3. Upload to Cloudinary
+    const uploadToCloudinary = () => {
+      return new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          {
+            folder: 'resumes',
+            resource_type: 'auto',
+            public_id: `${Date.now()}-${file.originalname.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`,
+          },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          }
+        );
+        stream.end(file.buffer);
+      });
+    };
+
+    const cloudinaryResult: any = await uploadToCloudinary();
+
+    // 4. Persistence - Create/Update virtual User
+    const virtualClerkId = `virtual_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const candidate = await prisma.user.upsert({
+      where: { email: aiData.email || `temp_${Date.now()}@virtual.com` },
+      update: {
+        skills: aiData.skills || [],
+        bio: aiData.summary || '',
+        location: aiData.location || 'Məlumat yoxdur',
+        name: aiData.name || 'Yeni Namizəd',
+        education: aiData.education || []
+      },
+      create: {
+        clerkId: virtualClerkId,
+        email: aiData.email || `temp_${Date.now()}@virtual.com`,
+        name: aiData.name || 'Yeni Namizəd',
+        role: 'CANDIDATE',
+        skills: aiData.skills || [],
+        bio: aiData.summary || '',
+        location: aiData.location || 'Məlumat yoxdur',
+        education: aiData.education || []
+      }
+    });
+
+    await prisma.resume.create({
+      data: {
+        userId: candidate.id,
+        name: file.originalname,
+        size: file.size,
+        url: cloudinaryResult.secure_url
+      }
+    });
+
+    // 6. Increment upload count if it's a logged-in employer
+    if (userId) {
+      await prisma.user.update({
+        where: { clerkId: userId },
+        data: { cvUploadCount: { increment: 1 } }
+      });
+    }
+
+    res.status(200).json({ 
+      message: 'Namizəd analiz edildi və hovuza əlavə olundu',
+      candidateId: candidate.id,
+      aiData 
+    });
+
+  } catch (error: any) {
+    console.error('analyzeAndAddToPool error:', error);
+    res.status(500).json({ message: 'Analiz zamanı xəta yarandı', error: error.message });
   }
 };
