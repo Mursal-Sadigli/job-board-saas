@@ -173,6 +173,7 @@ export const getApplications = async (req: Request, res: Response) => {
     const { jobId } = req.query;
     console.log('Fetching applications. jobId filter:', jobId || 'none');
     
+    // 1. Fetch real applications
     const applications = await prisma.application.findMany({
       where: jobId ? { jobId: String(jobId) } : {},
       include: {
@@ -192,21 +193,61 @@ export const getApplications = async (req: Request, res: Response) => {
       orderBy: { appliedAt: 'desc' }
     });
     
-    console.log(`Found ${applications.length} applications`);
+    // 2. Fetch all user resumes (Talent Pool) - only if no specific job filter or we want a general pool
+    // For now, let's include them as "General Talent Pool" if no jobId is specified
+    let virtualApplications: any[] = [];
+    if (!jobId) {
+      const allResumes = await prisma.resume.findMany({
+        include: {
+          user: {
+            select: {
+              name: true,
+              email: true
+            }
+          }
+        },
+        orderBy: { createdAt: 'desc' }
+      });
+
+      virtualApplications = allResumes.map(resume => ({
+        id: `resume-${resume.id}`, // Unique ID for frontend
+        candidateId: resume.userId,
+        candidate: resume.user,
+        resumeUrl: resume.url,
+        resumeText: null,
+        stage: 'Pool', // Special stage for Talent Pool
+        rating: 0,
+        appliedAt: resume.createdAt,
+        jobId: 'talent-pool',
+        job: {
+          title: 'Ümumi Baza (Talent Pool)',
+          company: 'Sistem'
+        },
+        isVirtual: true // Flag to identify it's from profile resumes
+      }));
+    }
     
-    // Fix URLs on the fly if they are missing extensions (for old data)
-    const fixedApplications = applications.map(app => {
-      const url = app.resumeUrl || '';
+    // 3. Merge and sort
+    const allItems = [...applications, ...virtualApplications].sort((a, b) => 
+      new Date(b.appliedAt || b.createdAt).getTime() - new Date(a.appliedAt || a.createdAt).getTime()
+    );
+
+    console.log(`Found ${applications.length} real apps and ${virtualApplications.length} pool resumes`);
+    
+    // Fix URLs on the fly
+    const fixedItems = allItems.map(item => {
+      const url = item.resumeUrl || '';
       const hasExtension = /\.(pdf|docx|doc|txt|png|jpg|jpeg)$/i.test(url.split('?')[0]);
       
       if (url.includes('cloudinary') && !hasExtension) {
-        return { ...app, resumeUrl: `${url}.pdf` };
+        return { ...item, resumeUrl: `${url}.pdf` };
       }
-      return app;
+      return item;
     });
 
-    res.json(fixedApplications);
+    res.json(fixedItems);
   } catch (error) {
+    console.error('getApplications error:', error);
     res.status(500).json({ message: 'Müraciətləri gətirərkən xəta baş verdi', error });
   }
 };

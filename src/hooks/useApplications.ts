@@ -28,13 +28,14 @@ export function useApplications() {
         id: app.id,
         name: app.candidate?.name || 'Anonim Namizəd',
         initials: (app.candidate?.name || 'A').charAt(0),
-        color: 'bg-primary',
+        color: app.isVirtual ? 'bg-orange-500/20 text-orange-600' : 'bg-primary',
         stage: app.stage || 'Applied',
         rating: app.rating || 0,
         appliedAt: app.appliedAt,
         jobTitle: app.job?.title || 'Bilinməyən Vakansiya',
         jobId: app.jobId,
-        resumeUrl: app.resumeUrl || ''
+        resumeUrl: app.resumeUrl || '',
+        isVirtual: app.isVirtual || false
       }));
       
       setApplications(mappedApps);

@@ -176,6 +176,7 @@ export default function ApplicationsPage() {
     { value: "Interview", label: "Müsahibə", color: "text-orange-500" },
     { value: "Offered", label: "Təklif", color: "text-emerald-500" },
     { value: "Rejected", label: "İmtina", color: "text-red-500" },
+    { value: "Pool", label: "Talent Pool", color: "text-purple-500" },
   ];
 
   const getStageLabel = (stage: string) => {
@@ -190,6 +191,7 @@ export default function ApplicationsPage() {
       case "Interview": return "bg-orange-500/10 text-orange-500 border-orange-500/20";
       case "Offered": return "bg-emerald-500/10 text-emerald-500 border-emerald-500/20";
       case "Rejected": return "bg-red-500/10 text-red-500 border-red-500/20";
+      case "Pool": return "bg-purple-500/10 text-purple-500 border-purple-500/20";
       default: return "bg-muted text-muted-foreground";
     }
   };
@@ -230,9 +232,9 @@ export default function ApplicationsPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           { label: "Yeni", count: applications.filter(a => ["Applied", "Screening"].includes(a.stage)).length, icon: Clock, color: "text-blue-500", bg: "bg-blue-500/10" },
+          { label: "Talent Pool", count: applications.filter(a => a.stage === "Pool").length, icon: FileText, color: "text-purple-500", bg: "bg-purple-500/10" },
           { label: "Müsahibə", count: applications.filter(a => a.stage === "Interview").length, icon: Calendar, color: "text-orange-500", bg: "bg-orange-500/10" },
           { label: "Təklif", count: applications.filter(a => a.stage === "Offered").length, icon: Star, color: "text-emerald-500", bg: "bg-emerald-500/10" },
-          { label: "İmtina Qərarı", count: applications.filter(a => a.stage === "Rejected").length, icon: XCircle, color: "text-red-500", bg: "bg-red-500/10" },
         ].map(stat => (
           <div key={stat.label} className="p-5 rounded-2xl border border-border dark:border-white/5 bg-card shadow-sm">
             <div className="flex items-center justify-between mb-3">
@@ -294,7 +296,12 @@ export default function ApplicationsPage() {
                     </div>
                   </td>
                   <td className="px-6 py-5 text-center">
-                    <DropdownMenu>
+                    {app.isVirtual ? (
+                      <Badge variant="outline" className={cn("rounded-lg font-bold text-[10px] uppercase tracking-wider px-3 py-1 border dark:border-0", getStageColor(app.stage))}>
+                        {getStageLabel(app.stage)}
+                      </Badge>
+                    ) : (
+                      <DropdownMenu>
                         <DropdownMenuTrigger nativeButton={false} render={
                             <Badge variant="outline" className={cn("rounded-lg font-bold text-[10px] uppercase tracking-wider px-3 py-1 border dark:border-0 cursor-pointer hover:opacity-80 transition-opacity", getStageColor(app.stage))}>
                                 {getStageLabel(app.stage)}
@@ -311,7 +318,8 @@ export default function ApplicationsPage() {
                                 </DropdownMenuItem>
                             ))}
                         </DropdownMenuContent>
-                    </DropdownMenu>
+                      </DropdownMenu>
+                    )}
                   </td>
                   <td className="px-6 py-5">
                     <div className="flex justify-center gap-0.5">
@@ -320,10 +328,10 @@ export default function ApplicationsPage() {
                           key={s} 
                           size={12} 
                           className={cn(
-                            "cursor-pointer transition-all hover:scale-125",
+                            app.isVirtual ? "cursor-default opacity-50" : "cursor-pointer transition-all hover:scale-125",
                             s <= app.rating ? "text-amber-400 fill-amber-400" : "text-muted/30"
                           )} 
-                          onClick={() => handleRatingChange(app.id, s)}
+                          onClick={() => app.isVirtual ? null : handleRatingChange(app.id, s)}
                         />
                       ))}
                     </div>
@@ -333,7 +341,9 @@ export default function ApplicationsPage() {
                       <span className="text-xs font-bold text-foreground">
                         {new Date(app.appliedAt).toLocaleDateString("az-AZ")}
                       </span>
-                      <span className="text-[10px] font-medium text-muted-foreground/50 italic">E-poçt</span>
+                      <span className="text-[10px] font-medium text-muted-foreground/50 italic">
+                        {app.isVirtual ? 'Profil CV' : 'Müraciət'}
+                      </span>
                     </div>
                   </td>
                   <td className="px-6 py-5 text-right">
@@ -348,11 +358,15 @@ export default function ApplicationsPage() {
                                 <FileText size={14} className="text-primary" />
                                 <span>CV-yə bax</span>
                             </DropdownMenuItem>
-                            <DropdownMenuSeparator className="bg-border/50" />
-                            <DropdownMenuItem onClick={() => handleDelete(app.id, app.name)} className="rounded-xl font-bold px-3 py-2.5 text-xs text-red-500 gap-2">
-                                <Trash2 size={14} />
-                                <span>Sil</span>
-                            </DropdownMenuItem>
+                            {!app.isVirtual && (
+                              <>
+                                <DropdownMenuSeparator className="bg-border/50" />
+                                <DropdownMenuItem onClick={() => handleDelete(app.id, app.name)} className="rounded-xl font-bold px-3 py-2.5 text-xs text-red-500 gap-2">
+                                    <Trash2 size={14} />
+                                    <span>Sil</span>
+                                </DropdownMenuItem>
+                              </>
+                            )}
                         </DropdownMenuContent>
                     </DropdownMenu>
                   </td>
@@ -386,24 +400,30 @@ export default function ApplicationsPage() {
                                 {app.jobTitle}
                             </p>
                         </div>
-                        <DropdownMenu>
-                            <DropdownMenuTrigger nativeButton={false} render={
-                                <Badge variant="outline" className={cn("rounded-lg font-black text-[9px] uppercase tracking-widest px-2.5 py-1 shrink-0 border cursor-pointer", getStageColor(app.stage))}>
-                                    {getStageLabel(app.stage)}
-                                </Badge>
-                            } />
-                            <DropdownMenuContent align="end" className="w-40 rounded-2xl p-2 bg-card dark:bg-[#0f172a] border-border dark:border-white/5 shadow-2xl">
-                                {STAGES.map(s => (
-                                    <DropdownMenuItem 
-                                        key={s.value} 
-                                        onClick={() => handleStageChange(app.id, s.value)} 
-                                        className={cn("rounded-xl font-bold px-3 py-2 text-[11px]", s.color)}
-                                    >
-                                        {s.label}
-                                    </DropdownMenuItem>
-                                ))}
-                            </DropdownMenuContent>
-                        </DropdownMenu>
+                        {app.isVirtual ? (
+                            <Badge variant="outline" className={cn("rounded-lg font-black text-[9px] uppercase tracking-widest px-2.5 py-1 shrink-0 border", getStageColor(app.stage))}>
+                                {getStageLabel(app.stage)}
+                            </Badge>
+                        ) : (
+                            <DropdownMenu>
+                                <DropdownMenuTrigger nativeButton={false} render={
+                                    <Badge variant="outline" className={cn("rounded-lg font-black text-[9px] uppercase tracking-widest px-2.5 py-1 shrink-0 border cursor-pointer", getStageColor(app.stage))}>
+                                        {getStageLabel(app.stage)}
+                                    </Badge>
+                                } />
+                                <DropdownMenuContent align="end" className="w-40 rounded-2xl p-2 bg-card dark:bg-[#0f172a] border-border dark:border-white/5 shadow-2xl">
+                                    {STAGES.map(s => (
+                                        <DropdownMenuItem 
+                                            key={s.value} 
+                                            onClick={() => handleStageChange(app.id, s.value)} 
+                                            className={cn("rounded-xl font-bold px-3 py-2 text-[11px]", s.color)}
+                                        >
+                                            {s.label}
+                                        </DropdownMenuItem>
+                                    ))}
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        )}
                     </div>
                     
                     <div className="flex items-center justify-between pt-2 border-t border-border/10 dark:border-white/5">
@@ -413,16 +433,18 @@ export default function ApplicationsPage() {
                                     key={s} 
                                     size={14} 
                                     className={cn(
-                                        "cursor-pointer",
+                                        app.isVirtual ? "cursor-default opacity-50" : "cursor-pointer",
                                         s <= app.rating ? "text-amber-400 fill-amber-400" : "text-muted/20"
                                     )} 
-                                    onClick={() => handleRatingChange(app.id, s)}
+                                    onClick={() => app.isVirtual ? null : handleRatingChange(app.id, s)}
                                 />
                             ))}
                         </div>
                         <div className="flex items-center gap-4">
                              <div className="flex flex-col items-end">
-                                <span className="text-[10px] font-black text-muted-foreground/40 uppercase tracking-tighter">Tarix</span>
+                                <span className="text-[10px] font-black text-muted-foreground/40 uppercase tracking-tighter">
+                                    {app.isVirtual ? 'Profil CV' : 'Tarix'}
+                                </span>
                                 <span className="text-xs font-bold text-foreground/80">{new Date(app.appliedAt).toLocaleDateString("az-AZ")}</span>
                             </div>
                             <div className="flex items-center gap-1">
@@ -437,11 +459,15 @@ export default function ApplicationsPage() {
                                             <FileText size={14} className="text-primary" />
                                             <span>CV-yə bax</span>
                                         </DropdownMenuItem>
-                                        <DropdownMenuSeparator className="bg-border/50" />
-                                        <DropdownMenuItem onClick={() => handleDelete(app.id, app.name)} className="rounded-xl font-bold px-3 py-2.5 text-xs text-red-500 gap-2">
-                                            <Trash2 size={14} />
-                                            <span>Sil</span>
-                                        </DropdownMenuItem>
+                                        {!app.isVirtual && (
+                                            <>
+                                                <DropdownMenuSeparator className="bg-border/50" />
+                                                <DropdownMenuItem onClick={() => handleDelete(app.id, app.name)} className="rounded-xl font-bold px-3 py-2.5 text-xs text-red-500 gap-2">
+                                                    <Trash2 size={14} />
+                                                    <span>Sil</span>
+                                                </DropdownMenuItem>
+                                            </>
+                                        )}
                                     </DropdownMenuContent>
                                 </DropdownMenu>
                             </div>

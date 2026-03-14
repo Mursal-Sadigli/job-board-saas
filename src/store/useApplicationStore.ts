@@ -13,6 +13,7 @@ export interface Application {
   jobTitle: string;
   jobId: string;
   resumeUrl: string;
+  isVirtual?: boolean;
 }
 
 interface ApplicationState {
