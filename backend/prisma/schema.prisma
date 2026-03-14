@@ -17,10 +17,19 @@ model User {
   clerkId       String    @unique
   email         String    @unique
   name          String?
+  firstName     String?
+  lastName      String?
   role          UserRole  @default(CANDIDATE)
   companyName   String?
   logoUrl       String?
+  title         String?
   bio           String?
+  location      String?
+  phone         String?
+  skills        String[]  @default([])
+  experience    Json?     @default("[]")
+  education     Json?     @default("[]")
+  socialLinks   Json?     @default("[]")
   cvUploadCount Int       @default(0)
   plan          String    @default("FREE")
   createdAt     DateTime  @default(now())

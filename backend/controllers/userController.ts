@@ -151,7 +151,6 @@ export const deleteUserResume = async (req: any, res: Response) => {
     }
 
     // Optional: Delete from Cloudinary
-    // Extract public_id from URL
     const publicId = resume.url.split('/upload/v')[1].split('/').slice(1).join('.').split('.')[0];
     await cloudinary.uploader.destroy('user-resumes/' + publicId, { resource_type: 'raw' });
 
@@ -163,5 +162,63 @@ export const deleteUserResume = async (req: any, res: Response) => {
   } catch (error) {
     console.error('Delete resume error:', error);
     res.status(500).json({ message: 'CV silinərkən xəta baş verdi' });
+  }
+};
+
+export const updateUserProfile = async (req: any, res: Response) => {
+  try {
+    const clerkId = req.auth?.sessionClaims?.sub as string;
+    if (!clerkId) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    const { 
+      firstName, lastName, title, bio, location, phone, 
+      skills, experience, education, socialLinks 
+    } = req.body;
+
+    const updatedUser = await prisma.user.update({
+      where: { clerkId },
+      data: {
+        firstName,
+        lastName,
+        name: firstName && lastName ? `${firstName} ${lastName}` : undefined,
+        title,
+        bio,
+        location,
+        phone,
+        skills: Array.isArray(skills) ? skills : undefined,
+        experience: experience || undefined,
+        education: education || undefined,
+        socialLinks: socialLinks || undefined,
+      }
+    });
+
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    console.error('Update profile error:', error);
+    res.status(500).json({ message: 'Profil yenilənərkən xəta baş verdi' });
+  }
+};
+
+export const getUserProfile = async (req: any, res: Response) => {
+  try {
+    const clerkId = req.auth?.sessionClaims?.sub as string;
+    if (!clerkId) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { clerkId }
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: 'İstifadəçi tapılmadı' });
+    }
+
+    res.status(200).json(user);
+  } catch (error) {
+    console.error('Get profile error:', error);
+    res.status(500).json({ message: 'Profil məlumatlarını gətirərkən xəta baş verdi' });
   }
 };
