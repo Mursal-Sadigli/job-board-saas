@@ -1,0 +1,1 @@
+﻿src/app/employer/page.tsx(166,5): error TS2353: Object literal may only specify known properties, and 'company' does not exist in type 'Job'.

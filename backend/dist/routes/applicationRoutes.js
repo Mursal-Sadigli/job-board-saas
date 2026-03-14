@@ -5,7 +5,7 @@ const applicationController_1 = require("../controllers/applicationController");
 const cloudinary_1 = require("../lib/cloudinary");
 const auth_1 = require("../middlewares/auth");
 const router = (0, express_1.Router)();
-router.post('/apply', auth_1.isAuthenticated, cloudinary_1.upload.single('resume'), applicationController_1.applyForJob);
+router.post('/apply', auth_1.isAuthenticated, cloudinary_1.memoryUpload.single('resume'), applicationController_1.applyForJob);
 router.get('/', applicationController_1.getApplications);
 router.patch('/:id', applicationController_1.updateApplication);
 router.delete('/:id', applicationController_1.deleteApplication);

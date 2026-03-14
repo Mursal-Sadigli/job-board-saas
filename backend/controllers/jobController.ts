@@ -21,24 +21,137 @@ export const getAllJobs = async (req: Request, res: Response) => {
   }
 };
 
-export const createJob = async (req: Request, res: Response) => {
+export const getJobsByEmployer = async (req: any, res: Response) => {
   try {
-    const { title, description, company, location, locationType, jobType, experienceLevel, salary, employerId } = req.body;
+    const clerkId = req.auth?.userId;
+    if (!clerkId) return res.status(401).json({ message: 'İcazə yoxdur' });
+
+    // Find local user from clerk ID
+    const user = await prisma.user.findUnique({ where: { clerkId } });
+    if (!user) return res.status(404).json({ message: 'İstifadəçi tapılmadı' });
+
+    const jobs = await prisma.job.findMany({
+      where: { employerId: user.id },
+      orderBy: { postedAt: 'desc' },
+      include: {
+        _count: { select: { applications: true } },
+        applications: {
+          select: {
+            id: true,
+            stage: true,
+            rating: true,
+            appliedAt: true,
+            resumeUrl: true,
+            candidate: { select: { name: true, email: true } }
+          },
+          orderBy: { appliedAt: 'desc' }
+        }
+      }
+    });
+
+    res.json(jobs);
+  } catch (error) {
+    res.status(500).json({ message: 'Elanları gətirərkən xəta baş verdi', error });
+  }
+};
+
+export const createJob = async (req: any, res: Response) => {
+  try {
+    const clerkId = req.auth?.userId;
+    if (!clerkId) return res.status(401).json({ message: 'İcazə yoxdur' });
+
+    const user = await prisma.user.findUnique({ where: { clerkId } });
+    if (!user) return res.status(404).json({ message: 'İstifadəçi tapılmadı' });
+
+    const {
+      title, description, company, location, locationType,
+      jobType, experienceLevel, salary, city, district, deadline, isFeatured
+    } = req.body;
+
     const newJob = await prisma.job.create({
       data: {
         title,
         description,
-        company,
-        location,
+        company: company || user.companyName || 'Şirkət',
+        location: [city, district].filter(Boolean).join(', ') || location || '',
         locationType,
         jobType,
         experienceLevel,
         salary,
-        employerId
+        isFeatured: isFeatured || false,
+        employerId: user.id
       }
     });
+
     res.status(201).json(newJob);
   } catch (error) {
     res.status(500).json({ message: 'İş elanı yaradılarkən xəta baş verdi', error });
+  }
+};
+
+export const updateJob = async (req: any, res: Response) => {
+  try {
+    const clerkId = req.auth?.userId;
+    if (!clerkId) return res.status(401).json({ message: 'İcazə yoxdur' });
+
+    const user = await prisma.user.findUnique({ where: { clerkId } });
+    if (!user) return res.status(404).json({ message: 'İstifadəçi tapılmadı' });
+
+    const { id } = req.params;
+    const {
+      title, description, company, location, locationType, jobType,
+      experienceLevel, salary, isActive, isFeatured, city, district
+    } = req.body;
+
+    // Verify ownership
+    const existing = await prisma.job.findFirst({ where: { id, employerId: user.id } });
+    if (!existing) return res.status(404).json({ message: 'Elan tapılmadı' });
+
+    const updated = await prisma.job.update({
+      where: { id },
+      data: {
+        ...(title !== undefined && { title }),
+        ...(description !== undefined && { description }),
+        ...(company !== undefined && { company }),
+        ...(locationType !== undefined && { locationType }),
+        ...(jobType !== undefined && { jobType }),
+        ...(experienceLevel !== undefined && { experienceLevel }),
+        ...(salary !== undefined && { salary }),
+        ...(isActive !== undefined && { isActive }),
+        ...(isFeatured !== undefined && { isFeatured }),
+        ...((city !== undefined || district !== undefined) && {
+          location: [city ?? '', district ?? ''].filter(Boolean).join(', ')
+        }),
+        ...(location !== undefined && !city && !district && { location }),
+      }
+    });
+
+    res.json(updated);
+  } catch (error) {
+    res.status(500).json({ message: 'Elan yenilənərkən xəta baş verdi', error });
+  }
+};
+
+export const deleteJob = async (req: any, res: Response) => {
+  try {
+    const clerkId = req.auth?.userId;
+    if (!clerkId) return res.status(401).json({ message: 'İcazə yoxdur' });
+
+    const user = await prisma.user.findUnique({ where: { clerkId } });
+    if (!user) return res.status(404).json({ message: 'İstifadəçi tapılmadı' });
+
+    const { id } = req.params;
+
+    // Verify ownership
+    const existing = await prisma.job.findFirst({ where: { id, employerId: user.id } });
+    if (!existing) return res.status(404).json({ message: 'Elan tapılmadı' });
+
+    // Delete applications first, then job
+    await prisma.application.deleteMany({ where: { jobId: id } });
+    await prisma.job.delete({ where: { id } });
+
+    res.status(204).send();
+  } catch (error) {
+    res.status(500).json({ message: 'Elan silinərkən xəta baş verdi', error });
   }
 };

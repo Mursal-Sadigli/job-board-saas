@@ -4,6 +4,7 @@ import prisma from '../lib/prisma';
 import axios from 'axios';
 import pdf from 'pdf-parse';
 import groq from '../lib/groq';
+import { cloudinary } from '../lib/cloudinary';
 
 export const applyForJob = async (req: any, res: Response) => {
   try {
@@ -15,20 +16,23 @@ export const applyForJob = async (req: any, res: Response) => {
       return res.status(400).json({ message: 'CV faylı yüklənməyib' });
     }
 
-    console.log('--- Resume Analysis Started ---');
-    console.log('File Path (URL):', file.path);
+    console.log('--- Resume Analysis Started (Memory Mode) ---');
+    console.log('File Name:', file.originalname);
 
-    // 1. Fetch file from Cloudinary to get buffer
-    console.log('1. Fetching file buffer from Cloudinary...');
-    const response = await axios.get(file.path, { responseType: 'arraybuffer' });
-    const buffer = Buffer.from(response.data);
-    console.log('File buffer fetched successfully, size:', buffer.length);
+    // Helper to sanitize filename for Cloudinary
+    const sanitizeFilename = (filename: string) => {
+      return filename
+        .split('.')[0]
+        .replace(/[^a-z0-9]/gi, '-') // Replace non-alphanumeric with hyphen
+        .replace(/-+/g, '-')         // Remove double hyphens
+        .substring(0, 50);           // Keep it short
+    };
 
-    // 2. Extract text from PDF
-    console.log('2. Attempting to parse PDF text...');
+    // 1. Extract text from PDF buffer directly
+    console.log('1. Attempting to parse PDF text from buffer...');
     let pdfData;
     try {
-      pdfData = await pdf(buffer);
+      pdfData = await pdf(file.buffer);
       console.log('PDF text extracted, characters:', pdfData.text?.length || 0);
     } catch (parseError: any) {
       console.error('Detailed PDF Parse Error:', parseError);
@@ -36,8 +40,8 @@ export const applyForJob = async (req: any, res: Response) => {
     }
     const resumeText = pdfData.text;
 
-    // 3. Analyze with Groq AI
-    console.log('3. Sending to Groq AI for analysis...');
+    // 2. Analyze with Groq AI
+    console.log('2. Sending to Groq AI for analysis...');
     const prompt = `
       Sən peşəkar bir HR köməkçisisən. Aşağıdakı CV mətnini analiz et və mənə JSON formatında geri qaytar:
       Format belə olmalıdır:
@@ -49,7 +53,7 @@ export const applyForJob = async (req: any, res: Response) => {
       }
 
       CV Mətni:
-      ${resumeText.substring(0, 5000)}
+      ${resumeText}
     `;
 
     const chatCompletion = await groq.chat.completions.create({
@@ -59,7 +63,31 @@ export const applyForJob = async (req: any, res: Response) => {
     });
 
     const aiAnalysis = JSON.parse(chatCompletion.choices[0].message.content || '{}');
-    console.log('4. AI Analysis Result:', aiAnalysis);
+    console.log('3. AI Analysis Result:', aiAnalysis);
+
+    // 3. Upload buffer to Cloudinary (Stream)
+    console.log('4. Uploading to Cloudinary...');
+    const uploadToCloudinary = () => {
+      return new Promise((resolve, reject) => {
+        const safeName = sanitizeFilename(file.originalname);
+        
+        const stream = cloudinary.uploader.upload_stream(
+          {
+            folder: 'resumes',
+            resource_type: 'raw', // PDF üçün ən doğru format 'raw'dır, lakin Cloudinary kilidi açılmalıdır
+            public_id: `${Date.now()}-${safeName}.pdf`,
+          },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          }
+        );
+        stream.end(file.buffer);
+      });
+    };
+
+    const cloudinaryResult: any = await uploadToCloudinary();
+    console.log('Cloudinary Upload Success:', cloudinaryResult.secure_url);
 
     // 4. Find the local user ID from Clerk ID
     console.log('5. Finding local user in DB...');
@@ -78,7 +106,7 @@ export const applyForJob = async (req: any, res: Response) => {
       data: {
         jobId,
         candidateId: user.id,
-        resumeUrl: file.path,
+        resumeUrl: cloudinaryResult.secure_url,
         resumeText: JSON.stringify(aiAnalysis),
         stage: 'Applied'
       }
@@ -94,6 +122,49 @@ export const applyForJob = async (req: any, res: Response) => {
   } catch (error: any) {
     console.error('Apply for job error:', error);
     res.status(500).json({ message: 'Müraciət zamanı xəta baş verdi', error: error.message });
+  }
+};
+
+export const getApplicationResumeUrl = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const application = await prisma.application.findUnique({
+      where: { id }
+    });
+
+    if (!application || !application.resumeUrl) {
+      return res.status(404).json({ message: 'Müraciət və ya CV tapılmadı' });
+    }
+
+    const { resumeUrl } = application;
+    const isRaw = resumeUrl.includes('/raw/upload/');
+    const resourceType = isRaw ? 'raw' : 'image';
+
+    let publicId = resumeUrl.split('/upload/')[1];
+    if (publicId && publicId.match(/^v\d+\//)) {
+      publicId = publicId.replace(/^v\d+\//, '');
+    }
+
+    try {
+      // CDN yaddaşını (cache) aşmaq və 100% dəqiqlik üçün Cloudinary Admin API istifadə edirik
+      await cloudinary.api.resource(publicId, { resource_type: resourceType });
+      
+      const urlWithCacheBuster = `${resumeUrl}?t=${Date.now()}`;
+      return res.status(200).json({ url: urlWithCacheBuster });
+    } catch (err: any) {
+      // Cloudinary api.resource faylı tapmadıqda 404 xətası atır
+      if (err.error && err.error.http_code === 404) {
+        return res.status(404).json({ message: 'Bu CV Cloudinary bazasından admin tərəfindən silinib.' });
+      }
+      if (err.http_code === 404) {
+         return res.status(404).json({ message: 'Bu CV Cloudinary bazasından admin tərəfindən silinib.' });
+      }
+      // Hər ehtimala qarşı başqa error varsa, linki qaytarırıq (bəlkə API limitinə düşmüşük)
+      return res.status(200).json({ url: `${resumeUrl}?t=${Date.now()}` });
+    }
+  } catch (error) {
+    console.error('get resume url error:', error);
+    res.status(500).json({ message: 'CV axtarışı zamanı xəta' });
   }
 };
 
@@ -122,7 +193,19 @@ export const getApplications = async (req: Request, res: Response) => {
     });
     
     console.log(`Found ${applications.length} applications`);
-    res.json(applications);
+    
+    // Fix URLs on the fly if they are missing extensions (for old data)
+    const fixedApplications = applications.map(app => {
+      const url = app.resumeUrl || '';
+      const hasExtension = /\.(pdf|docx|doc|txt|png|jpg|jpeg)$/i.test(url.split('?')[0]);
+      
+      if (url.includes('cloudinary') && !hasExtension) {
+        return { ...app, resumeUrl: `${url}.pdf` };
+      }
+      return app;
+    });
+
+    res.json(fixedApplications);
   } catch (error) {
     res.status(500).json({ message: 'Müraciətləri gətirərkən xəta baş verdi', error });
   }

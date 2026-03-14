@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.cloudinary = exports.upload = void 0;
+exports.cloudinary = exports.memoryUpload = exports.upload = void 0;
 const cloudinary_1 = require("cloudinary");
 Object.defineProperty(exports, "cloudinary", { enumerable: true, get: function () { return cloudinary_1.v2; } });
 const multer_storage_cloudinary_1 = require("multer-storage-cloudinary");
@@ -17,10 +17,16 @@ cloudinary_1.v2.config({
 });
 const storage = new multer_storage_cloudinary_1.CloudinaryStorage({
     cloudinary: cloudinary_1.v2,
-    params: {
-        folder: 'resumes',
-        allowed_formats: ['pdf', 'docx', 'doc'],
-        resource_type: 'raw', // Important for non-image files like PDF
+    params: async (req, file) => {
+        const extension = file.originalname.split('.').pop()?.toLowerCase() || 'pdf';
+        const baseName = file.originalname.split('.')[0] || 'resume';
+        return {
+            folder: 'resumes',
+            resource_type: 'auto',
+            public_id: `${Date.now()}-${baseName}`,
+            format: extension,
+        };
     },
 });
 exports.upload = (0, multer_1.default)({ storage: storage });
+exports.memoryUpload = (0, multer_1.default)({ storage: multer_1.default.memoryStorage() });

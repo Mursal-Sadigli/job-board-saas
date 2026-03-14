@@ -13,17 +13,22 @@ cloudinary.config({
 
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
-  params: {
-    folder: 'resumes',
-    resource_type: 'auto', // Let Cloudinary decide (image for PDF is actually good for preview)
-    public_id: (req: any, file: any) => {
-      // Keep original name but remove extension from base and append it safely
-      const originalName = file.originalname.split('.')[0];
-      const extension = file.originalname.split('.').pop();
-      return `${Date.now()}-${originalName}.${extension}`;
-    }
-  } as any,
+  params: async (req: any, file: any) => {
+    const extension = file.originalname.split('.').pop()?.toLowerCase() || 'pdf';
+    const safeName = file.originalname
+      .split('.')[0]
+      .replace(/[^a-z0-9]/gi, '-')
+      .replace(/-+/g, '-')
+      .substring(0, 50);
+    
+    return {
+      folder: 'resumes',
+      resource_type: 'raw', // PDF-lərin orijinal yüklənməsi üçün 'raw'
+      public_id: `${Date.now()}-${safeName}.pdf`,
+    };
+  },
 });
 
 export const upload = multer({ storage: storage });
+export const memoryUpload = multer({ storage: multer.memoryStorage() });
 export { cloudinary };
