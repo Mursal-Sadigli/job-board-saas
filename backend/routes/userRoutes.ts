@@ -1,10 +1,13 @@
 import { Router } from 'express';
-import { syncUser } from '../controllers/userController';
+import { uploadUserResume, getUserResumes, deleteUserResume, syncUser } from '../controllers/userController';
 import { isAuthenticated } from '../middlewares/auth';
+import { memoryUpload } from '../lib/cloudinary';
 
 const router = Router();
 
-// This endpoint is called from frontend to sync user data
 router.post('/sync', isAuthenticated, syncUser);
+router.post('/resumes', isAuthenticated, memoryUpload.single('resume'), uploadUserResume);
+router.get('/resumes', isAuthenticated, getUserResumes);
+router.delete('/resumes/:id', isAuthenticated, deleteUserResume);
 
 export default router;

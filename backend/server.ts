@@ -8,6 +8,7 @@ import rateLimit from 'express-rate-limit';
 import { ClerkExpressWithAuth } from '@clerk/clerk-sdk-node';
 
 import webhookRoutes from './routes/webhookRoutes';
+import stripeRoutes from './routes/stripeRoutes';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -30,6 +31,7 @@ app.use(cors({
 
 // Webhooks (Must be before express.json() for raw body processing)
 app.use('/api/webhooks', webhookRoutes);
+app.use('/api/stripe', stripeRoutes);
 
 app.use(express.json());
 
