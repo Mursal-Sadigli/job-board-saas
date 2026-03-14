@@ -4,9 +4,9 @@
   "description": "Backend for Job Board SaaS",
   "main": "server.ts",
   "scripts": {
-    "start": "ts-node server.ts",
+    "start": "node dist/server.js",
     "dev": "nodemon server.ts",
-    "build": "tsc",
+    "build": "npx prisma generate && tsc",
     "prisma-push": "prisma db push"
   },
   "dependencies": {
