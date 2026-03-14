@@ -30,6 +30,7 @@ model User {
   experience    Json?     @default("[]")
   education     Json?     @default("[]")
   socialLinks   Json?     @default("[]")
+  notificationSettings Json? @default("{\"dailyDigest\":true,\"newApplications\":true,\"candidateMessages\":true,\"jobExpiry\":true,\"platformUpdates\":false,\"pushNotifications\":false,\"minRating\":\"any\"}")
   cvUploadCount Int       @default(0)
   plan          String    @default("FREE")
   createdAt     DateTime  @default(now())
@@ -39,6 +40,7 @@ model User {
   jobs          Job[]
   applications  Application[]
   resumes       Resume[]
+  interviews    Interview[]
 }
 
 model Resume {
@@ -96,4 +98,24 @@ model Subscription {
   status           String?   // active, canceled, trialing, etc.
   plan             String?   // basic, growth, enterprise
   updatedAt        DateTime  @updatedAt
+}
+
+model Interview {
+  id            String    @id @default(uuid())
+  candidateName String
+  candidateEmail String?
+  role          String?
+  date          String
+  time          String
+  type          String    // Online, Ofisdə, Telefon
+  status        String    @default("Upcoming") // Upcoming, Completed, Cancelled
+  location      String?
+  link          String?
+  notes         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relationships
+  employer      User      @relation(fields: [employerId], references: [id])
+  employerId    String
 }

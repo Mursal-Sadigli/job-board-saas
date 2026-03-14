@@ -115,10 +115,16 @@ export default function ApplicationsPage() {
     }
   };
 
-  const handleDelete = async (appId: string, name: string) => {
+  const handleDelete = async (appId: string, name: string, isVirtual?: boolean) => {
     try {
+      if (!confirm(`${name} müraciətini silmək istədiyinizə əminsiniz?`)) return;
+
       const token = await getToken();
-      const response = await fetch(`http://localhost:5000/api/applications/${appId}`, {
+      const deleteUrl = isVirtual 
+        ? `http://localhost:5000/api/users/resumes/${appId.replace('resume-', '')}`
+        : `http://localhost:5000/api/applications/${appId}`;
+
+      const response = await fetch(deleteUrl, {
         method: "DELETE",
         headers: {
           "Authorization": `Bearer ${token}`
@@ -134,6 +140,7 @@ export default function ApplicationsPage() {
         type: "success"
       });
     } catch (error) {
+      console.error("Delete error:", error);
       toast({
         title: "Xəta",
         description: "Müraciəti silmək mümkün olmadı.",
@@ -358,15 +365,10 @@ export default function ApplicationsPage() {
                                 <FileText size={14} className="text-primary" />
                                 <span>CV-yə bax</span>
                             </DropdownMenuItem>
-                            {!app.isVirtual && (
-                              <>
-                                <DropdownMenuSeparator className="bg-border/50" />
-                                <DropdownMenuItem onClick={() => handleDelete(app.id, app.name)} className="rounded-xl font-bold px-3 py-2.5 text-xs text-red-500 gap-2">
-                                    <Trash2 size={14} />
-                                    <span>Sil</span>
-                                </DropdownMenuItem>
-                              </>
-                            )}
+                            <DropdownMenuItem onClick={() => handleDelete(app.id, app.name, app.isVirtual)} className="rounded-xl font-bold px-3 py-2.5 text-xs text-red-500 gap-2">
+                                <Trash2 size={14} />
+                                <span>Sil</span>
+                            </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
                   </td>
@@ -459,15 +461,10 @@ export default function ApplicationsPage() {
                                             <FileText size={14} className="text-primary" />
                                             <span>CV-yə bax</span>
                                         </DropdownMenuItem>
-                                        {!app.isVirtual && (
-                                            <>
-                                                <DropdownMenuSeparator className="bg-border/50" />
-                                                <DropdownMenuItem onClick={() => handleDelete(app.id, app.name)} className="rounded-xl font-bold px-3 py-2.5 text-xs text-red-500 gap-2">
-                                                    <Trash2 size={14} />
-                                                    <span>Sil</span>
-                                                </DropdownMenuItem>
-                                            </>
-                                        )}
+                                        <DropdownMenuItem onClick={() => handleDelete(app.id, app.name, app.isVirtual)} className="rounded-xl font-bold px-3 py-2.5 text-xs text-red-500 gap-2">
+                                            <Trash2 size={14} />
+                                            <span>Sil</span>
+                                        </DropdownMenuItem>
                                     </DropdownMenuContent>
                                 </DropdownMenu>
                             </div>

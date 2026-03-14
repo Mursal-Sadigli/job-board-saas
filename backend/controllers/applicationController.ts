@@ -5,6 +5,7 @@ import axios from 'axios';
 import pdf from 'pdf-parse';
 import groq from '../lib/groq';
 import { cloudinary } from '../lib/cloudinary';
+import { sendNewApplicationNotification } from '../services/notificationService';
 
 export const applyForJob = async (req: any, res: Response) => {
   try {
@@ -43,13 +44,16 @@ export const applyForJob = async (req: any, res: Response) => {
     // 2. Analyze with Groq AI
     console.log('2. Sending to Groq AI for analysis...');
     const prompt = `
-      Sən peşəkar bir HR köməkçisisən. Aşağıdakı CV mətnini analiz et və mənə JSON formatında geri qaytar:
+      Sən peşəkar bir HR köməkçisisən. Aşağıdakı CV mətnini analiz et və mənə JSON formatında geri qaytar.
+      Bundan əlavə, namizədin ümumi uyğunluğunu 1 ilə 5 arasında bir reytinqlə ("rating") qiymətləndir (1 - çox zəif, 5 - ideal).
+      
       Format belə olmalıdır:
       {
         "name": "Namizədin adı",
         "skills": ["bacarıq1", "bacarıq2"],
         "summary": "Qısa xülasə",
-        "experience": "Təcrübə haqqında qısa məlumat"
+        "experience": "Təcrübə haqqında qısa məlumat",
+        "rating": 5
       }
 
       CV Mətni:
@@ -64,6 +68,7 @@ export const applyForJob = async (req: any, res: Response) => {
 
     const aiAnalysis = JSON.parse(chatCompletion.choices[0].message.content || '{}');
     console.log('3. AI Analysis Result:', aiAnalysis);
+    console.log('AI assigned rating:', aiAnalysis.rating);
 
     // 3. Upload buffer to Cloudinary (Stream)
     console.log('4. Uploading to Cloudinary...');
@@ -74,7 +79,7 @@ export const applyForJob = async (req: any, res: Response) => {
         const stream = cloudinary.uploader.upload_stream(
           {
             folder: 'resumes',
-            resource_type: 'raw', // PDF üçün ən doğru format 'raw'dır, lakin Cloudinary kilidi açılmalıdır
+            resource_type: 'auto', // PDF-in düzgün tanınması və .pdf uzantısının işləməsi üçün 'auto' istifadə olunur
             public_id: `${Date.now()}-${safeName}.pdf`,
           },
           (error, result) => {
@@ -108,9 +113,13 @@ export const applyForJob = async (req: any, res: Response) => {
         candidateId: user.id,
         resumeUrl: cloudinaryResult.secure_url,
         resumeText: JSON.stringify(aiAnalysis),
-        stage: 'Applied'
+        stage: 'Applied',
+        rating: aiAnalysis.rating ? parseInt(aiAnalysis.rating.toString()) : 0
       }
     });
+
+    // 6. Trigger notification (Async - don't block response)
+    sendNewApplicationNotification(application.id);
 
     console.log('--- Application Completed Successfully ---');
     res.status(201).json({ 

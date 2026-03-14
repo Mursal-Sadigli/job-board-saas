@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useAuth } from "@clerk/nextjs";
+import { useToast } from "@/hooks/use-toast";
 import { Save, CheckCircle, Star, BellRing, Mail, MessageSquare, Briefcase, Sparkles, Smartphone } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -31,6 +33,9 @@ function StarRating({ count }: { count: number }) {
 }
 
 export default function NotificationsPage() {
+  const { getToken } = useAuth();
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(true);
   const [saved, setSaved] = useState(false);
   const [settings, setSettings] = useState({
     dailyDigest: true,
@@ -39,17 +44,88 @@ export default function NotificationsPage() {
     jobExpiry: true,
     platformUpdates: false,
     pushNotifications: false,
+    minRating: "any"
   });
-  const [minRating, setMinRating] = useState("any");
 
-  const handleSave = () => {
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+  const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        setIsLoading(true);
+        const token = await getToken();
+        const response = await fetch(`${API_BASE}/api/users/notifications`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data) {
+            setSettings(data);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching notification settings:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchSettings();
+  }, [getToken, API_BASE]);
+
+  const handleSave = async () => {
+    try {
+      const token = await getToken();
+      const response = await fetch(`${API_BASE}/api/users/notifications`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ notificationSettings: settings }),
+      });
+
+      if (response.ok) {
+        setSaved(true);
+        toast({
+          title: "Uğurlu",
+          description: "Bildiriş tənzimləmələri yadda saxlanıldı.",
+        });
+        setTimeout(() => setSaved(false), 3000);
+      } else {
+        throw new Error("Failed to save settings");
+      }
+    } catch (error) {
+      console.error("Error saving notification settings:", error);
+      toast({
+        type: "error",
+        description: "Məlumatları yadda saxlamaq mümkün olmadı.",
+      });
+    }
   };
 
   const toggleSetting = (key: keyof typeof settings) => {
+    // Special handling for minRating as it's a string, not a boolean
+    if (key === 'minRating') return; 
     setSettings(prev => ({ ...prev, [key]: !prev[key] }));
   };
+
+  const setMinRating = (value: string) => {
+    setSettings(prev => ({ ...prev, minRating: value }));
+  };
+
+  const minRating = settings.minRating;
+
+  if (isLoading) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="h-full overflow-y-auto px-6 sm:px-10 py-10 bg-background/50">

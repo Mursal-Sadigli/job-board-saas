@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useRef } from "react";
-import { useUser } from "@clerk/nextjs";
+import { useState, useRef, useEffect } from "react";
+import { useUser, useAuth } from "@clerk/nextjs";
+import { useToast } from "@/hooks/use-toast";
 import { 
   User, 
   Mail, 
@@ -31,54 +32,123 @@ import {
   SocialLink 
 } from "@/types/user";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+
 export default function ProfilePage() {
   const { user } = useUser();
+  const { getToken } = useAuth();
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(true);
   const [saved, setSaved] = useState(false);
   const [newSkill, setNewSkill] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
-  // Initial Mock Data
+  // Initial state should be stable to avoid hydration mismatch
   const [profile, setProfile] = useState<CandidateProfile>({
-    id: user?.id || "1",
-    firstName: user?.firstName || "Mursal",
-    lastName: user?.lastName || "Sadigli",
-    email: user?.primaryEmailAddress?.emailAddress || "msadigli2025@gmail.com",
-    title: "Senior Full Stack Developer",
-    bio: "Mən müasir veb texnologiyaları ilə yüksək performanslı tətbiqlər yaradan bir developerəm. React, Next.js və Node.js sahəsində 5 illik təcrübəm var.",
-    location: "Bakı, Azərbaycan",
-    phone: "+994 50 123 45 67",
-    skills: ["React", "Next.js", "TypeScript", "Node.js", "Tailwind CSS", "PostgreSQL"],
-    experience: [
-      {
-        id: "e1",
-        company: "Tech Solutions",
-        position: "Lead Developer",
-        startDate: "2021-01",
-        endDate: "",
-        current: true,
-        description: "Böyük miqyaslı SaaS layihələrinin arxitekturasının qurulması və komandaya rəhbərlik."
-      }
-    ],
-    education: [
-      {
-        id: "edu1",
-        school: "Bakı Dövlət Universiteti",
-        degree: "Bakalavr",
-        field: "Kompüter Elmləri",
-        startDate: "2015-09",
-        endDate: "2019-06"
-      }
-    ],
-    socialLinks: [
-      { platform: 'linkedin', url: 'https://linkedin.com/in/msadigli' },
-      { platform: 'github', url: 'https://github.com/msadigli' }
-    ]
+    id: "",
+    firstName: "",
+    lastName: "",
+    email: "",
+    title: "",
+    bio: "",
+    location: "",
+    phone: "",
+    skills: [],
+    experience: [],
+    education: [],
+    socialLinks: []
   });
 
-  const handleSave = () => {
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+  const [hasLoaded, setHasLoaded] = useState(false);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!user || hasLoaded) return;
+      try {
+        setIsLoading(true);
+        const token = await getToken();
+        const response = await fetch(`${API_BASE}/api/users/profile`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setProfile({
+            ...data,
+            id: data.clerkId || user.id,
+            firstName: data.firstName || user.firstName || "",
+            lastName: data.lastName || user.lastName || "",
+            email: data.email || user.primaryEmailAddress?.emailAddress || "",
+            title: data.title || "",
+            bio: data.bio || "",
+            location: data.location || "",
+            phone: data.phone || "",
+            skills: data.skills || [],
+            experience: Array.isArray(data.experience) ? data.experience : [],
+            education: Array.isArray(data.education) ? data.education : [],
+            socialLinks: Array.isArray(data.socialLinks) ? data.socialLinks : [],
+          });
+          setHasLoaded(true);
+        }
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+        toast({
+          type: "error",
+          description: "Profil məlumatlarını yükləmək mümkün olmadı.",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (user) {
+      fetchProfile();
+    }
+  }, [user, getToken, hasLoaded]);
+
+  const handleSave = async () => {
+    try {
+      const token = await getToken();
+      const response = await fetch(`${API_BASE}/api/users/profile`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          firstName: profile.firstName,
+          lastName: profile.lastName,
+          title: profile.title,
+          bio: profile.bio,
+          location: profile.location,
+          phone: profile.phone,
+          skills: profile.skills,
+          experience: profile.experience,
+          education: profile.education,
+          socialLinks: profile.socialLinks,
+        }),
+      });
+
+      if (response.ok) {
+        setSaved(true);
+        toast({
+          title: "Uğurlu",
+          description: "Profil məlumatları yadda saxlanıldı.",
+        });
+        setTimeout(() => setSaved(false), 3000);
+      } else {
+        throw new Error("Failed to save profile");
+      }
+    } catch (error) {
+      console.error("Error saving profile:", error);
+      toast({
+        type: "error",
+        description: "Məlumatları yadda saxlamaq mümkün olmadı.",
+      });
+    }
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -130,6 +200,14 @@ export default function ProfilePage() {
     };
     setProfile(prev => ({ ...prev, education: [newEdu, ...prev.education] }));
   };
+
+  if (isLoading) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="h-full overflow-y-auto px-4 sm:px-8 py-8 bg-background custom-scrollbar">

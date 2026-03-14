@@ -81,7 +81,7 @@ export const uploadUserResume = async (req: any, res: Response) => {
 
     const uploadResponse = await cloudinary.uploader.upload(dataURI, {
       folder: 'user-resumes',
-      resource_type: 'raw',
+      resource_type: 'auto',
     });
 
     // Save to database
@@ -220,5 +220,51 @@ export const getUserProfile = async (req: any, res: Response) => {
   } catch (error) {
     console.error('Get profile error:', error);
     res.status(500).json({ message: 'Profil məlumatlarını gətirərkən xəta baş verdi' });
+  }
+};
+
+export const updateNotificationSettings = async (req: any, res: Response) => {
+  try {
+    const clerkId = req.auth?.sessionClaims?.sub as string;
+    if (!clerkId) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    const { notificationSettings } = req.body;
+
+    const updatedUser = await prisma.user.update({
+      where: { clerkId },
+      data: {
+        notificationSettings: notificationSettings || undefined,
+      }
+    });
+
+    res.status(200).json(updatedUser.notificationSettings);
+  } catch (error) {
+    console.error('Update notifications error:', error);
+    res.status(500).json({ message: 'Bildiriş tənzimləmələri yenilənərkən xəta baş verdi' });
+  }
+};
+
+export const getNotificationSettings = async (req: any, res: Response) => {
+  try {
+    const clerkId = req.auth?.sessionClaims?.sub as string;
+    if (!clerkId) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { clerkId },
+      select: { notificationSettings: true }
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: 'İstifadəçi tapılmadı' });
+    }
+
+    res.status(200).json(user.notificationSettings);
+  } catch (error) {
+    console.error('Get notifications error:', error);
+    res.status(500).json({ message: 'Bildiriş tənzimləmələri gətirərkən xəta baş verdi' });
   }
 };

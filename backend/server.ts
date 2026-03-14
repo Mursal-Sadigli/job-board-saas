@@ -46,6 +46,7 @@ app.use('/api/', limiter);
 import jobRoutes from './routes/jobRoutes';
 import applicationRoutes from './routes/applicationRoutes';
 import userRoutes from './routes/userRoutes';
+import interviewRoutes from './routes/interviewRoutes';
 import { inngest, helloWorld } from './lib/inngest';
 import { serve } from 'inngest/express';
 
@@ -65,6 +66,7 @@ app.use("/api/inngest", serve({ client: inngest, functions: [helloWorld] }));
 app.use('/api/jobs', jobRoutes);
 app.use('/api/applications', applicationRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/interviews', interviewRoutes);
 
 // Global Error Handler
 app.use((err: any, req: Request, res: Response, next: any) => {
