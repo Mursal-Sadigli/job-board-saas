@@ -31,9 +31,11 @@ app.use(cors({
 
 // Webhooks (Must be before express.json() for raw body processing)
 app.use('/api/webhooks', webhookRoutes);
-app.use('/api/stripe', stripeRoutes);
 
 app.use(express.json());
+
+// Main App Routes
+app.use('/api/stripe', stripeRoutes);
 
 // Rate Limiting
 const limiter = rateLimit({

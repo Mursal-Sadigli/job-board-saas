@@ -15,7 +15,9 @@ export const applyForJob = async (req: any, res: Response) => {
 
     // 0. Check Limits
     const currentUser = await prisma.user.findUnique({ where: { clerkId: userId } });
-    if (currentUser?.plan === 'FREE' && currentUser.cvUploadCount >= 3) {
+    const isPremium = currentUser?.plan === 'PREMIUM';
+    
+    if (!isPremium && currentUser && currentUser.cvUploadCount >= 3) {
       return res.status(403).json({ 
         message: 'CV yükləmə limiti dolub. Zəhmət olmasa planınızı yeniləyin.',
         limitReached: true 

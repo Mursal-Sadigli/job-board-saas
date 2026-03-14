@@ -1,10 +1,53 @@
 "use client";
 
 import { useState } from "react";
-import { Check } from "lucide-react";
+import { Check, ArrowLeft } from "lucide-react";
+import { useAuth } from "@clerk/nextjs";
+import { toast } from "@/hooks/use-toast";
 
 export default function UpgradePage() {
   const [annual, setAnnual] = useState(false);
+  const [loading, setLoading] = useState<string | null>(null);
+  const { getToken } = useAuth();
+
+  const handleUpgrade = async (planName: string, amount: number) => {
+    console.log(`Upgrade triggered for ${planName} (${amount} AZN)...`);
+    setLoading(planName);
+    try {
+      const token = await getToken();
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
+      
+      const res = await fetch(`${API_URL}/api/stripe/create-checkout-session`, {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}` 
+        },
+        body: JSON.stringify({ planName, amount })
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || "Ödəniş sessiyası yaradıla bilmədi");
+      }
+      
+      const { url } = await res.json();
+      if (url) {
+        window.location.href = url;
+      } else {
+        throw new Error("Sessiya linki alınmadı");
+      }
+    } catch (error: any) {
+      console.error("Upgrade error:", error);
+      toast({
+        title: "Xəta",
+        description: error.message || "Bir xəta baş verdi. Lütfən yenidən cəhd edin.",
+        type: "error"
+      });
+    } finally {
+      setLoading(null);
+    }
+  };
 
   return (
     <div className="flex-1 w-full h-full p-4 sm:p-8 md:p-12 overflow-y-auto bg-background">
@@ -63,8 +106,12 @@ export default function UpgradePage() {
               </div>
             </div>
 
-            <button className="w-full h-10 md:h-11 rounded-lg bg-foreground text-background font-bold text-sm hover:opacity-90 transition-opacity">
-              Bu plana keç
+            <button 
+              disabled={loading !== null}
+              onClick={() => handleUpgrade("Başlanğıc", annual ? 290 : 29)}
+              className="w-full h-10 md:h-11 rounded-lg bg-foreground text-background font-bold text-sm hover:opacity-90 transition-opacity disabled:opacity-50"
+            >
+              {loading === "Başlanğıc" ? "Yüklənir..." : "Bu plana keç"}
             </button>
           </div>
 
@@ -119,8 +166,12 @@ export default function UpgradePage() {
               </div>
             </div>
 
-            <button className="w-full h-10 md:h-11 rounded-lg bg-foreground text-background font-bold text-sm hover:opacity-90 transition-opacity">
-              Bu plana keç
+            <button 
+              disabled={loading !== null}
+              onClick={() => handleUpgrade("İnkişaf", annual ? 790 : 79)}
+              className="w-full h-10 md:h-11 rounded-lg bg-foreground text-background font-bold text-sm hover:opacity-90 transition-opacity disabled:opacity-50"
+            >
+              {loading === "İnkişaf" ? "Yüklənir..." : "Bu plana keç"}
             </button>
           </div>
 
@@ -172,8 +223,12 @@ export default function UpgradePage() {
               </div>
             </div>
 
-            <button className="w-full h-10 md:h-11 rounded-lg bg-foreground text-background font-bold text-sm hover:opacity-90 transition-opacity">
-              Bu plana keç
+            <button 
+              disabled={loading !== null}
+              onClick={() => handleUpgrade("Korporativ", annual ? 1990 : 199)}
+              className="w-full h-10 md:h-11 rounded-lg bg-foreground text-background font-bold text-sm hover:opacity-90 transition-opacity disabled:opacity-50"
+            >
+              {loading === "Korporativ" ? "Yüklənir..." : "Bu plana keç"}
             </button>
           </div>
         </div>

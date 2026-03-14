@@ -103,7 +103,39 @@ export default function TalentPoolPage() {
     setIsHydrated(true);
     fetchTalentPool();
     fetchUserProfile();
-  }, [fetchTalentPool, fetchUserProfile]);
+
+    // Check for Stripe session success
+    const urlParams = new URLSearchParams(window.location.search);
+    const sessionId = urlParams.get('session_id');
+    const success = urlParams.get('success');
+
+    if (sessionId && success === 'true') {
+      const verifyPayment = async () => {
+        try {
+          const token = await getToken();
+          const res = await fetch(`${API_BASE}/api/stripe/verify-session?sessionId=${sessionId}`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          
+          if (res.ok) {
+            toast({
+              title: "Təbriklər!",
+              description: "Ödəniş uğurla tamamlandı. Artıq Premium plandasınız!",
+              type: "success"
+            });
+            // Update profile and pool data
+            fetchUserProfile();
+            fetchTalentPool();
+            // Clear URL and keep success state
+            window.history.replaceState({}, '', window.location.pathname);
+          }
+        } catch (err) {
+          console.error("Payment verification error:", err);
+        }
+      };
+      verifyPayment();
+    }
+  }, [fetchTalentPool, fetchUserProfile, getToken]);
 
   const handleAnalysisComplete = async () => {
     await fetchTalentPool();

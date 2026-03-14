@@ -21,25 +21,41 @@ export default function UpgradePage() {
   const [loading, setLoading] = useState(false);
 
   const handleUpgrade = async () => {
+    console.log("Upgrade button clicked...");
     setLoading(true);
     try {
       const token = await getToken();
-      const res = await fetch("http://localhost:5001/api/stripe/create-checkout-session", {
+      console.log("Token obtained:", token ? "Yes" : "No");
+
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
+      console.log("Calling API:", `${API_URL}/api/stripe/create-checkout-session`);
+
+      const res = await fetch(`${API_URL}/api/stripe/create-checkout-session`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` }
       });
 
-      if (!res.ok) throw new Error("Checkout session creation failed");
+      console.log("Response status:", res.status);
+      
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        console.error("API Error Data:", errorData);
+        throw new Error(errorData.message || "Checkout session creation failed");
+      }
       
       const { url } = await res.json();
+      console.log("Checkout URL:", url);
+
       if (url) {
         window.location.href = url;
+      } else {
+        throw new Error("Sessiya linki alınmadı");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Upgrade error:", error);
       toast({
         title: "Xəta",
-        description: "Ödəniş sessiyası yaradıla bilmədi. Lütfən bir qədər sonra yenidən cəhd edin.",
+        description: error.message || "Ödəniş sessiyası yaradıla bilmədi. Lütfən bir qədər sonra yenidən cəhd edin.",
         type: "error"
       });
     } finally {
@@ -72,7 +88,7 @@ export default function UpgradePage() {
             ABUNƏLİK PLANLARI
           </Badge>
           <h1 className="text-4xl lg:text-6xl font-black tracking-tighter text-white">
-            İstedadlarınızı <span className="text-transparent bg-clip-text bg-linear-to-r from-primary via-emerald-400 to-primary animate-gradient bg-[length:200%_auto]">Limitsiz</span> Edin
+            İstedadlarınızı <span className="text-transparent bg-clip-text bg-linear-to-r from-primary via-emerald-400 to-primary animate-gradient bg-size-[200%_auto]">Limitsiz</span> Edin
           </h1>
           <p className="text-lg text-slate-400 max-w-2xl mx-auto font-medium">
             Pulsuz limitlərdən qurtulun və AI gücü ilə işə qəbul prosesinizi peşəkar səviyyəyə daşıyın.

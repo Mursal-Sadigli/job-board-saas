@@ -145,15 +145,14 @@ export default function JobDetailPanel({ job, onClose, onApply }: JobDetailPanel
           <h3 className="text-[11px] font-black uppercase tracking-[0.25em] text-muted-foreground/30 mb-8 font-jakarta">İş haqqında məlumat</h3>
           {job.description ? (
             <div
-              className="prose prose-sm dark:prose-invert max-w-none w-full min-w-0 wrap-anywhere [word-break:break-word]
-                [&_h2]:text-base [&_h2]:font-bold [&_h2]:text-foreground [&_h2]:mb-4 [&_h2]:mt-8 [&_h2]:first:mt-0 
-                [&_p]:text-[15px] [&_p]:text-muted-foreground/90 [&_p]:leading-relaxed [&_p]:mb-5 
-                [&_p]:wrap-break-word [&_p]:whitespace-normal [&_p]:w-full
+              className="prose prose-sm dark:prose-invert max-w-none w-full min-w-0
+                [&_h2]:text-base [&_h2]:font-bold [&_h2]:text-foreground [&_h2]:mb-2 [&_h2]:mt-6 [&_h2]:first:mt-0 [&_h2]:wrap-break-word [&_h2]:whitespace-normal
+                [&_p]:text-[15px] [&_p]:text-muted-foreground [&_p]:leading-relaxed [&_p]:mb-4 [&_p]:wrap-break-word [&_p]:whitespace-normal [&_p]:w-full
                 [&_ul]:space-y-4 [&_ul]:mb-6 [&_ul]:pl-0 [&_ul]:list-none [&_ul]:w-full
-                [&_li]:text-[15px] [&_li]:text-muted-foreground/90 [&_li]:leading-relaxed 
-                [&_li]:wrap-break-word [&_li]:whitespace-normal [&_li]:w-full
+                [&_li]:text-[15px] [&_li]:text-muted-foreground [&_li]:leading-normal [&_li]:wrap-break-word [&_li]:whitespace-normal [&_li]:w-full
                 [&_li]:grid [&_li]:grid-cols-[20px_minmax(0,1fr)] [&_li]:items-start [&_li]:gap-2
-                [&_li]:before:content-['•'] [&_li]:before:text-primary [&_li]:before:font-black [&_li]:before:text-xl [&_li]:before:leading-none [&_li]:before:mt-0.5"
+                [&_li]:before:content-['•'] [&_li]:before:text-primary [&_li]:before:font-black [&_li]:before:text-lg [&_li]:before:leading-[1.4]"
+              style={{ overflowWrap: 'anywhere', wordBreak: 'break-word' }}
               dangerouslySetInnerHTML={{ __html: job.description }}
             />
           ) : (
