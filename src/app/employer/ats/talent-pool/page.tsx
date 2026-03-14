@@ -66,7 +66,7 @@ export default function TalentPoolPage() {
       id: crypto.randomUUID(),
       name: data.name,
       email: data.email,
-      location: "Bakı, Azərbaycan",
+      location: data.location || "Bakı, Azərbaycan",
       experienceYears: data.experienceYears,
       skills: data.skills,
       tags: data.skills.slice(0, 3), // Tags adaptasiyası
@@ -233,7 +233,7 @@ export default function TalentPoolPage() {
       </div>
 
       {/* Search & Filter */}
-      <div className="flex flex-col xs:flex-row gap-3">
+      <div className="flex flex-col sm:flex-row gap-3 max-w-2xl">
         <div className="relative flex-1 group">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/60 transition-colors group-focus-within:text-primary" size={18} />
           <Input 
@@ -275,7 +275,7 @@ export default function TalentPoolPage() {
                   {talent.name.substring(0, 2)}
                 </div>
                 <div>
-                  <h3 className="text-base font-black text-foreground group-hover:text-primary transition-colors line-clamp-1">{talent.name}</h3>
+                  <h3 className="text-base font-black text-foreground group-hover:text-primary transition-colors">{talent.name}</h3>
                   <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider line-clamp-1">{(talent as any).role || talent.appliedJobTitle}</p>
                 </div>
               </div>

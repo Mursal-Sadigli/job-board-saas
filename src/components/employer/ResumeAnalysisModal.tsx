@@ -92,15 +92,17 @@ export function ResumeAnalysisModal({ open, onOpenChange, onAnalysisComplete }: 
             .split(".")[0]
             .replace(/[_-]/g, " ")
             .split(/\s+/)
+            .filter(word => !["cv", "resume", "pdf", "doc", "docx"].includes(word.toLowerCase()))
             .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-            .join(" ");
+            .join(" ") || "Yeni Namizəd";
 
           const mockResult = {
             name: extractedName,
             email: "extracted@example.com",
+            location: "Bakı, Azərbaycan", // Simulating location extraction
             skills: ["React", "TypeScript", "Node.js"],
             matchingScore: Math.floor(Math.random() * (95 - 70 + 1)) + 70,
-            experienceYears: 4
+            experienceYears: Math.floor(Math.random() * 10) + 1
           };
           onAnalysisComplete(mockResult);
         }, 800);

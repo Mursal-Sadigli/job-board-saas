@@ -11,13 +11,15 @@ import {
   Star,
   CheckCircle2,
   XCircle,
-  MoreHorizontal
+  MoreHorizontal,
+  Trash2
 } from "lucide-react";
 import { MOCK_JOBS } from "@/api/jobs";
 import { cn } from "@/utils/cn";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "@/hooks/use-toast";
 
 import { 
   DropdownMenu,
@@ -33,35 +35,80 @@ export default function ApplicationsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [stageFilter, setStageFilter] = useState<string>("Bütün");
   
-  // Aggregate applications from mock jobs
-  const allApplications = MOCK_JOBS.flatMap(job => 
-    (job.applicants || []).map(app => ({
-      ...app,
-      jobTitle: job.title,
-      jobId: job.id
-    }))
+  // Initialize applications from mock data with normalized stages
+  const [applications, setApplications] = useState(() => 
+    MOCK_JOBS.flatMap(job => 
+      (job.applicants || []).map(app => ({
+        ...app,
+        // Normalize stage to title case for consistency
+        stage: app.stage.charAt(0).toUpperCase() + app.stage.slice(1).toLowerCase(),
+        jobTitle: job.title,
+        jobId: job.id
+      }))
+    )
   );
 
-  const filteredApps = allApplications.filter(app => {
+  const handleStageChange = (appId: string, newStage: string) => {
+    setApplications(prev => prev.map(app => 
+      app.id === appId ? { ...app, stage: newStage } : app
+    ));
+    toast({
+      title: "Mərhələ Yeniləndi",
+      description: "Namizədin mərhələsi uğurla dəyişdirildi.",
+      type: "success"
+    });
+  };
+
+  const handleRatingChange = (appId: string, newRating: number) => {
+    setApplications(prev => prev.map(app => 
+      app.id === appId ? { ...app, rating: newRating } : app
+    ));
+    toast({
+      title: "Reytinq Yeniləndi",
+      description: "Namizədin reytinqi uğurla dəyişdirildi.",
+      type: "success"
+    });
+  };
+
+  const handleDelete = (appId: string, name: string) => {
+    setApplications(prev => prev.filter(app => app.id !== appId));
+    toast({
+      title: "Müraciət Silindi",
+      description: `${name} müraciəti uğurla silindi.`,
+    });
+  };
+
+  const filteredApps = applications.filter(app => {
+    const stageMap: Record<string, string> = {
+        "Applied": "Applied",
+        "Screening": "Applied", // Mapping screening to Applied for simple filter
+        "Interview": "Interview",
+        "Offered": "Offered",
+        "Rejected": "Rejected"
+    };
+
     const matchesSearch = app.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          app.jobTitle.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStage = stageFilter === "Bütün" || app.stage === stageFilter;
+    const matchesStage = stageFilter === "Bütün" || stageMap[app.stage] === stageFilter;
     return matchesSearch && matchesStage;
   });
 
+  const STAGES = [
+    { value: "Applied", label: "Yeni", color: "text-blue-500" },
+    { value: "Interview", label: "Müsahibə", color: "text-orange-500" },
+    { value: "Offered", label: "Təklif", color: "text-emerald-500" },
+    { value: "Rejected", label: "İmtina", color: "text-red-500" },
+  ];
+
   const getStageLabel = (stage: string) => {
-    switch(stage) {
-      case "Applied": return "Yeni";
-      case "Interview": return "Müsahibə";
-      case "Offered": return "Təklif";
-      case "Rejected": return "İmtina";
-      default: return stage;
-    }
+    const s = STAGES.find(s => s.value === stage);
+    return s ? s.label : stage;
   };
 
   const getStageColor = (stage: string) => {
     switch(stage) {
-      case "Applied": return "bg-blue-500/10 text-blue-500 border-blue-500/20";
+      case "Applied": 
+      case "Screening": return "bg-blue-500/10 text-blue-500 border-blue-500/20";
       case "Interview": return "bg-orange-500/10 text-orange-500 border-orange-500/20";
       case "Offered": return "bg-emerald-500/10 text-emerald-500 border-emerald-500/20";
       case "Rejected": return "bg-red-500/10 text-red-500 border-red-500/20";
@@ -90,23 +137,24 @@ export default function ApplicationsPage() {
                         <DropdownMenuLabel className="text-[10px] uppercase tracking-widest text-muted-foreground/60 px-3 py-2">Mərhələyə görə</DropdownMenuLabel>
                         <DropdownMenuItem onClick={() => setStageFilter("Bütün")} className="rounded-xl font-bold px-3 py-2.5 text-xs">Bütün</DropdownMenuItem>
                         <DropdownMenuSeparator className="bg-border/50" />
-                        <DropdownMenuItem onClick={() => setStageFilter("Applied")} className="rounded-xl font-bold px-3 py-2.5 text-xs text-blue-500">Yeni</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => setStageFilter("Interview")} className="rounded-xl font-bold px-3 py-2.5 text-xs text-orange-500">Müsahibə</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => setStageFilter("Offered")} className="rounded-xl font-bold px-3 py-2.5 text-xs text-emerald-500">Təklif</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => setStageFilter("Rejected")} className="rounded-xl font-bold px-3 py-2.5 text-xs text-red-500">İmtina</DropdownMenuItem>
+                        {STAGES.map(s => (
+                            <DropdownMenuItem key={s.value} onClick={() => setStageFilter(s.value)} className={cn("rounded-xl font-bold px-3 py-2.5 text-xs", s.color)}>
+                                {s.label}
+                            </DropdownMenuItem>
+                        ))}
                     </DropdownMenuGroup>
                 </DropdownMenuContent>
             </DropdownMenu>
         </div>
       </div>
 
-      {/* Kanban-ish summary or List */}
+      {/* Kanban-ish summary */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: "Yeni", count: filteredApps.filter(a => a.stage === "Applied").length, icon: Clock, color: "text-blue-500", bg: "bg-blue-500/10" },
-          { label: "Müsahibə", count: filteredApps.filter(a => a.stage === "Interview").length, icon: Calendar, color: "text-orange-500", bg: "bg-orange-500/10" },
-          { label: "Təklif", count: filteredApps.filter(a => a.stage === "Offered").length, icon: Star, color: "text-emerald-500", bg: "bg-emerald-500/10" },
-          { label: "İmtina Qərarı", count: filteredApps.filter(a => a.stage === "Rejected").length, icon: XCircle, color: "text-red-500", bg: "bg-red-500/10" },
+          { label: "Yeni", count: applications.filter(a => ["Applied", "Screening"].includes(a.stage)).length, icon: Clock, color: "text-blue-500", bg: "bg-blue-500/10" },
+          { label: "Müsahibə", count: applications.filter(a => a.stage === "Interview").length, icon: Calendar, color: "text-orange-500", bg: "bg-orange-500/10" },
+          { label: "Təklif", count: applications.filter(a => a.stage === "Offered").length, icon: Star, color: "text-emerald-500", bg: "bg-emerald-500/10" },
+          { label: "İmtina Qərarı", count: applications.filter(a => a.stage === "Rejected").length, icon: XCircle, color: "text-red-500", bg: "bg-red-500/10" },
         ].map(stat => (
           <div key={stat.label} className="p-5 rounded-2xl border border-border dark:border-white/5 bg-card shadow-sm">
             <div className="flex items-center justify-between mb-3">
@@ -120,7 +168,7 @@ export default function ApplicationsPage() {
         ))}
       </div>
 
-      <div className="relative group">
+      <div className="relative group max-w-2xl">
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/60 transition-colors group-focus-within:text-primary" size={18} />
         <Input 
           placeholder="Namizəd və ya vakansiya adına görə axtar..." 
@@ -130,7 +178,7 @@ export default function ApplicationsPage() {
         />
       </div>
 
-      {/* Applications List - Responsive Table/Cards */}
+      {/* Applications List */}
       <div className="bg-card rounded-3xl border border-border dark:border-white/10 shadow-xl overflow-hidden">
         {/* Desktop Table View */}
         <div className="hidden lg:block overflow-x-auto">
@@ -141,12 +189,13 @@ export default function ApplicationsPage() {
                 <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">Namizəd / Vakansiya</th>
                 <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 text-center">Mərhələ</th>
                 <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 text-center">Reytinq</th>
-                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 text-right">Tarix</th>
+                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 text-center">Tarix</th>
+                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 text-right"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border dark:divide-white/5">
               {filteredApps.map((app, idx) => (
-                <tr key={app.id} className="group hover:bg-muted/30 transition-all duration-300 cursor-pointer">
+                <tr key={app.id} className="group hover:bg-muted/30 transition-all duration-300">
                   <td className="px-6 py-5 text-center text-[10px] font-black text-muted-foreground/20 italic">{idx + 1}</td>
                   <td className="px-6 py-5">
                     <div className="flex flex-col min-w-0">
@@ -158,9 +207,24 @@ export default function ApplicationsPage() {
                     </div>
                   </td>
                   <td className="px-6 py-5 text-center">
-                    <Badge variant="outline" className={cn("rounded-lg font-bold text-[10px] uppercase tracking-wider px-3 py-1 border dark:border-0", getStageColor(app.stage))}>
-                      {getStageLabel(app.stage)}
-                    </Badge>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger nativeButton={false} render={
+                            <Badge variant="outline" className={cn("rounded-lg font-bold text-[10px] uppercase tracking-wider px-3 py-1 border dark:border-0 cursor-pointer hover:opacity-80 transition-opacity", getStageColor(app.stage))}>
+                                {getStageLabel(app.stage)}
+                            </Badge>
+                        } />
+                        <DropdownMenuContent align="center" className="w-40 rounded-2xl p-2 bg-card dark:bg-[#0f172a] border-border dark:border-white/5 shadow-2xl">
+                            {STAGES.map(s => (
+                                <DropdownMenuItem 
+                                    key={s.value} 
+                                    onClick={() => handleStageChange(app.id, s.value)} 
+                                    className={cn("rounded-xl font-bold px-3 py-2 text-[11px]", s.color)}
+                                >
+                                    {s.label}
+                                </DropdownMenuItem>
+                            ))}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                   </td>
                   <td className="px-6 py-5">
                     <div className="flex justify-center gap-0.5">
@@ -168,24 +232,43 @@ export default function ApplicationsPage() {
                         <Star 
                           key={s} 
                           size={12} 
-                          className={cn(s <= app.rating ? "text-amber-400 fill-amber-400" : "text-muted/30")} 
+                          className={cn(
+                            "cursor-pointer transition-all hover:scale-125",
+                            s <= app.rating ? "text-amber-400 fill-amber-400" : "text-muted/30"
+                          )} 
+                          onClick={() => handleRatingChange(app.id, s)}
                         />
                       ))}
                     </div>
                   </td>
-                  <td className="px-6 py-5 text-right">
-                    <div className="flex flex-col items-end">
+                  <td className="px-6 py-5 text-center">
+                    <div className="flex flex-col items-center">
                       <span className="text-xs font-bold text-foreground">
                         {new Date(app.appliedAt).toLocaleDateString("az-AZ")}
                       </span>
-                      <span className="text-[10px] font-medium text-muted-foreground/50 italic">E-poçt ilə</span>
+                      <span className="text-[10px] font-medium text-muted-foreground/50 italic">E-poçt</span>
                     </div>
+                  </td>
+                  <td className="px-6 py-5 text-right">
+                    <DropdownMenu>
+                        <DropdownMenuTrigger render={
+                            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-xl text-muted-foreground hover:bg-primary/10 hover:text-primary transition-all">
+                                <MoreHorizontal size={16} />
+                            </Button>
+                        } />
+                        <DropdownMenuContent align="end" className="w-40 rounded-2xl p-2 bg-card dark:bg-[#0f172a] border-border dark:border-white/5 shadow-2xl">
+                            <DropdownMenuItem onClick={() => handleDelete(app.id, app.name)} className="rounded-xl font-bold px-3 py-2.5 text-xs text-red-500 gap-2">
+                                <Trash2 size={14} />
+                                <span>Sil</span>
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                   </td>
                 </tr>
               ))}
               {filteredApps.length === 0 && (
                 <tr>
-                   <td colSpan={5} className="px-6 py-12 text-center text-muted-foreground font-medium">Heç bir müraciət tapılmadı.</td>
+                   <td colSpan={6} className="px-6 py-12 text-center text-muted-foreground font-medium">Heç bir müraciət tapılmadı.</td>
                 </tr>
               )}
             </tbody>
@@ -204,9 +287,24 @@ export default function ApplicationsPage() {
                                 {app.jobTitle}
                             </p>
                         </div>
-                        <Badge variant="outline" className={cn("rounded-lg font-black text-[9px] uppercase tracking-widest px-2.5 py-1 shrink-0 border", getStageColor(app.stage))}>
-                            {getStageLabel(app.stage)}
-                        </Badge>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger nativeButton={false} render={
+                                <Badge variant="outline" className={cn("rounded-lg font-black text-[9px] uppercase tracking-widest px-2.5 py-1 shrink-0 border cursor-pointer", getStageColor(app.stage))}>
+                                    {getStageLabel(app.stage)}
+                                </Badge>
+                            } />
+                            <DropdownMenuContent align="end" className="w-40 rounded-2xl p-2 bg-card dark:bg-[#0f172a] border-border dark:border-white/5 shadow-2xl">
+                                {STAGES.map(s => (
+                                    <DropdownMenuItem 
+                                        key={s.value} 
+                                        onClick={() => handleStageChange(app.id, s.value)} 
+                                        className={cn("rounded-xl font-bold px-3 py-2 text-[11px]", s.color)}
+                                    >
+                                        {s.label}
+                                    </DropdownMenuItem>
+                                ))}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                     </div>
                     
                     <div className="flex items-center justify-between pt-2 border-t border-border/10 dark:border-white/5">
@@ -214,14 +312,23 @@ export default function ApplicationsPage() {
                             {[1, 2, 3, 4, 5].map((s) => (
                                 <Star 
                                     key={s} 
-                                    size={10} 
-                                    className={cn(s <= app.rating ? "text-amber-400 fill-amber-400" : "text-muted/20")} 
+                                    size={14} 
+                                    className={cn(
+                                        "cursor-pointer",
+                                        s <= app.rating ? "text-amber-400 fill-amber-400" : "text-muted/20"
+                                    )} 
+                                    onClick={() => handleRatingChange(app.id, s)}
                                 />
                             ))}
                         </div>
-                        <div className="flex flex-col items-end">
-                            <span className="text-[10px] font-black text-muted-foreground/40 uppercase tracking-tighter">Tarix</span>
-                            <span className="text-xs font-bold text-foreground/80">{new Date(app.appliedAt).toLocaleDateString("az-AZ")}</span>
+                        <div className="flex items-center gap-4">
+                             <div className="flex flex-col items-end">
+                                <span className="text-[10px] font-black text-muted-foreground/40 uppercase tracking-tighter">Tarix</span>
+                                <span className="text-xs font-bold text-foreground/80">{new Date(app.appliedAt).toLocaleDateString("az-AZ")}</span>
+                            </div>
+                            <Button variant="ghost" size="icon" onClick={() => handleDelete(app.id, app.name)} className="h-8 w-8 rounded-lg text-red-500 hover:bg-red-500/10 transition-all">
+                                <Trash2 size={16} />
+                            </Button>
                         </div>
                     </div>
                 </div>
