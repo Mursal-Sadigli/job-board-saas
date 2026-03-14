@@ -12,7 +12,8 @@ export default function UserSync() {
         try {
           const token = await getToken();
           
-          const response = await fetch("http://localhost:5001/api/users/sync", {
+          const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
+          const response = await fetch(`${API_BASE}/api/users/sync`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",

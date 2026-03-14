@@ -22,7 +22,7 @@ import { cn } from "@/utils/cn";
 import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@clerk/nextjs";
 
-const API_BASE = "http://localhost:5001";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
 
 export default function CandidateProfilePage() {
   const { id } = useParams();

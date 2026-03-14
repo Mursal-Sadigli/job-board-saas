@@ -15,9 +15,9 @@ export default function UpgradePage() {
     setLoading(planName);
     try {
       const token = await getToken();
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
+      const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
       
-      const res = await fetch(`${API_URL}/api/stripe/create-checkout-session`, {
+      const res = await fetch(`${API_BASE}/api/stripe/create-checkout-session`, {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",

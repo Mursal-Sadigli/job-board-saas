@@ -39,7 +39,7 @@ import { toast } from "@/hooks/use-toast";
 
 import { useCandidateStore, TalentCandidate } from "@/store/useCandidateStore";
 
-const API_BASE = "http://localhost:5001";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
 
 export default function TalentPoolPage() {
   const { getToken } = useAuth();

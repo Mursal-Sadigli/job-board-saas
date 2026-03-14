@@ -86,7 +86,8 @@ export function ResumeAnalysisModal({ open, onOpenChange, onAnalysisComplete }: 
         });
       }, 1500);
 
-      const res = await fetch("http://localhost:5001/api/applications/analyze", {
+      const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
+      const res = await fetch(`${API_BASE}/api/applications/analyze`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
         body: formData
