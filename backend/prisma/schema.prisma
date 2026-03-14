@@ -1,0 +1,78 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  EMPLOYER
+  CANDIDATE
+  ADMIN
+}
+
+model User {
+  id            String    @id @default(uuid())
+  clerkId       String    @unique
+  email         String    @unique
+  name          String?
+  role          UserRole  @default(CANDIDATE)
+  companyName   String?
+  logoUrl       String?
+  bio           String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relationships
+  jobs          Job[]
+  applications  Application[]
+}
+
+model Job {
+  id              String    @id @default(uuid())
+  title           String
+  description     String
+  company         String
+  location        String
+  locationType    String    // remote, hybrid, in-office
+  jobType         String    // full-time, part-time, contract, etc.
+  experienceLevel String    // junior, mid, senior
+  salary          String?
+  isActive        Boolean   @default(true)
+  isFeatured      Boolean   @default(false)
+  postedAt        DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relationships
+  employer        User      @relation(fields: [employerId], references: [id])
+  employerId      String
+  applications    Application[]
+}
+
+model Application {
+  id              String    @id @default(uuid())
+  stage           String    @default("Applied") // Applied, Screening, Interview, Offered, Rejected
+  rating          Int       @default(0)
+  resumeUrl       String?
+  resumeText      String?
+  appliedAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relationships
+  candidate       User      @relation(fields: [candidateId], references: [id])
+  candidateId     String
+  job             Job       @relation(fields: [jobId], references: [id])
+  jobId           String
+}
+
+model Subscription {
+  id               String    @id @default(uuid())
+  clerkId          String    @unique
+  stripeCustomerId String?   @unique
+  stripePriceId    String?
+  status           String?   // active, canceled, trialing, etc.
+  plan             String?   // basic, growth, enterprise
+  updatedAt        DateTime  @updatedAt
+}

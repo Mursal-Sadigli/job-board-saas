@@ -1,19 +1,83 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import express, { Request, Response } from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+import { ClerkExpressWithAuth } from '@clerk/clerk-sdk-node';
 
-dotenv.config();
+import webhookRoutes from './routes/webhookRoutes';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors());
+// Request Logger
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  next();
+});
+
+// Security Middlewares
+app.use(helmet());
+app.use(cors({
+  origin: [
+    process.env.FRONTEND_URL || 'http://localhost:3000',
+    'http://localhost:51212'
+  ],
+  credentials: true
+}));
+
+// Webhooks (Must be before express.json() for raw body processing)
+app.use('/api/webhooks', webhookRoutes);
+
 app.use(express.json());
 
+// Rate Limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: 'Həddindən artıq sorğu göndərildi, lütfən bir qədər sonra yenidən cəhd edin.'
+});
+app.use('/api/', limiter);
+
+import jobRoutes from './routes/jobRoutes';
+import applicationRoutes from './routes/applicationRoutes';
+import userRoutes from './routes/userRoutes';
+import { inngest, helloWorld } from './lib/inngest';
+import { serve } from 'inngest/express';
+
+// Health Check
 app.get('/health', (req: Request, res: Response) => {
-  res.json({ status: 'ok', message: 'Server is running' });
+  res.json({ 
+    status: 'ok', 
+    timestamp: new Date().toISOString(),
+    service: 'Job Board Backend' 
+  });
+});
+
+// Inngest
+app.use("/api/inngest", serve({ client: inngest, functions: [helloWorld] }));
+
+// Routes Registration
+app.use('/api/jobs', jobRoutes);
+app.use('/api/applications', applicationRoutes);
+app.use('/api/users', userRoutes);
+
+// Global Error Handler
+app.use((err: any, req: Request, res: Response, next: any) => {
+  console.error('--- Global Error Caught ---');
+  console.error('Error Message:', err.message);
+  console.error('Error Stack:', err.stack);
+  console.error('Error Object:', JSON.stringify(err, null, 2));
+  
+  res.status(err.status || 500).json({
+    error: 'Server xətası',
+    message: err.message,
+    details: process.env.NODE_ENV === 'development' ? err : undefined
+  });
 });
 
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`🚀 Server http://localhost:${PORT} ünvanında işləyir`);
 });

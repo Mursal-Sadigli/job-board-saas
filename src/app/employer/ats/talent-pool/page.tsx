@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
   Users, 
   Search, 
@@ -35,31 +35,32 @@ import { InterviewModal } from "@/components/employer/InterviewModal";
 import { Candidate, CandidateStatus } from "@/types/ats";
 import { toast } from "@/hooks/use-toast";
 
-// Qeyd: 'role' və 'tags' lokal göstərim üçündür, lakin Candidate interfeysini qırmamaq üçün any asertiyası ilə genişləndirilir. 
-type TalentCandidate = Candidate & { role?: string; tags?: string[] };
-
-const MOCK_TALENT_POOL: TalentCandidate[] = [
-  { id: "tp1", name: "Rüstəm Qasımov", email: "rustam@example.com", location: "Bakı, Azərbaycan", role: "DevOps Engineer", experienceYears: 8, tags: ["Kubernetes", "AWS", "Terraform"], skills: ["Kubernetes", "AWS", "Terraform"], education: ["Bakalavr"], matchingScore: 92, status: "Hired", appliedAt: "2025-01-10", appliedJobTitle: "DevOps Engineer", analysisStatus: "completed" },
-  { id: "tp2", name: "Günay Əliyeva", email: "gunay@example.com", location: "Sumqayıt, Azərbaycan", role: "Frontend Lead", experienceYears: 6, tags: ["React", "Architecture", "Mentoring"], skills: ["React", "Architecture", "Mentoring"], education: ["Magistr"], matchingScore: 88, status: "Offered", appliedAt: "2025-02-15", appliedJobTitle: "Frontend Lead", analysisStatus: "completed" },
-  { id: "tp3", name: "Fərid Məmmədov", email: "farid@example.com", location: "Gəncə, Azərbaycan", role: "Mobile Developer", experienceYears: 4, tags: ["Flutter", "Dart", "Firebase"], skills: ["Flutter", "Dart", "Firebase"], education: ["Bakalavr"], matchingScore: 75, status: "Interview", appliedAt: "2025-03-01", appliedJobTitle: "Mobile Developer", analysisStatus: "completed" },
-  { id: "tp4", name: "Səbinə Rəhimova", email: "sabina@example.com", location: "Bakı, Azərbaycan", role: "QA Automation", experienceYears: 5, tags: ["Selenium", "Python", "Testing"], skills: ["Selenium", "Python", "Testing"], education: ["Bakalavr"], matchingScore: 85, status: "Applied", appliedAt: "2025-03-05", appliedJobTitle: "QA Automation", analysisStatus: "completed" },
-];
+import { useCandidateStore, TalentCandidate } from "@/store/useCandidateStore";
 
 export default function TalentPoolPage() {
-  const [candidates, setCandidates] = useState<TalentCandidate[]>(MOCK_TALENT_POOL);
-  const [searchQuery, setSearchQuery] = useState("");
+  const { 
+    candidates, 
+    searchQuery, 
+    filters, 
+    setSearchQuery, 
+    setFilters, 
+    addCandidate, 
+    updateCandidateStatus,
+    deleteCandidate
+  } = useCandidateStore();
+
+  const [isHydrated, setIsHydrated] = useState(false);
   const [selectedCandidate, setSelectedCandidate] = useState<TalentCandidate | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [analysisOpen, setAnalysisOpen] = useState(false);
   const [interviewModalOpen, setInterviewModalOpen] = useState(false);
   const [interviewCandidateName, setInterviewCandidateName] = useState("");
-  const [filters, setFilters] = useState({
-    status: [] as CandidateStatus[],
-    experience: "all",
-    minScore: 0,
-    location: ""
-  });
+
+  // Fix hydration mismatch for persisted store
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
 
   const handleAnalysisComplete = (data: any) => {
     const newCandidate: TalentCandidate = {
@@ -69,7 +70,7 @@ export default function TalentPoolPage() {
       location: data.location || "Bakı, Azərbaycan",
       experienceYears: data.experienceYears,
       skills: data.skills,
-      tags: data.skills.slice(0, 3), // Tags adaptasiyası
+      tags: data.skills.slice(0, 3),
       education: ["Məlumat yoxdur"],
       matchingScore: data.matchingScore,
       analysisStatus: "completed",
@@ -77,7 +78,7 @@ export default function TalentPoolPage() {
       status: "Applied",
       appliedJobTitle: "Ümumi İstedad Hovuzu"
     };
-    setCandidates(prev => [newCandidate, ...prev]);
+    addCandidate(newCandidate);
     toast({
       title: "Namizəd Əlavə Edildi",
       description: `${data.name} uğurla istedad hovuzuna daxil edildi.`,
@@ -86,13 +87,13 @@ export default function TalentPoolPage() {
   };
 
   const handleStatusChange = (id: string, newStatus: CandidateStatus) => {
-    setCandidates(prev => prev.map(c => 
-      c.id === id ? { ...c, status: newStatus } : c
-    ));
+    updateCandidateStatus(id, newStatus);
     if (selectedCandidate?.id === id) {
       setSelectedCandidate(prev => prev ? { ...prev, status: newStatus } : null);
     }
   };
+
+  if (!isHydrated) return null; // Avoid hydration mismatch
 
   const handleDownloadCV = (name: string) => {
     toast({
@@ -108,7 +109,7 @@ export default function TalentPoolPage() {
   };
 
   const handleRemove = (id: string, name: string) => {
-    setCandidates(prev => prev.filter(c => c.id !== id));
+    deleteCandidate(id);
     toast({
       title: "Namizəd Silindi",
       description: `${name} hovuzdan uğurla çıxarıldı.`,

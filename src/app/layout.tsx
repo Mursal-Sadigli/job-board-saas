@@ -26,6 +26,7 @@ export const metadata: Metadata = {
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "@/components/ui/Toaster";
+import UserSync from "@/components/UserSync";
 
 export default function RootLayout({
   children,
@@ -34,6 +35,7 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
+      <UserSync />
       <html lang="az" className={cn("font-sans", geist.variable)} suppressHydrationWarning>
         <body className={`${inter.variable} ${outfit.variable} antialiased min-h-screen bg-background`}>
           <ThemeProvider

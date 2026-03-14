@@ -55,7 +55,9 @@ export default function JobDetailPanel({ job, onClose, onApply }: JobDetailPanel
 
   const handleApplySuccess = () => {
     setIsApplied(true);
-    onApply?.();
+    // Müraciət uğurlu olandan sonra dərhal paneli bağlamaq əvəzinə,
+    // istifadəçiyə uğur mesajını görməyə imkan veririk.
+    // onApply?.();
   };
 
   return (
@@ -166,6 +168,7 @@ export default function JobDetailPanel({ job, onClose, onApply }: JobDetailPanel
       {/* Apply Button Footer */}
       <div className="shrink-0 p-4 sm:p-6 border-t border-border dark:border-white/10 bg-card dark:bg-[#0f1423]">
         <ApplyModal 
+          jobId={job.id}
           jobTitle={job.title} 
           companyName={job.company} 
           onSuccess={handleApplySuccess}

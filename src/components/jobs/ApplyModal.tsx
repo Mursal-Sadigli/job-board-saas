@@ -15,40 +15,79 @@ import {
   DialogContent,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { useAuth } from "@clerk/nextjs";
+
 interface ApplyModalProps {
   children: React.ReactElement;
+  jobId: string;
   jobTitle: string;
   companyName: string;
   onSuccess?: () => void;
 }
 
-export function ApplyModal({ children, jobTitle, companyName, onSuccess }: ApplyModalProps) {
+export function ApplyModal({ children, jobId, jobTitle, companyName, onSuccess }: ApplyModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isApplying, setIsApplying] = useState(false);
   const [isApplied, setIsApplied] = useState(false);
+  const [analysis, setAnalysis] = useState<any>(null);
+  const [file, setFile] = useState<File | null>(null);
+  const { getToken } = useAuth();
 
   const handleApply = async () => {
-    setIsApplying(true);
-    // Simulating API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    setIsApplying(false);
-    setIsApplied(true);
-    
-    toast({
-      title: "Müraciətiniz göndərildi!",
-      description: "Tezliklə qeyd etdiyiniz email vasitəsilə sizinlə əlaqə saxlanılacaq.",
-      type: "success",
-      duration: 6000
-    });
+    if (!file) {
+      toast({
+        title: "Xəta",
+        description: "Zəhmət olmasa CV faylını seçin.",
+        type: "error"
+      });
+      return;
+    }
 
-    onSuccess?.();
+    setIsApplying(true);
+    try {
+      const token = await getToken();
+      const formData = new FormData();
+      formData.append("jobId", jobId);
+      formData.append("resume", file);
+
+      const response = await fetch("http://localhost:5000/api/applications/apply", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`
+        },
+        body: formData
+      });
+
+      if (!response.ok) {
+        throw new Error("Müraciət zamanı xəta baş verdi");
+      }
+
+      const data = await response.json();
+      setAnalysis(data.analysis);
+      setIsApplied(true);
+      toast({
+        title: "Müraciətiniz göndərildi!",
+        description: "CV analizi tamamlandı və müraciətiniz qeydə alındı.",
+        type: "success"
+      });
+      onSuccess?.();
+    } catch (error) {
+      console.error("Apply error details:", error);
+      toast({
+        title: "Xəta",
+        description: "Müraciət göndərilərkən bir problem yarandı.",
+        type: "error"
+      });
+    } finally {
+      setIsApplying(false);
+    }
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(v: boolean) => {
+    <Dialog open={isOpen} onOpenChange={(v) => {
       setIsOpen(v);
       if (!v) {
-        // Reset state when closing after success
+        // Reset state when closing
         setTimeout(() => setIsApplied(false), 300);
       }
     }}>
@@ -71,6 +110,28 @@ export function ApplyModal({ children, jobTitle, companyName, onSuccess }: Apply
                 <p className="text-[13px] sm:text-sm text-muted-foreground font-medium px-2 sm:px-4 leading-relaxed">
                   <span className="text-foreground font-bold">{companyName}</span> şirkətində <span className="text-foreground font-bold">{jobTitle}</span> vəzifəsi üçün müraciətiniz göndəriləcək.
                 </p>
+              </div>
+
+              {/* File Upload UI */}
+              <div className="p-4 rounded-2xl border-2 border-dashed border-border dark:border-white/10 hover:border-primary/50 transition-all bg-muted/5">
+                <input 
+                  type="file" 
+                  id="cv-upload" 
+                  className="hidden" 
+                  accept=".pdf"
+                  onChange={(e) => setFile(e.target.files?.[0] || null)}
+                />
+                <label htmlFor="cv-upload" className="cursor-pointer space-y-2 flex flex-col items-center">
+                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                    <CheckCircle2 size={20} />
+                  </div>
+                  <div className="text-center">
+                    <p className="text-xs font-bold text-foreground">
+                      {file ? file.name : "CV-ni buraya yükləyin (PDF)"}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">Maksimum 5MB</p>
+                  </div>
+                </label>
               </div>
 
               <div className="pt-2 sm:pt-4 space-y-2.5 sm:space-y-3">
@@ -99,7 +160,7 @@ export function ApplyModal({ children, jobTitle, companyName, onSuccess }: Apply
               </div>
             </div>
           ) : (
-            <div className="relative z-10 text-center space-y-4 sm:space-y-6 animate-in zoom-in-95 fade-in duration-500">
+            <div className="relative z-10 text-center space-y-4 sm:space-y-6 animate-in zoom-in-95 fade-in duration-500 max-h-[80vh] overflow-y-auto custom-scrollbar px-1">
               <div className="w-16 h-16 sm:w-20 sm:h-20 bg-emerald-500/10 rounded-2xl sm:rounded-[28px] flex items-center justify-center text-emerald-500 mx-auto shadow-inner">
                 <CheckCircle2 size={32} className="sm:size-[40px]" strokeWidth={1.5} />
               </div>
@@ -107,11 +168,48 @@ export function ApplyModal({ children, jobTitle, companyName, onSuccess }: Apply
               <div className="space-y-1.5 sm:space-y-2">
                 <h2 className="text-xl sm:text-2xl font-black tracking-tight text-foreground">Təbriklər!</h2>
                 <p className="text-[13px] sm:text-sm text-muted-foreground font-medium px-2 sm:px-4 leading-relaxed">
-                  Müraciətiniz <span className="text-foreground font-bold">{companyName}</span> tərəfindən qəbul edildi. Uğurlar arzulayırıq!
+                  Müraciətiniz <span className="text-foreground font-bold">{companyName}</span> tərəfindən qəbul edildi.
                 </p>
               </div>
 
-              <div className="pt-2 sm:pt-4">
+              {analysis && (
+                <div className="text-left bg-muted/30 rounded-2xl p-4 sm:p-5 border border-border dark:border-white/5 space-y-4 animate-in slide-in-from-bottom-4 duration-700 delay-300 fill-mode-both">
+                  <div className="flex items-center gap-3 pb-3 border-b border-border/50">
+                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-[10px] font-black">AI</div>
+                    <div className="text-[11px] font-black uppercase tracking-widest text-muted-foreground/60">CV Analizi</div>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <div>
+                      <h4 className="text-[10px] font-black uppercase text-muted-foreground tracking-wider mb-1">Namizəd</h4>
+                      <p className="text-sm font-bold text-foreground">{analysis.name || "Məlum deyil"}</p>
+                    </div>
+
+                    <div>
+                      <h4 className="text-[10px] font-black uppercase text-muted-foreground tracking-wider mb-1.5">Bacarıqlar</h4>
+                      <div className="flex flex-wrap gap-1.5">
+                        {analysis.skills?.slice(0, 8).map((skill: string, idx: number) => (
+                          <span key={idx} className="px-2 py-0.5 rounded-md bg-card border border-border text-[10px] font-bold text-foreground capitalize">
+                            {skill}
+                          </span>
+                        ))}
+                        {analysis.skills?.length > 8 && (
+                          <span className="text-[10px] font-bold text-muted-foreground px-1">+{analysis.skills.length - 8}</span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div>
+                      <h4 className="text-[10px] font-black uppercase text-muted-foreground tracking-wider mb-1">Xülasə</h4>
+                      <p className="text-[12px] leading-relaxed text-muted-foreground font-medium line-clamp-3 italic">
+                        "{analysis.summary}"
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="pt-2">
                 <button
                   onClick={() => setIsOpen(false)}
                   className="w-full h-12 sm:h-14 rounded-xl sm:rounded-2xl bg-foreground text-background font-black text-sm shadow-xl shadow-black/10 hover:opacity-90 transition-all flex items-center justify-center gap-2"

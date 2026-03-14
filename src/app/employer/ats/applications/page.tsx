@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
   Briefcase, 
   Search, 
@@ -12,7 +12,8 @@ import {
   CheckCircle2,
   XCircle,
   MoreHorizontal,
-  Trash2
+  Trash2,
+  FileText
 } from "lucide-react";
 import { MOCK_JOBS } from "@/api/jobs";
 import { cn } from "@/utils/cn";
@@ -31,57 +32,132 @@ import {
   DropdownMenuGroup
 } from "@/components/ui/dropdown-menu";
 
+import { useApplicationStore } from "@/store/useApplicationStore";
+import { useApplications } from "@/hooks/useApplications";
+import { Loader2 } from "lucide-react";
+import { useAuth } from "@clerk/nextjs";
+
 export default function ApplicationsPage() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [stageFilter, setStageFilter] = useState<string>("Bütün");
-  
-  // Initialize applications from mock data with normalized stages
-  const [applications, setApplications] = useState(() => 
-    MOCK_JOBS.flatMap(job => 
-      (job.applicants || []).map(app => ({
-        ...app,
-        // Normalize stage to title case for consistency
-        stage: app.stage.charAt(0).toUpperCase() + app.stage.slice(1).toLowerCase(),
-        jobTitle: job.title,
-        jobId: job.id
-      }))
-    )
-  );
+  const { 
+    applications, 
+    searchQuery, 
+    stageFilter, 
+    setSearchQuery, 
+    setStageFilter, 
+    updateApplicationStage, 
+    updateApplicationRating, 
+    deleteApplication 
+  } = useApplicationStore();
+  const { isLoading: isFetching } = useApplications();
+  const { getToken } = useAuth();
 
-  const handleStageChange = (appId: string, newStage: string) => {
-    setApplications(prev => prev.map(app => 
-      app.id === appId ? { ...app, stage: newStage } : app
-    ));
-    toast({
-      title: "Mərhələ Yeniləndi",
-      description: "Namizədin mərhələsi uğurla dəyişdirildi.",
-      type: "success"
-    });
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
+
+  const handleStageChange = async (appId: string, newStage: string) => {
+    try {
+      const token = await getToken();
+      const response = await fetch(`http://localhost:5000/api/applications/${appId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ stage: newStage })
+      });
+
+      if (!response.ok) throw new Error("Yeniləmə xətası");
+
+      updateApplicationStage(appId, newStage);
+      toast({
+        title: "Mərhələ Yeniləndi",
+        description: "Namizədin mərhələsi uğurla dəyişdirildi.",
+        type: "success"
+      });
+    } catch (error) {
+      toast({
+        title: "Xəta",
+        description: "Mərhələni yeniləmək mümkün olmadı.",
+        type: "error"
+      });
+    }
   };
 
-  const handleRatingChange = (appId: string, newRating: number) => {
-    setApplications(prev => prev.map(app => 
-      app.id === appId ? { ...app, rating: newRating } : app
-    ));
-    toast({
-      title: "Reytinq Yeniləndi",
-      description: "Namizədin reytinqi uğurla dəyişdirildi.",
-      type: "success"
-    });
+  const handleRatingChange = async (appId: string, newRating: number) => {
+    try {
+      const token = await getToken();
+      const response = await fetch(`http://localhost:5000/api/applications/${appId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ rating: newRating })
+      });
+
+      if (!response.ok) throw new Error("Yeniləmə xətası");
+
+      updateApplicationRating(appId, newRating);
+      toast({
+        title: "Reytinq Yeniləndi",
+        description: "Namizədin reytinqi uğurla dəyişdirildi.",
+        type: "success"
+      });
+    } catch (error) {
+      toast({
+        title: "Xəta",
+        description: "Reytinqi yeniləmək mümkün olmadı.",
+        type: "error"
+      });
+    }
   };
 
-  const handleDelete = (appId: string, name: string) => {
-    setApplications(prev => prev.filter(app => app.id !== appId));
-    toast({
-      title: "Müraciət Silindi",
-      description: `${name} müraciəti uğurla silindi.`,
-    });
+  const handleDelete = async (appId: string, name: string) => {
+    try {
+      const token = await getToken();
+      const response = await fetch(`http://localhost:5000/api/applications/${appId}`, {
+        method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) throw new Error("Silinmə xətası");
+
+      deleteApplication(appId);
+      toast({
+        title: "Müraciət Silindi",
+        description: `${name} müraciəti uğurla silindi.`,
+        type: "success"
+      });
+    } catch (error) {
+      toast({
+        title: "Xəta",
+        description: "Müraciəti silmək mümkün olmadı.",
+        type: "error"
+      });
+    }
+  };
+
+  const handleViewResume = (url: string) => {
+    if (!url) {
+      toast({
+        title: "Xəta",
+        description: "CV faylı tapılmadı.",
+        type: "error"
+      });
+      return;
+    }
+    window.open(url, '_blank', 'noopener,noreferrer');
   };
 
   const filteredApps = applications.filter(app => {
     const stageMap: Record<string, string> = {
         "Applied": "Applied",
-        "Screening": "Applied", // Mapping screening to Applied for simple filter
+        "Screening": "Applied",
         "Interview": "Interview",
         "Offered": "Offered",
         "Rejected": "Rejected"
@@ -92,6 +168,8 @@ export default function ApplicationsPage() {
     const matchesStage = stageFilter === "Bütün" || stageMap[app.stage] === stageFilter;
     return matchesSearch && matchesStage;
   });
+
+  if (!isHydrated) return null;
 
   const STAGES = [
     { value: "Applied", label: "Yeni", color: "text-blue-500" },
@@ -119,11 +197,11 @@ export default function ApplicationsPage() {
   return (
     <div className="pl-12 pr-6 pb-6 pt-0 lg:px-20 lg:py-12 max-w-7xl mx-auto space-y-6 sm:space-y-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 lg:pl-16 pl-12">
-        <div>
-          <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-foreground tracking-tight">Müraciətlər</h1>
-          <p className="text-sm text-muted-foreground mt-1">Vakansiyalar üzrə aktiv müraciətlərin idarə edilməsi</p>
-        </div>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 lg:pl-16 pl-12">
+          <div>
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-foreground tracking-tight">Müraciətlər</h1>
+            <p className="text-sm text-muted-foreground mt-1">Vakansiyalar üzrə aktiv müraciətlərin idarə edilməsi</p>
+          </div>
         <div className="flex items-center gap-2">
             <DropdownMenu>
                 <DropdownMenuTrigger render={
@@ -194,7 +272,16 @@ export default function ApplicationsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border dark:divide-white/5">
-              {filteredApps.map((app, idx) => (
+              {isFetching ? (
+                <tr>
+                   <td colSpan={6} className="px-6 py-20 text-center">
+                     <div className="flex flex-col items-center gap-3">
+                       <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                       <p className="text-sm font-bold text-muted-foreground">Müraciətlər yüklənir...</p>
+                     </div>
+                   </td>
+                </tr>
+              ) : filteredApps.map((app, idx) => (
                 <tr key={app.id} className="group hover:bg-muted/30 transition-all duration-300">
                   <td className="px-6 py-5 text-center text-[10px] font-black text-muted-foreground/20 italic">{idx + 1}</td>
                   <td className="px-6 py-5">
@@ -257,6 +344,11 @@ export default function ApplicationsPage() {
                             </Button>
                         } />
                         <DropdownMenuContent align="end" className="w-40 rounded-2xl p-2 bg-card dark:bg-[#0f172a] border-border dark:border-white/5 shadow-2xl">
+                            <DropdownMenuItem onClick={() => handleViewResume(app.resumeUrl)} className="rounded-xl font-bold px-3 py-2.5 text-xs gap-2">
+                                <FileText size={14} className="text-primary" />
+                                <span>CV-yə bax</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator className="bg-border/50" />
                             <DropdownMenuItem onClick={() => handleDelete(app.id, app.name)} className="rounded-xl font-bold px-3 py-2.5 text-xs text-red-500 gap-2">
                                 <Trash2 size={14} />
                                 <span>Sil</span>
@@ -266,7 +358,7 @@ export default function ApplicationsPage() {
                   </td>
                 </tr>
               ))}
-              {filteredApps.length === 0 && (
+              {!isFetching && filteredApps.length === 0 && (
                 <tr>
                    <td colSpan={6} className="px-6 py-12 text-center text-muted-foreground font-medium">Heç bir müraciət tapılmadı.</td>
                 </tr>
@@ -277,7 +369,14 @@ export default function ApplicationsPage() {
 
         {/* Mobile List View */}
         <div className="lg:hidden divide-y divide-border dark:divide-white/5">
-            {filteredApps.map((app) => (
+            {isFetching ? (
+                <div className="p-12 text-center">
+                    <div className="flex flex-col items-center gap-3">
+                        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                        <p className="text-sm font-bold text-muted-foreground">Müraciətlər yüklənir...</p>
+                    </div>
+                </div>
+            ) : filteredApps.map((app) => (
                 <div key={app.id} className="p-5 space-y-4 hover:bg-muted/30 transition-colors">
                     <div className="flex items-start justify-between gap-4">
                         <div className="flex flex-col min-w-0">
@@ -326,14 +425,31 @@ export default function ApplicationsPage() {
                                 <span className="text-[10px] font-black text-muted-foreground/40 uppercase tracking-tighter">Tarix</span>
                                 <span className="text-xs font-bold text-foreground/80">{new Date(app.appliedAt).toLocaleDateString("az-AZ")}</span>
                             </div>
-                            <Button variant="ghost" size="icon" onClick={() => handleDelete(app.id, app.name)} className="h-8 w-8 rounded-lg text-red-500 hover:bg-red-500/10 transition-all">
-                                <Trash2 size={16} />
-                            </Button>
+                            <div className="flex items-center gap-1">
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger render={
+                                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-muted-foreground hover:bg-primary/10 hover:text-primary transition-all">
+                                            <MoreHorizontal size={18} />
+                                        </Button>
+                                    } />
+                                    <DropdownMenuContent align="end" className="w-40 rounded-2xl p-2 bg-card dark:bg-[#0f172a] border-border dark:border-white/5 shadow-2xl">
+                                        <DropdownMenuItem onClick={() => handleViewResume(app.resumeUrl)} className="rounded-xl font-bold px-3 py-2.5 text-xs gap-2">
+                                            <FileText size={14} className="text-primary" />
+                                            <span>CV-yə bax</span>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuSeparator className="bg-border/50" />
+                                        <DropdownMenuItem onClick={() => handleDelete(app.id, app.name)} className="rounded-xl font-bold px-3 py-2.5 text-xs text-red-500 gap-2">
+                                            <Trash2 size={14} />
+                                            <span>Sil</span>
+                                        </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                            </div>
                         </div>
                     </div>
                 </div>
             ))}
-            {filteredApps.length === 0 && (
+            {!isFetching && filteredApps.length === 0 && (
                 <div className="p-12 text-center text-muted-foreground font-medium">Heç bir müraciət tapılmadı.</div>
             )}
         </div>
