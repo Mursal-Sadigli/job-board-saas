@@ -69,7 +69,7 @@ export default function NotificationsPage() {
           <div className="lg:col-span-2 space-y-6">
             
             {/* E-poçt Bildirişləri */}
-            <div className="bg-card dark:bg-[#0f1423] border border-border dark:border-white/10 rounded-[2.5rem] p-8 shadow-xl shadow-shadow/5 relative overflow-hidden backdrop-blur-xl transition-colors">
+            <div className="bg-card dark:bg-[#0f1423] border border-border dark:border-white/10 rounded-[2.5rem] p-6 sm:p-8 shadow-xl shadow-shadow/5 relative overflow-hidden backdrop-blur-xl transition-colors">
               <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 dark:bg-primary/20 rounded-full -mr-16 -mt-16 blur-2xl" />
               
               <h3 className="text-lg font-black text-foreground mb-8 flex items-center gap-3">
@@ -83,7 +83,7 @@ export default function NotificationsPage() {
                     <p className="text-sm font-bold text-foreground">Yeni Müraciətlər</p>
                     <p className="text-xs text-muted-foreground">Vakansiyalarınıza yeni bir namizəd müraciət etdikdə dərhal xəbərdar olun.</p>
                   </div>
-                  <Switch checked={settings.newApplications} onCheckedChange={() => toggleSetting('newApplications')} className="dark:data-unchecked:bg-slate-700" />
+                  <Switch checked={settings.newApplications} onCheckedChange={() => toggleSetting('newApplications')} className="data-checked:bg-primary" />
                 </div>
                 <div className="h-px bg-border dark:bg-white/10 w-full" />
                 
@@ -92,7 +92,7 @@ export default function NotificationsPage() {
                     <p className="text-sm font-bold text-foreground">Gündəlik Xülasə</p>
                     <p className="text-xs text-muted-foreground">Hər günün sonunda o gün gələn bütün müraciətlərin toplu siyahısını e-poçtla alın.</p>
                   </div>
-                  <Switch checked={settings.dailyDigest} onCheckedChange={() => toggleSetting('dailyDigest')} className="dark:data-unchecked:bg-slate-700" />
+                  <Switch checked={settings.dailyDigest} onCheckedChange={() => toggleSetting('dailyDigest')} className="data-checked:bg-primary" />
                 </div>
                 <div className="h-px bg-border dark:bg-white/10 w-full" />
 
@@ -101,13 +101,13 @@ export default function NotificationsPage() {
                     <p className="text-sm font-bold text-foreground">Namizəd Mesajları</p>
                     <p className="text-xs text-muted-foreground">Namizədlər sizə platforma daxilində mesaj yazdıqda dərhal xəbər verilsin.</p>
                   </div>
-                  <Switch checked={settings.candidateMessages} onCheckedChange={() => toggleSetting('candidateMessages')} className="dark:data-unchecked:bg-slate-700" />
+                  <Switch checked={settings.candidateMessages} onCheckedChange={() => toggleSetting('candidateMessages')} className="data-checked:bg-primary" />
                 </div>
               </div>
             </div>
 
             {/* Sistem və Yeniliklər */}
-            <div className="bg-card dark:bg-[#0f1423] border border-border dark:border-white/10 rounded-[2.5rem] p-8 shadow-xl shadow-shadow/5 backdrop-blur-xl transition-colors">
+            <div className="bg-card dark:bg-[#0f1423] border border-border dark:border-white/10 rounded-[2.5rem] p-6 sm:p-8 shadow-xl shadow-shadow/5 backdrop-blur-xl transition-colors">
               <h3 className="text-lg font-black text-foreground mb-8 flex items-center gap-3">
                 <Sparkles className="text-amber-500" size={20} />
                 Sistem & Yeniliklər
@@ -119,7 +119,7 @@ export default function NotificationsPage() {
                     <p className="text-sm font-bold text-foreground">Vakansiya Xatırlatmaları</p>
                     <p className="text-xs text-muted-foreground">Aktiv vakansiyanızın bitmə müddətinə 3 gün qalmış xatırlatma alın.</p>
                   </div>
-                  <Switch checked={settings.jobExpiry} onCheckedChange={() => toggleSetting('jobExpiry')} className="dark:data-unchecked:bg-slate-700" />
+                  <Switch checked={settings.jobExpiry} onCheckedChange={() => toggleSetting('jobExpiry')} className="data-checked:bg-primary" />
                 </div>
                 <div className="h-px bg-border dark:bg-white/10 w-full" />
                 
@@ -128,7 +128,7 @@ export default function NotificationsPage() {
                     <p className="text-sm font-bold text-foreground">Platforma Yenilikləri</p>
                     <p className="text-xs text-muted-foreground">Yeni xüsusiyyətlər, xəbərlər və endirim kampaniyaları haqqında məlumatlar.</p>
                   </div>
-                  <Switch checked={settings.platformUpdates} onCheckedChange={() => toggleSetting('platformUpdates')} className="dark:data-unchecked:bg-slate-700" />
+                  <Switch checked={settings.platformUpdates} onCheckedChange={() => toggleSetting('platformUpdates')} className="data-checked:bg-primary" />
                 </div>
               </div>
             </div>
@@ -139,7 +139,7 @@ export default function NotificationsPage() {
           <div className="space-y-6">
             
             {/* Push Notifications */}
-            <div className="bg-card dark:bg-[#0f1423] border border-border dark:border-white/10 rounded-[2.5rem] p-8 shadow-xl shadow-shadow/5 relative overflow-hidden transition-all backdrop-blur-xl">
+            <div className="bg-card dark:bg-[#0f1423] border border-border dark:border-white/10 rounded-[2.5rem] p-6 sm:p-8 shadow-xl shadow-shadow/5 relative overflow-hidden transition-all backdrop-blur-xl">
               <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 dark:bg-primary/20 rounded-full -mr-16 -mt-16 blur-2xl" />
               
               <h3 className="text-lg font-black text-foreground mb-6 flex items-center gap-3 relative z-10">
@@ -152,18 +152,20 @@ export default function NotificationsPage() {
               </p>
 
 
-              <div className="flex items-center justify-between bg-muted/50 dark:bg-white/5 rounded-2xl p-4 border border-border dark:border-white/10 relative z-10 backdrop-blur-md">
+              <div className="flex items-center justify-between bg-muted/50 dark:bg-white/5 rounded-2xl p-4 sm:p-5 border border-border dark:border-white/10 relative z-10 backdrop-blur-md">
                 <span className="font-bold text-sm text-foreground">Aktivləşdir</span>
-                <Switch 
-                  checked={settings.pushNotifications} 
-                  onCheckedChange={() => toggleSetting('pushNotifications')}
-                  className="data-unchecked:bg-muted dark:data-unchecked:bg-slate-700 data-checked:bg-emerald-500 border-transparent"
-                />
+                <div className="shrink-0">
+                  <Switch 
+                    checked={settings.pushNotifications} 
+                    onCheckedChange={() => toggleSetting('pushNotifications')}
+                    className="data-checked:bg-primary"
+                  />
+                </div>
               </div>
             </div>
 
             {/* Minimum Rating Filter */}
-            <div className="bg-card dark:bg-[#0f1423] border border-border dark:border-white/10 rounded-[2.5rem] p-8 shadow-xl shadow-shadow/5 backdrop-blur-xl transition-colors">
+            <div className="bg-card dark:bg-[#0f1423] border border-border dark:border-white/10 rounded-[2.5rem] p-6 sm:p-8 shadow-xl shadow-shadow/5 backdrop-blur-xl transition-colors">
               <h3 className="text-lg font-black text-foreground mb-6 flex items-center gap-3">
                 <Star className="text-emerald-500" size={20} />
                 Ağıllı Filtr

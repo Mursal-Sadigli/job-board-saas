@@ -15,7 +15,7 @@ import {
   Banknote,
   X,
 } from "lucide-react";
-import { PostJobModal } from "@/components/employer/PostJobModal";
+import { ApplyModal } from "@/components/jobs/ApplyModal";
 
 interface JobDetailPanelProps {
   job: Job;
@@ -48,9 +48,15 @@ const expLevelConfig: Record<string, string> = {
 
 export default function JobDetailPanel({ job, onClose, onApply }: JobDetailPanelProps) {
   const [logoError, setLogoError] = useState(false);
+  const [isApplied, setIsApplied] = useState(false);
   const locConfig = locationTypeConfig[job.locationType] || locationTypeConfig.any;
   const expLabel = expLevelConfig[job.experienceLevel] || expLevelConfig.any;
   const showLogo = job.companyLogo && !logoError;
+
+  const handleApplySuccess = () => {
+    setIsApplied(true);
+    onApply?.();
+  };
 
   return (
     <div className="flex flex-col h-full bg-card dark:bg-[#0b0e14] border-l border-border dark:border-white/10 relative overflow-hidden backdrop-blur-xl">
@@ -159,11 +165,23 @@ export default function JobDetailPanel({ job, onClose, onApply }: JobDetailPanel
 
       {/* Apply Button Footer */}
       <div className="shrink-0 p-4 sm:p-6 border-t border-border dark:border-white/10 bg-card dark:bg-[#0f1423]">
-        <PostJobModal onSuccess={onApply}>
-          <button className="w-full h-12 rounded-2xl bg-foreground text-background font-bold text-sm hover:opacity-90 transition-all active:scale-[0.98] shadow-lg shadow-black/5">
-            Müraciət Et
+        <ApplyModal 
+          jobTitle={job.title} 
+          companyName={job.company} 
+          onSuccess={handleApplySuccess}
+        >
+          <button 
+            disabled={isApplied}
+            className={cn(
+              "w-full h-12 rounded-2xl font-black text-sm transition-all active:scale-[0.98] shadow-lg",
+              isApplied 
+                ? "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 shadow-none cursor-default" 
+                : "bg-foreground text-background hover:opacity-90 shadow-black/5"
+            )}
+          >
+            {isApplied ? "Müraciət Olundu" : "Müraciət Et"}
           </button>
-        </PostJobModal>
+        </ApplyModal>
       </div>
     </div>
   );

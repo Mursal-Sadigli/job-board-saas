@@ -32,12 +32,12 @@ export default function JobList({ jobs, selectedJobId, onSelect }: JobListProps)
   return (
     <div className="flex flex-col gap-3">
       {/* Count Header */}
-      <div className="flex items-center justify-between mb-1 px-1">
-        <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
-            <Briefcase size={14} className="text-primary" />
+      <div className="flex items-center justify-between mb-0.5 sm:mb-1 px-1">
+        <div className="flex items-center gap-2 sm:gap-2.5">
+          <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+            <Briefcase size={12} className="text-primary sm:size-3.5" />
           </div>
-          <span className="text-sm font-bold text-foreground/80 tracking-tight">
+          <span className="text-[11px] sm:text-sm font-bold text-foreground/80 tracking-tight">
             {jobs.length} vakansiya mövcuddur
           </span>
         </div>

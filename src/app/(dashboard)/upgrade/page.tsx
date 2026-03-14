@@ -21,10 +21,10 @@ export default function UpgradePage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
           {/* Basic Plan */}
           <div className="rounded-2xl border border-border dark:border-slate-800 bg-card dark:bg-[#1C1F26] p-5 sm:p-6 md:p-8 flex flex-col shadow-sm">
-            <h3 className="text-lg md:text-xl font-bold text-foreground mb-1 md:mb-2">Basic</h3>
+            <h3 className="text-lg md:text-xl font-bold text-foreground mb-1 md:mb-2">Başlanğıc</h3>
             <div className="flex items-end gap-1 mb-4 md:mb-6">
               <span className="text-3xl md:text-4xl font-bold text-foreground">
-                ${annual ? 80 * 10 : 80}
+                {annual ? 29 * 10 : 29} ₼
               </span>
               <span className="text-xs md:text-sm text-muted-foreground mb-1">/ ay</span>
             </div>
@@ -73,10 +73,10 @@ export default function UpgradePage() {
             <div className="absolute top-5 right-5 md:top-6 md:right-6 px-2.5 py-1 rounded bg-foreground text-background text-[10px] font-bold tracking-wide">
               Aktiv
             </div>
-            <h3 className="text-lg md:text-xl font-bold text-foreground mb-1 md:mb-2">Growth</h3>
+            <h3 className="text-lg md:text-xl font-bold text-foreground mb-1 md:mb-2">İnkişaf</h3>
             <div className="flex items-end gap-1 mb-4 md:mb-6">
               <span className="text-3xl md:text-4xl font-bold text-foreground">
-                ${annual ? 200 * 10 : 200}
+                {annual ? 79 * 10 : 79} ₼
               </span>
               <span className="text-xs md:text-sm text-muted-foreground mb-1">/ ay</span>
             </div>
@@ -126,10 +126,10 @@ export default function UpgradePage() {
 
           {/* Enterprise Plan */}
           <div className="rounded-2xl border border-border dark:border-slate-800 bg-card dark:bg-[#1C1F26] p-5 sm:p-6 md:p-8 flex flex-col shadow-sm">
-            <h3 className="text-lg md:text-xl font-bold text-foreground mb-1 md:mb-2">Enterprise</h3>
+            <h3 className="text-lg md:text-xl font-bold text-foreground mb-1 md:mb-2">Korporativ</h3>
             <div className="flex items-end gap-1 mb-4 md:mb-6">
               <span className="text-3xl md:text-4xl font-bold text-foreground">
-                ${annual ? 800 * 10 : 800}
+                {annual ? 199 * 10 : 199} ₼
               </span>
               <span className="text-xs md:text-sm text-muted-foreground mb-1">/ ay</span>
             </div>

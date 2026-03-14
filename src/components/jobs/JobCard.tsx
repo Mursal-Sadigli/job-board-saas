@@ -61,25 +61,25 @@ export default function JobCard({ job, onClick, isSelected }: JobCardProps) {
     <div 
       onClick={onClick}
       className={cn(
-        "border rounded-2xl p-4 sm:p-5 cursor-pointer group transition-all duration-200 relative overflow-hidden backdrop-blur-xl",
+        "border rounded-2xl p-4 sm:p-5 cursor-pointer group transition-all duration-300 relative overflow-hidden backdrop-blur-xl",
         job.featured 
-          ? "bg-white dark:bg-[#1e1424] shadow-lg shadow-purple-500/5 dark:shadow-purple-500/10" 
-          : "bg-card",
+          ? "bg-white dark:bg-purple-950/20 shadow-lg shadow-purple-500/5 dark:shadow-purple-950/40 border-purple-500/20 dark:border-purple-500/40" 
+          : "bg-card dark:bg-slate-900/40 border-border dark:border-white/20 shadow-sm dark:shadow-black/20",
         isSelected
           ? "border-primary ring-2 ring-primary/20 shadow-md dark:ring-white/10"
           : job.featured
-            ? "border-purple-500/20 dark:border-purple-500/30 hover:border-purple-500/40"
-            : "border-border dark:border-white/10 hover:border-primary/20 hover:shadow-sm"
+            ? "hover:border-purple-500/40"
+            : "hover:border-primary/20 hover:shadow-md"
       )}
     >
       {/* Background Glow for Featured */}
       {job.featured && (
-        <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 rounded-full -mr-16 -mt-16 pointer-events-none" />
+        <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 dark:bg-purple-500/10 rounded-full -mr-16 -mt-16 pointer-events-none" />
       )}
 
       <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6 relative z-10">
         {/* Company Logo */}
-        <div className="shrink-0 flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-[1.25rem] bg-background border border-border overflow-hidden shadow-sm group-hover:scale-105 transition-transform duration-500">
+        <div className="shrink-0 flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-[1.25rem] bg-background dark:bg-slate-900 border border-border dark:border-white/10 overflow-hidden shadow-sm group-hover:scale-105 transition-transform duration-500">
           {showLogo ? (
             <img
               src={job.companyLogo}

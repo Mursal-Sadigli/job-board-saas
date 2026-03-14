@@ -8,6 +8,7 @@ import JobFiltersPanel from "@/components/jobs/JobFilters";
 import JobList from "@/components/jobs/JobList";
 import JobDetailPanel from "@/components/jobs/JobDetailPanel";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { cn } from "@/utils/cn";
 
 export default function JobBoardPage() {
   const { jobs, filters, setFilters, applyFilters, resetFilters } = useJobs();
@@ -107,12 +108,16 @@ export default function JobBoardPage() {
 
       {/* Middle: Job list */}
       <main
-        style={{ width: selectedJob ? `${leftWidth}px` : "100%" }}
-        className={`
-          h-full overflow-y-auto bg-muted/5 dark:bg-white/2 transition-all duration-300
-          ${selectedJob ? "lg:shrink-0" : "flex-1"}
-          px-4 py-5
-        `}
+        style={{ 
+          width: (selectedJob && typeof window !== 'undefined' && window.innerWidth >= 1024) 
+            ? `${leftWidth}px` 
+            : "100%" 
+        }}
+        className={cn(
+          "h-full overflow-y-auto bg-muted/5 dark:bg-white/2 transition-all duration-300",
+          selectedJob ? "lg:shrink-0" : "flex-1",
+          "px-4 py-3 sm:py-5"
+        )}
       >
         <div className="hidden lg:flex items-center justify-between mb-6">
           <div className="space-y-0.5">
@@ -161,7 +166,7 @@ export default function JobBoardPage() {
       <Sheet open={isDetailOpen} onOpenChange={setIsDetailOpen}>
         <SheetContent 
           side="bottom" 
-          className="p-0 h-[90vh]! max-h-[90vh]! rounded-t-4xl overflow-hidden border-none lg:hidden"
+          className="p-0 h-[92vh] max-h-[92vh] rounded-t-[2.5rem] overflow-hidden border-none lg:hidden"
           showCloseButton={false}
         >
           {selectedJob && (
