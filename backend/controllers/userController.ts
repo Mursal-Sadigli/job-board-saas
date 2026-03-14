@@ -33,9 +33,13 @@ export const syncUser = async (req: any, res: Response) => {
         name,
         role,
       },
+      include: { resumes: true }
     });
 
-    res.status(200).json(user);
+    res.status(200).json({
+      ...user,
+      resumes: user.resumes
+    });
   } catch (error) {
     console.error('User sync error:', error);
     res.status(500).json({ message: 'İstifadəçi sinxronizasiyası zamanı xəta baş verdi' });
@@ -121,7 +125,11 @@ export const getUserResumes = async (req: any, res: Response) => {
       return res.status(404).json({ message: 'İstifadəçi tapılmadı' });
     }
 
-    res.status(200).json(user.resumes);
+    res.status(200).json({
+      resumes: user.resumes,
+      cvUploadCount: user.cvUploadCount,
+      plan: user.plan
+    });
   } catch (error) {
     console.error('Get resumes error:', error);
     res.status(500).json({ message: 'CV-ləri gətirərkən xəta baş verdi' });

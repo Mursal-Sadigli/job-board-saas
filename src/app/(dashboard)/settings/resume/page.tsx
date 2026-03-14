@@ -17,11 +17,13 @@ import { Button } from "@/components/ui/button";
 export default function ResumePage() {
   const {
     resumes,
+    userStats,
     previewUrl,
     uploadResume,
     removeResume,
     openPreview,
     closePreview,
+    loading
   } = useResume();
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -36,36 +38,72 @@ export default function ResumePage() {
     });
   };
 
+  const limit = 5;
+  const remaining = Math.max(0, limit - userStats.cvUploadCount);
+  const progress = Math.min(100, (userStats.cvUploadCount / limit) * 100);
+  const isPremium = userStats.plan === 'LIFETIME';
+
   return (
     <div className="h-full overflow-y-auto px-6 py-6 bg-background">
       {/* Page header */}
-      <div className="mb-6">
-        <div className="flex items-center gap-2 mb-1">
-          <FileText size={20} className="text-foreground" />
-          <h1 className="text-xl font-bold text-foreground">
-            CV
-          </h1>
+      <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <FileText size={20} className="text-foreground" />
+            <h1 className="text-xl font-bold text-foreground">
+              CV-lərim
+            </h1>
+            {isPremium && (
+              <span className="ml-2 bg-primary/10 text-primary text-[10px] font-bold px-2 py-0.5 rounded-full border border-primary/20 uppercase tracking-wider">
+                Premium
+              </span>
+            )}
+          </div>
+          <p className="text-sm text-muted-foreground">
+            İş müraciətləri üçün CV-lərinizi idarə edin.
+          </p>
         </div>
-        <p className="text-sm text-muted-foreground">
-          İş müraciətləri üçün CV yükləyin
-        </p>
+
+        {!isPremium && (
+          <div className="bg-card border border-border rounded-2xl p-4 w-full md:w-64 shadow-sm animate-in fade-in slide-in-from-right-4 duration-500">
+            <div className="flex justify-between items-end mb-2">
+              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-tight">Limit</span>
+              <span className="text-sm font-bold text-foreground">{userStats.cvUploadCount} / {limit}</span>
+            </div>
+            <div className="h-2 w-full bg-muted rounded-full overflow-hidden mb-2">
+              <div 
+                className={`h-full transition-all duration-500 rounded-full ${
+                  progress >= 100 ? 'bg-red-500' : progress > 70 ? 'bg-orange-500' : 'bg-primary'
+                }`}
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+            <p className="text-[10px] text-muted-foreground text-center">
+              {remaining > 0 ? `${remaining} yükləmə haqqınız qalıb` : "Limitiniz bitib"}
+            </p>
+          </div>
+        )}
       </div>
 
       <div className="flex flex-col gap-6 max-w-2xl">
         {/* Upload area */}
         <div
-          className={`border-2 border-dashed rounded-xl p-10 text-center cursor-pointer transition-all duration-200 ${
-            dragging
-              ? "border-foreground bg-muted/30"
-              : "border-border bg-card hover:border-muted-foreground/40 hover:bg-muted/20"
+          className={`border-2 border-dashed rounded-xl p-10 text-center transition-all duration-200 ${
+            remaining === 0 && !isPremium
+              ? "border-red-500/30 bg-red-500/5 cursor-not-allowed"
+              : dragging
+              ? "border-foreground bg-muted/30 cursor-pointer"
+              : "border-border bg-card hover:border-muted-foreground/40 hover:bg-muted/20 cursor-pointer"
           }`}
-          onClick={() => inputRef.current?.click()}
+          onClick={() => remaining === 0 && !isPremium ? null : inputRef.current?.click()}
           onDragOver={(e) => {
+            if (remaining === 0 && !isPremium) return;
             e.preventDefault();
             setDragging(true);
           }}
           onDragLeave={() => setDragging(false)}
           onDrop={(e) => {
+            if (remaining === 0 && !isPremium) return;
             e.preventDefault();
             setDragging(false);
             handleFiles(e.dataTransfer.files);
@@ -78,19 +116,41 @@ export default function ResumePage() {
             className="hidden"
             multiple
             onChange={(e) => handleFiles(e.target.files)}
+            disabled={remaining === 0 && !isPremium}
           />
           <div className="flex flex-col items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-muted text-muted-foreground border border-border">
-              <Upload size={24} />
+            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center border ${
+              remaining === 0 && !isPremium 
+                ? "bg-red-500/10 text-red-500 border-red-500/20" 
+                : "bg-muted text-muted-foreground border-border"
+            }`}>
+              {remaining === 0 && !isPremium ? <X size={24} /> : <Upload size={24} />}
             </div>
             <div>
-              <p className="font-semibold text-foreground">
-                Yükləmək və ya sürükləyib buraxmaq üçün klikləyin
+              <p className={`font-semibold ${remaining === 0 && !isPremium ? "text-red-600" : "text-foreground"}`}>
+                {remaining === 0 && !isPremium 
+                  ? "Yükləmə limiti bitib" 
+                  : "Yükləmək və ya sürükləyib buraxmaq üçün klikləyin"}
               </p>
               <p className="text-sm mt-1 text-muted-foreground">
-                Yalnız PDF faylları (maks. 5MB)
+                {remaining === 0 && !isPremium 
+                  ? "Yeni CV yükləmək üçün Premium paketi seçin" 
+                  : "Yalnız PDF faylları (maks. 5MB)"}
               </p>
             </div>
+            {remaining === 0 && !isPremium && (
+              <Button 
+                variant="destructive" 
+                size="sm" 
+                className="mt-2"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  window.location.href = '/upgrade';
+                }}
+              >
+                İndi Yüksəlt
+              </Button>
+            )}
           </div>
         </div>
 
