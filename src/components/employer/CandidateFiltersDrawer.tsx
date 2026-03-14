@@ -79,7 +79,7 @@ export function CandidateFiltersDrawer({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent showCloseButton={false} className="w-full sm:max-w-md p-0 border-l border-border dark:border-white/10 bg-background dark:bg-[#020617] overflow-hidden flex flex-col shadow-2xl">
+      <SheetContent showCloseButton={false} className="w-full sm:max-w-[380px] p-0 border-l border-border dark:border-white/10 bg-background dark:bg-[#020617] overflow-hidden flex flex-col shadow-2xl">
         {/* Header */}
         <div className="p-6 sm:p-8 flex items-center justify-between border-b border-border dark:border-white/5 bg-slate-50/50 dark:bg-white/5 backdrop-blur-md">
           <div className="flex items-center gap-3">

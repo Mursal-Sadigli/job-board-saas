@@ -86,9 +86,17 @@ export function ResumeAnalysisModal({ open, onOpenChange, onAnalysisComplete }: 
         clearInterval(stepInterval);
         setTimeout(() => {
           setStatus("completed");
-          // Mock extracted data
+          // Mock name extraction from file name
+          const fileName = file?.name || "Yeni Namizəd";
+          const extractedName = fileName
+            .split(".")[0]
+            .replace(/[_-]/g, " ")
+            .split(/\s+/)
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+            .join(" ");
+
           const mockResult = {
-            name: "Yeni Namizəd",
+            name: extractedName,
             email: "extracted@example.com",
             skills: ["React", "TypeScript", "Node.js"],
             matchingScore: Math.floor(Math.random() * (95 - 70 + 1)) + 70,
@@ -102,8 +110,8 @@ export function ResumeAnalysisModal({ open, onOpenChange, onAnalysisComplete }: 
 
   return (
     <Dialog open={open} onOpenChange={(v) => { if (status !== "analyzing") onOpenChange(v); if (!v) reset(); }}>
-      <DialogContent className="sm:max-w-[500px] rounded-3xl border-border/60 dark:border-white/5 bg-card dark:bg-[#020617] backdrop-blur-3xl overflow-hidden p-0 gap-0">
-        <DialogHeader className="p-6 bg-muted/30 dark:bg-white/5 border-b border-border/50 dark:border-white/5">
+      <DialogContent className="w-[calc(100vw-2rem)] sm:max-w-[500px] rounded-3xl border-border/60 dark:border-white/5 bg-card dark:bg-[#020617] backdrop-blur-3xl overflow-hidden p-0 gap-0">
+        <DialogHeader className="p-4 sm:p-6 bg-muted/30 dark:bg-white/5 border-b border-border/50 dark:border-white/5">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
               <Sparkles size={20} />
@@ -117,11 +125,11 @@ export function ResumeAnalysisModal({ open, onOpenChange, onAnalysisComplete }: 
           </div>
         </DialogHeader>
 
-        <div className="p-8">
+        <div className="p-5 sm:p-8">
           {status === "idle" && (
             <div 
               onClick={() => fileInputRef.current?.click()}
-              className="border-2 border-dashed border-border dark:border-white/10 rounded-3xl p-10 flex flex-col items-center justify-center gap-4 cursor-pointer hover:border-primary/40 hover:bg-primary/5 transition-all group"
+              className="border-2 border-dashed border-border dark:border-white/10 rounded-3xl p-6 sm:p-10 flex flex-col items-center justify-center gap-4 cursor-pointer hover:border-primary/40 hover:bg-primary/5 transition-all group"
             >
               <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept=".pdf,.doc,.docx" />
               <div className="w-16 h-16 rounded-2xl bg-muted dark:bg-white/5 group-hover:bg-primary/10 flex items-center justify-center text-muted-foreground/60 group-hover:text-primary transition-all">
@@ -134,7 +142,7 @@ export function ResumeAnalysisModal({ open, onOpenChange, onAnalysisComplete }: 
               {file && (
                 <div className="mt-2 flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-bold animate-in zoom-in">
                   <FileText size={14} />
-                  {file.name}
+                  <span className="max-w-[150px] truncate">{file.name}</span>
                   <X size={14} className="cursor-pointer hover:opacity-70" onClick={(e) => { e.stopPropagation(); setFile(null); }} />
                 </div>
               )}
