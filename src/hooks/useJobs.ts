@@ -19,7 +19,7 @@ export function useJobs() {
           const mappedJobs = data.map((j: any) => ({
             ...j,
             company: j.employer?.companyName || j.company,
-            companyLogo: j.employer?.logoUrl || "/images/logos/google.png", // fallback
+            companyLogo: j.logoUrl || j.employer?.logoUrl || "/images/logos/google.png", // fallback to job logo, then employer logo, then default
             // city and state are missing in DB currently, we extract from location if possible
             city: j.location?.split(',')[0]?.trim() || "",
             state: j.location?.split(',')[1]?.trim() || "any",
