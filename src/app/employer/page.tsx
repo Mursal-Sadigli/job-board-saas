@@ -174,6 +174,7 @@ function mapApiJobToJob(apiJob: any): Job {
     city,
     district,
     deadline: apiJob.deadline || "",
+    logoUrl: apiJob.logoUrl || "",
     applicants: (apiJob.applications || []).map(mapApiAppToApplicant),
   };
 }
@@ -618,9 +619,16 @@ function EmployerJobDetail({
     <div className="w-full">
       {/* Header Section */}
       <div className="flex flex-col gap-6 mb-8">
-        <h1 className="text-2xl sm:text-3xl font-bold text-foreground leading-tight">
-          {job.title}
-        </h1>
+        <div className="flex items-start gap-4">
+          {job.logoUrl && (
+            <div className="w-16 h-16 rounded-xl overflow-hidden border border-border shadow-sm shrink-0 bg-white">
+              <img src={job.logoUrl} alt={job.title} className="w-full h-full object-contain" />
+            </div>
+          )}
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground leading-tight">
+            {job.title}
+          </h1>
+        </div>
 
         <div className="flex flex-wrap items-center justify-between gap-6">
           {/* Badges Row */}
@@ -793,9 +801,13 @@ function JobCard({
       "rounded-2xl border border-border dark:border-white/10 bg-card p-5 flex flex-col lg:flex-row lg:items-center gap-4 hover:shadow-lg dark:hover:shadow-white/5 transition-all cursor-pointer group backdrop-blur-xl",
       isSelected && "ring-2 ring-foreground/20 dark:ring-white/20"
     )}>
-      {/* Icon */}
-      <div className="w-11 h-11 rounded-xl bg-muted dark:bg-white/5 flex items-center justify-center shrink-0">
-        <Briefcase size={20} className="text-muted-foreground" />
+      {/* Icon/Logo */}
+      <div className="w-11 h-11 rounded-xl bg-muted dark:bg-white/5 flex items-center justify-center shrink-0 overflow-hidden border border-border/50">
+        {job.logoUrl ? (
+          <img src={job.logoUrl} alt={job.title} className="w-full h-full object-contain" />
+        ) : (
+          <Briefcase size={20} className="text-muted-foreground" />
+        )}
       </div>
 
       {/* Info */}
@@ -936,13 +948,24 @@ export default function EmployerPage() {
         : `${API_BASE}/api/jobs`;
       const method = isEdit ? "PATCH" : "POST";
 
+      // Create FormData
+      const formData = new FormData();
+      Object.entries(data).forEach(([key, value]) => {
+        if (key === 'logoFile' && value) {
+          formData.append('logo', value as File);
+        } else if (key === 'logoUrl') {
+          // don't send base64 logoUrl to backend
+        } else if (value !== undefined && value !== null) {
+          formData.append(key, value.toString());
+        }
+      });
+
       const res = await fetch(url, {
         method,
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(data),
+        body: formData,
       });
 
       if (!res.ok) throw new Error("Job save failed");

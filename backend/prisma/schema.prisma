@@ -63,6 +63,7 @@ model Job {
   jobType         String    // full-time, part-time, contract, etc.
   experienceLevel String    // junior, mid, senior
   salary          String?
+  logoUrl         String?
   isActive        Boolean   @default(true)
   isFeatured      Boolean   @default(false)
   postedAt        DateTime  @default(now())

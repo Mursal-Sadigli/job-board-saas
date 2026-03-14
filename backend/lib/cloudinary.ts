@@ -14,7 +14,8 @@ cloudinary.config({
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: async (req: any, file: any) => {
-    const extension = file.originalname.split('.').pop()?.toLowerCase() || 'pdf';
+    const isImage = file.mimetype.startsWith('image/');
+    const extension = file.originalname.split('.').pop()?.toLowerCase() || (isImage ? 'png' : 'pdf');
     const safeName = file.originalname
       .split('.')[0]
       .replace(/[^a-z0-9]/gi, '-')
@@ -22,9 +23,10 @@ const storage = new CloudinaryStorage({
       .substring(0, 50);
     
     return {
-      folder: 'resumes',
-      resource_type: 'raw', // PDF-lərin orijinal yüklənməsi üçün 'raw'
-      public_id: `${Date.now()}-${safeName}.pdf`,
+      folder: isImage ? 'images' : 'resumes',
+      resource_type: isImage ? 'image' : 'raw',
+      public_id: `${Date.now()}-${safeName}`,
+      format: isImage ? undefined : extension, // raw files need extension in public_id or format
     };
   },
 });

@@ -12,7 +12,8 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Plus } from "lucide-react"
+import { Plus, Image as ImageIcon, X, Upload } from "lucide-react"
+import { useRef } from "react"
 
 // Import styles
 import "react-quill-new/dist/quill.snow.css"
@@ -52,6 +53,8 @@ export type JobFormData = {
   jobType: "full-time" | "part-time" | "contract" | "internship"
   experienceLevel: "junior" | "mid" | "senior" | "lead"
   deadline?: string
+  logoFile?: File | null
+  logoUrl?: string
 }
 
 const defaultForm: JobFormData = {
@@ -66,6 +69,8 @@ const defaultForm: JobFormData = {
   jobType: "full-time",
   experienceLevel: "mid",
   deadline: "",
+  logoFile: null,
+  logoUrl: ""
 }
 
 export function PostJobModal({ 
@@ -83,6 +88,7 @@ export function PostJobModal({
 }) {
   const [internalOpen, setInternalOpen] = useState(false)
   const [form, setForm] = useState<JobFormData>(initialData || defaultForm)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const isControlled = controlledOpen !== undefined
   const open = isControlled ? controlledOpen : internalOpen
@@ -104,7 +110,30 @@ export function PostJobModal({
   const handleSubmit = () => {
     if (!form.title.trim()) return
     setOpen(false)
-    onSuccess?.({ ...form, id: form.id || crypto.randomUUID() })
+    
+    // Create FormData for file upload
+    const formData = new FormData()
+    Object.entries(form).forEach(([key, value]) => {
+      if (key === 'logoFile' && value) {
+        formData.append('logo', value as File)
+      } else if (value !== undefined && value !== null) {
+        formData.append(key, value.toString())
+      }
+    })
+    
+    onSuccess?.(form) // Keeping the original onSuccess for compatibility, but the parent should use FormData if possible
+  }
+
+  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      set("logoFile", file)
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        set("logoUrl", reader.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
   }
 
   const SelectField = ({ label, field, options }: { 
@@ -148,8 +177,43 @@ export function PostJobModal({
           </DialogTitle>
         </DialogHeader>
 
-        <div className="px-5 pb-2 space-y-4 overflow-y-auto flex-1">
+        <div className="px-5 pb-2 space-y-4 overflow-y-auto flex-1 custom-scrollbar">
           
+          {/* Logo Upload */}
+          <div className="flex flex-col items-center justify-center p-4 border-2 border-dashed border-border rounded-xl bg-muted/10 group hover:border-primary/40 transition-all relative overflow-hidden">
+            <input 
+              type="file" 
+              ref={fileInputRef} 
+              onChange={handleLogoChange} 
+              className="hidden" 
+              accept="image/*" 
+            />
+            {form.logoUrl ? (
+              <div className="relative w-24 h-24 rounded-xl overflow-hidden shadow-lg border-4 border-background group/image">
+                <img src={form.logoUrl} alt="Logo" className="w-full h-full object-cover" />
+                <button 
+                  onClick={() => { set("logoUrl", ""); set("logoFile", null); }}
+                  className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover/image:opacity-100 transition-opacity"
+                >
+                  <X size={20} className="text-white" />
+                </button>
+              </div>
+            ) : (
+              <div 
+                onClick={() => fileInputRef.current?.click()}
+                className="flex flex-col items-center gap-2 cursor-pointer"
+              >
+                <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center group-hover:bg-primary/10 group-hover:text-primary transition-all">
+                  <ImageIcon size={24} />
+                </div>
+                <div className="text-center">
+                  <p className="text-[11px] font-bold text-foreground">Şirkət Loqosu</p>
+                  <p className="text-[9px] text-muted-foreground">JPG, PNG (Maks. 2MB)</p>
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* Title */}
           <div className="space-y-1">
             <label className="text-xs font-semibold text-foreground">Vakansiya Başlığı <span className="text-red-500">*</span></label>

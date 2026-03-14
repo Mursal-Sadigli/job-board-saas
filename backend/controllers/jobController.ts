@@ -68,6 +68,8 @@ export const createJob = async (req: any, res: Response) => {
       jobType, experienceLevel, salary, city, district, deadline, isFeatured
     } = req.body;
 
+    const logoUrl = req.file ? req.file.path : undefined;
+
     const newJob = await prisma.job.create({
       data: {
         title,
@@ -78,7 +80,8 @@ export const createJob = async (req: any, res: Response) => {
         jobType,
         experienceLevel,
         salary,
-        isFeatured: isFeatured || false,
+        logoUrl,
+        isFeatured: isFeatured === 'true' || isFeatured === true, // handle string from FormData
         employerId: user.id
       }
     });
@@ -107,6 +110,8 @@ export const updateJob = async (req: any, res: Response) => {
     const existing = await prisma.job.findFirst({ where: { id, employerId: user.id } });
     if (!existing) return res.status(404).json({ message: 'Elan tapılmadı' });
 
+    const logoUrl = req.file ? req.file.path : undefined;
+
     const updated = await prisma.job.update({
       where: { id },
       data: {
@@ -117,8 +122,9 @@ export const updateJob = async (req: any, res: Response) => {
         ...(jobType !== undefined && { jobType }),
         ...(experienceLevel !== undefined && { experienceLevel }),
         ...(salary !== undefined && { salary }),
-        ...(isActive !== undefined && { isActive }),
-        ...(isFeatured !== undefined && { isFeatured }),
+        ...(isActive !== undefined && (isActive === 'true' || isActive === true ? { isActive: true } : { isActive: false })),
+        ...(isFeatured !== undefined && (isFeatured === 'true' || isFeatured === true ? { isFeatured: true } : { isFeatured: false })),
+        ...(logoUrl && { logoUrl }),
         ...((city !== undefined || district !== undefined) && {
           location: [city ?? '', district ?? ''].filter(Boolean).join(', ')
         }),
