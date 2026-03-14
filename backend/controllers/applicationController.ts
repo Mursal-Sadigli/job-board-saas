@@ -286,3 +286,90 @@ export const deleteApplication = async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Müraciət silinərkən xəta baş verdi', error });
   }
 };
+
+export const getCandidates = async (req: any, res: Response) => {
+  try {
+    const clerkId = req.auth.userId;
+
+    // Find employer
+    const employer = await prisma.user.findUnique({
+      where: { clerkId },
+      include: {
+        jobs: {
+          include: {
+            applications: {
+              include: {
+                candidate: true
+              }
+            }
+          }
+        }
+      }
+    });
+
+    if (!employer) {
+      return res.status(404).json({ message: 'İşəgötürən tapılmadı' });
+    }
+
+    // 1. Get all candidates who applied to employer's jobs
+    const candidatesMap = new Map<string, any>();
+    
+    employer.jobs.forEach(job => {
+      job.applications.forEach(app => {
+        const candidate = app.candidate;
+        if (!candidatesMap.has(candidate.email)) {
+          candidatesMap.set(candidate.email, {
+            id: candidate.id,
+            name: candidate.name || `${candidate.firstName || ''} ${candidate.lastName || ''}`.trim() || 'Anonim',
+            email: candidate.email,
+            location: candidate.location || 'Bakı, Azərbaycan',
+            experienceYears: 0, // Profile-də illərlə təcrübə sahəsi yoxdursa
+            skills: candidate.skills || [],
+            education: (candidate.education as any) || [],
+            matchingScore: app.rating * 20, // 1-5 to 0-100
+            analysisStatus: 'completed',
+            appliedAt: app.appliedAt,
+            status: app.stage,
+            appliedJobId: job.id,
+            appliedJobTitle: job.title
+          });
+        }
+      });
+    });
+
+    // 2. Get all resumes in Talent Pool (Resume model)
+    const resumes = await prisma.resume.findMany({
+      include: {
+        user: true
+      }
+    });
+
+    resumes.forEach(resume => {
+      const user = resume.user;
+      if (!candidatesMap.has(user.email)) {
+        candidatesMap.set(user.email, {
+          id: user.id,
+          name: user.name || `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Anonim',
+          email: user.email,
+          location: user.location || 'Bakı, Azərbaycan',
+          experienceYears: 0,
+          skills: user.skills || [],
+          education: (user.education as any) || [],
+          matchingScore: 0,
+          analysisStatus: 'completed',
+          appliedAt: resume.createdAt,
+          status: 'Applied',
+          appliedJobTitle: 'İstedad Hovuzu'
+        });
+      }
+    });
+
+    const finalCandidates = Array.from(candidatesMap.values())
+      .sort((a, b) => new Date(b.appliedAt).getTime() - new Date(a.appliedAt).getTime());
+
+    res.json(finalCandidates);
+  } catch (error: any) {
+    console.error('getCandidates error:', error);
+    res.status(500).json({ message: 'Namizədləri gətirərkən xəta baş verdi', error: error.message });
+  }
+};

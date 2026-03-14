@@ -22,31 +22,55 @@ import {
     SelectValue 
 } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
+import { useAuth } from "@clerk/nextjs";
 
 interface InterviewModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess: (data: any) => void;
   initialCandidateName?: string;
+  initialCandidateEmail?: string;
+  editingInterview?: any;
 }
 
-export function InterviewModal({ open, onOpenChange, onSuccess, initialCandidateName }: InterviewModalProps) {
+export function InterviewModal({ open, onOpenChange, onSuccess, initialCandidateName, initialCandidateEmail, editingInterview }: InterviewModalProps) {
+  const { getToken } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [candidateName, setCandidateName] = useState(initialCandidateName || "");
+  const [candidateName, setCandidateName] = useState("");
+  const [candidateEmail, setCandidateEmail] = useState("");
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [type, setType] = useState("Online");
+  const [location, setLocation] = useState("");
+  const [link, setLink] = useState("");
+  const [notes, setNotes] = useState("");
 
-  // Namizəd adı kənardan gəldikdə onu set et
+  // Namizəd adı və ya redaktə datası kənardan gəldikdə onu set et
   useEffect(() => {
-    if (open && initialCandidateName) {
-      setCandidateName(initialCandidateName);
-    } else if (!open) {
-      setCandidateName(initialCandidateName || "");
+    if (open) {
+      if (editingInterview) {
+        setCandidateName(editingInterview.candidateName || "");
+        setCandidateEmail(editingInterview.candidateEmail || "");
+        setDate(editingInterview.date || "");
+        setTime(editingInterview.time || "");
+        setType(editingInterview.type || "Online");
+        setLocation(editingInterview.location || "");
+        setLink(editingInterview.link || "");
+        setNotes(editingInterview.notes || "");
+      } else {
+        setCandidateName(initialCandidateName || "");
+        setCandidateEmail(initialCandidateEmail || "");
+        setDate("");
+        setTime("");
+        setType("Online");
+        setLocation("");
+        setLink("");
+        setNotes("");
+      }
     }
-  }, [open, initialCandidateName]);
+  }, [open, initialCandidateName, initialCandidateEmail, editingInterview]);
 
-  const handleCreate = () => {
+  const handleCreate = async () => {
     if (!candidateName || !date || !time) {
         toast({
             title: "Xəta",
@@ -57,31 +81,56 @@ export function InterviewModal({ open, onOpenChange, onSuccess, initialCandidate
     }
 
     setLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      setLoading(false);
-      onOpenChange(false);
-      onSuccess({
-          id: Math.random().toString(),
-          candidateName: candidateName,
-          role: "Developer",
-          date: date,
-          time: time,
-          type: type,
-          status: "Upcoming",
-          interviewer: "Siz"
+    try {
+      const token = await getToken();
+      const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      
+      const url = editingInterview 
+        ? `${API_BASE}/api/interviews/${editingInterview.id}`
+        : `${API_BASE}/api/interviews`;
+      
+      const method = editingInterview ? 'PUT' : 'POST';
+
+      const response = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          candidateName,
+          candidateEmail,
+          date,
+          time,
+          type,
+          location: type === "Ofisdə" ? location : "",
+          link: type === "Online" ? link : "",
+          notes
+        }),
       });
+
+      if (response.ok) {
+        const data = await response.json();
+        onSuccess(data);
+        toast({
+          title: editingInterview ? "Müsahibə Yeniləndi!" : "Müsahibə Yaradıldı!",
+          description: `${candidateName} ilə müsahibə ${editingInterview ? 'yeniləndi' : 'cədvələ əlavə edildi'}.`,
+          type: "success"
+        });
+        onOpenChange(false);
+      } else {
+        throw new Error("Müsahibə əməliyyatı uğursuz oldu");
+      }
+    } catch (error) {
+      console.error("Create interview error:", error);
       toast({
-        title: "Müsahibə Yaradıldı!",
-        description: `${candidateName} ilə müsahibə cədvələ əlavə edildi.`,
-        type: "success"
+        title: "Xəta",
+        description: "Müsahibə yaradılarkən problem baş verdi.",
+        type: "error"
       });
-      // Reset form
-      setCandidateName("");
-      setDate("");
-      setTime("");
-      setType("Online");
-    }, 1500);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -155,6 +204,46 @@ export function InterviewModal({ open, onOpenChange, onSuccess, initialCandidate
                 <SelectItem value="Telefon" className="rounded-xl p-3 font-bold">Telefon danışığı</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+
+          {type === "Online" && (
+            <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
+              <label className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-muted-foreground ml-1">Müsahibə Linki (Zoom/Meet)</label>
+              <div className="relative group">
+                <Video className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/40 group-focus-within:text-primary transition-colors" size={16} />
+                <Input 
+                  placeholder="https://zoom.us/j/..." 
+                  value={link}
+                  onChange={(e) => setLink(e.target.value)}
+                  className="pl-11 h-12 sm:h-14 rounded-2xl bg-muted/20 dark:bg-white/5 border-border dark:border-white/5 focus:ring-4 focus:ring-primary/5 font-bold text-sm sm:text-base"
+                />
+              </div>
+            </div>
+          )}
+
+          {type === "Ofisdə" && (
+            <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
+              <label className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-muted-foreground ml-1">Ofis Ünvanı</label>
+              <div className="relative group">
+                <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/40 group-focus-within:text-primary transition-colors" size={16} />
+                <Input 
+                  placeholder="Məs: Bakı ş., Nizami k. 10..." 
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                  className="pl-11 h-12 sm:h-14 rounded-2xl bg-muted/20 dark:bg-white/5 border-border dark:border-white/5 focus:ring-4 focus:ring-primary/5 font-bold text-sm sm:text-base"
+                />
+              </div>
+            </div>
+          )}
+
+          <div className="space-y-2">
+            <label className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-muted-foreground ml-1">Əlavə Qeydlər</label>
+            <Input 
+              placeholder="Namizəd üçün əlavə məlumat..." 
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              className="h-12 sm:h-14 rounded-2xl bg-muted/20 dark:bg-white/5 border-border dark:border-white/5 focus:ring-4 focus:ring-primary/5 font-bold text-sm sm:text-base px-5"
+            />
           </div>
         </div>
 

@@ -56,6 +56,7 @@ export default function TalentPoolPage() {
   const [analysisOpen, setAnalysisOpen] = useState(false);
   const [interviewModalOpen, setInterviewModalOpen] = useState(false);
   const [interviewCandidateName, setInterviewCandidateName] = useState("");
+  const [interviewCandidateEmail, setInterviewCandidateEmail] = useState("");
 
   // Fix hydration mismatch for persisted store
   useEffect(() => {
@@ -355,6 +356,7 @@ export default function TalentPoolPage() {
                     <DropdownMenuItem 
                       onClick={() => {
                         setInterviewCandidateName(talent.name);
+                        setInterviewCandidateEmail(talent.email);
                         setInterviewModalOpen(true);
                       }}
                       className="gap-2 cursor-pointer font-medium p-2.5"
@@ -433,6 +435,7 @@ export default function TalentPoolPage() {
         open={interviewModalOpen}
         onOpenChange={setInterviewModalOpen}
         initialCandidateName={interviewCandidateName}
+        initialCandidateEmail={interviewCandidateEmail}
         onSuccess={(data) => {
           // Statusu tapan və dəyişən vizual geribildirim
           const candidate = candidates.find(c => c.name === data.candidateName);

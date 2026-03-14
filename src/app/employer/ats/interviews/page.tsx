@@ -18,6 +18,8 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/utils/cn";
 import { InterviewModal } from "@/components/employer/InterviewModal";
 import { toast } from "@/hooks/use-toast";
+import { useAuth } from "@clerk/nextjs";
+import { useEffect } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -68,30 +70,72 @@ const MOCK_INTERVIEWS = [
 ];
 
 export default function InterviewsPage() {
+  const { getToken } = useAuth();
   const [view, setView] = useState<"list" | "calendar">("list");
-  const [interviews, setInterviews] = useState(MOCK_INTERVIEWS);
+  const [interviews, setInterviews] = useState<any[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingInterview, setEditingInterview] = useState<any>(null);
   const [currentDate, setCurrentDate] = useState(new Date()); // Default to today
-  const [loading, setLoading] = useState(false); // Added for the new button
+  const [loading, setLoading] = useState(false);
+
+  const fetchInterviews = async () => {
+    setLoading(true);
+    try {
+      const token = await getToken();
+      const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const response = await fetch(`${API_BASE}/api/interviews`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setInterviews(data);
+      }
+    } catch (error) {
+      console.error("Fetch interviews error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchInterviews();
+  }, []);
 
   const handleCreate = (data: any) => {
-      if (editingInterview) {
-          setInterviews(prev => prev.map(i => i.id === editingInterview.id ? { ...data, id: i.id } : i));
-          setEditingInterview(null);
-      } else {
-          setInterviews(prev => [data, ...prev]);
-      }
+      fetchInterviews(); // Refresh list after create/update
       setModalOpen(false);
   };
 
-  const handleDelete = (id: string | number) => {
-      setInterviews(prev => prev.filter(i => i.id !== id));
-      toast({
-          title: "Silindi",
-          description: "Müsahibə uğurla siyahıdan silindi.",
-          type: "success"
-      });
+  const handleDelete = async (id: string | number) => {
+      if (!confirm("Bu müsahibəni silmək istədiyinizə əminsiniz?")) return;
+
+      try {
+        const token = await getToken();
+        const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+        const response = await fetch(`${API_BASE}/api/interviews/${id}`, {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        if (response.ok) {
+          setInterviews(prev => prev.filter(i => i.id !== id));
+          toast({
+              title: "Silindi",
+              description: "Müsahibə uğurla siyahıdan silindi.",
+              type: "success"
+          });
+        }
+      } catch (error) {
+        toast({
+          title: "Xəta",
+          description: "Müsahibə silinərkən xəta baş verdi.",
+          type: "error"
+        });
+      }
   };
 
   const handleEdit = (interview: any) => {
@@ -169,6 +213,7 @@ export default function InterviewsPage() {
               if (!open) setEditingInterview(null);
           }}
           onSuccess={handleCreate}
+          editingInterview={editingInterview}
       />
 
       {view === "list" ? (
@@ -219,7 +264,7 @@ export default function InterviewsPage() {
                         <User size={12} />
                         <span className="text-[9px] font-black uppercase tracking-wider">Müsahibəçi</span>
                       </div>
-                      <p className="text-xs font-bold text-foreground">{interview.interviewer}</p>
+                      <p className="text-xs font-bold text-foreground">Siz</p>
                     </div>
                   </div>
 
