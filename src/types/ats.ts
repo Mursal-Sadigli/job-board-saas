@@ -18,6 +18,7 @@ export interface Candidate {
   status: CandidateStatus;
   appliedJobId?: string;
   appliedJobTitle?: string;
+  applicationId?: string | null;
 }
 
 export interface Application {

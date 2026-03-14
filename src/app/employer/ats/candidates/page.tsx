@@ -15,7 +15,8 @@ import {
   MapPin,
   ExternalLink,
   Briefcase,
-  Loader2
+  Loader2,
+  Share2
 } from "lucide-react";
 import { Candidate, CandidateStatus } from "@/types/ats";
 import { cn } from "@/utils/cn";
@@ -99,20 +100,38 @@ export default function CandidatesPage() {
 
   const handleStatusChange = async (id: string, newStatus: CandidateStatus) => {
     try {
+      const token = await getToken();
       const candidate = candidates.find(c => c.id === id);
-      if (!candidate || !candidate.appliedJobId) {
-         toast({ title: "Xəta", description: "Bu namizədin müraciət məlumatı tapılmadı", type: "error" });
-         return;
+      
+      if (candidate && candidate.applicationId) {
+        // Real status update in DB via Application API
+        const response = await fetch(`${API_BASE}/api/applications/${candidate.applicationId}`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify({ stage: newStatus })
+        });
+
+        if (!response.ok) throw new Error("Yeniləmə xətası");
+
+        toast({ title: "Uğurlu", description: "Namizədin statusu bazada yeniləndi", type: "success" });
+      } else {
+        // Just visual update for pool candidates or if no application ID
+        toast({ title: "Məlumat", description: "Status vizual olaraq dəyişdirildi (Müraciət ID-si tapılmadı)", type: "success" });
       }
 
-      // Lokal state-i yeniləyirik
       setCandidates(prev => prev.map(c => 
         c.id === id ? { ...c, status: newStatus } : c
       ));
-      
-      toast({ title: "Uğurlu", description: "Status yeniləndi", type: "success" });
+
+      if (selectedCandidate?.id === id) {
+        setSelectedCandidate(prev => prev ? { ...prev, status: newStatus } : null);
+      }
       
     } catch (error) {
+      console.error("Status change error:", error);
       toast({ title: "Xəta", description: "Statusu yeniləmək mümkün olmadı", type: "error" });
     }
   };
@@ -122,6 +141,25 @@ export default function CandidatesPage() {
       window.open(candidate.resumeUrl, "_blank");
     } else {
       toast({ title: "Xəta", description: "CV tapılmadı", type: "error" });
+    }
+  };
+
+  const handleShare = async (id: string, name: string) => {
+    const shareUrl = `${window.location.origin}/employer/ats/candidates/${id}`;
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `${name} - Namizəd Profili`,
+          text: `Zəhmət olmasa bu namizədin profilini nəzərdən keçirin: ${name}`,
+          url: shareUrl,
+        });
+      } catch (err) {}
+    } else {
+      navigator.clipboard.writeText(shareUrl);
+      toast({
+        title: "Link Kopyalandı",
+        description: "Namizədin unikal profil linki buferə kopyalandı.",
+      });
     }
   };
 
@@ -292,6 +330,9 @@ export default function CandidatesPage() {
                            </DropdownMenuItem>
                            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleDownloadCV(candidate); }} className="rounded-xl font-bold gap-3 px-4 py-2 text-xs">
                               <FileUp size={14} className="opacity-60" /> CV-ni Yüklə
+                           </DropdownMenuItem>
+                           <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleShare(candidate.id, candidate.name); }} className="rounded-xl font-bold gap-3 px-4 py-2 text-xs">
+                              <Share2 size={14} className="opacity-60" /> Profili Bölüş
                            </DropdownMenuItem>
                            <DropdownMenuSeparator className="my-1 bg-border dark:bg-white/5" />
                            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleStatusChange(candidate.id, "Rejected"); }} className="rounded-xl font-black text-red-500 gap-3 px-4 py-2 text-xs hover:bg-red-50 dark:hover:bg-red-950/20">

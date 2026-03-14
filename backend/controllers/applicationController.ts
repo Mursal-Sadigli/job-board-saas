@@ -291,6 +291,27 @@ export const getCandidates = async (req: any, res: Response) => {
   try {
     const clerkId = req.auth.userId;
 
+    // Helper to calculate total experience years from JSON
+    const calculateExpYears = (expJson: any): number => {
+      try {
+        const experiences = typeof expJson === 'string' ? JSON.parse(expJson) : expJson;
+        if (!Array.isArray(experiences)) return 0;
+        
+        let totalMonths = 0;
+        experiences.forEach((exp: any) => {
+          if (exp.startDate && exp.endDate) {
+            const start = new Date(exp.startDate);
+            const end = exp.endDate === 'hazırda' || !exp.endDate ? new Date() : new Date(exp.endDate);
+            const months = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
+            totalMonths += Math.max(0, months);
+          }
+        });
+        return Math.floor(totalMonths / 12);
+      } catch (e) {
+        return 0;
+      }
+    };
+
     // Find employer
     const employer = await prisma.user.findUnique({
       where: { clerkId },
@@ -317,13 +338,17 @@ export const getCandidates = async (req: any, res: Response) => {
     employer.jobs.forEach(job => {
       job.applications.forEach(app => {
         const candidate = app.candidate;
-        if (!candidatesMap.has(candidate.email)) {
+        const currentData = candidatesMap.get(candidate.email);
+        
+        // If candidate already exists, we might want the most recent application
+        if (!currentData || new Date(app.appliedAt) > new Date(currentData.appliedAt)) {
           candidatesMap.set(candidate.email, {
             id: candidate.id,
+            applicationId: app.id, // CRITICAL: Added for real status updates
             name: candidate.name || `${candidate.firstName || ''} ${candidate.lastName || ''}`.trim() || 'Anonim',
             email: candidate.email,
             location: candidate.location || 'Bakı, Azərbaycan',
-            experienceYears: 0, // Profile-də illərlə təcrübə sahəsi yoxdursa
+            experienceYears: calculateExpYears(candidate.experience),
             skills: candidate.skills || [],
             education: (candidate.education as any) || [],
             matchingScore: app.rating * 20, // 1-5 to 0-100
@@ -349,10 +374,11 @@ export const getCandidates = async (req: any, res: Response) => {
       if (!candidatesMap.has(user.email)) {
         candidatesMap.set(user.email, {
           id: user.id,
+          applicationId: null, // No application yet
           name: user.name || `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Anonim',
           email: user.email,
           location: user.location || 'Bakı, Azərbaycan',
-          experienceYears: 0,
+          experienceYears: calculateExpYears(user.experience),
           skills: user.skills || [],
           education: (user.education as any) || [],
           matchingScore: 0,
@@ -371,5 +397,193 @@ export const getCandidates = async (req: any, res: Response) => {
   } catch (error: any) {
     console.error('getCandidates error:', error);
     res.status(500).json({ message: 'Namizədləri gətirərkən xəta baş verdi', error: error.message });
+  }
+};
+
+export const getTalentPool = async (req: any, res: Response) => {
+  try {
+    const clerkId = req.auth.userId;
+
+    // Helper to calculate total experience years from JSON
+    const calculateExpYears = (expJson: any): number => {
+      try {
+        const experiences = typeof expJson === 'string' ? JSON.parse(expJson) : expJson;
+        if (!Array.isArray(experiences)) return 0;
+        
+        let totalMonths = 0;
+        experiences.forEach((exp: any) => {
+          if (exp.startDate && exp.endDate) {
+            const start = new Date(exp.startDate);
+            const end = exp.endDate === 'hazırda' || !exp.endDate ? new Date() : new Date(exp.endDate);
+            const months = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
+            totalMonths += Math.max(0, months);
+          }
+        });
+        return Math.floor(totalMonths / 12);
+      } catch (e) {
+        return 0;
+      }
+    };
+
+    // Find employer
+    const employer = await prisma.user.findUnique({
+      where: { clerkId },
+      include: {
+        jobs: {
+          include: {
+            applications: {
+              include: {
+                candidate: true
+              }
+            }
+          }
+        }
+      }
+    });
+
+    if (!employer) {
+      return res.status(404).json({ message: 'İşəgötürən tapılmadı' });
+    }
+
+    const candidatesMap = new Map<string, any>();
+    
+    // 1. Get from Resume model (Directly added to pool)
+    const poolResumes = await prisma.resume.findMany({
+      include: {
+        user: true
+      }
+    });
+
+    poolResumes.forEach(resume => {
+      const user = resume.user;
+      candidatesMap.set(user.email, {
+        id: user.id,
+        applicationId: null,
+        name: user.name || `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Anonim',
+        email: user.email,
+        location: user.location || 'Bakı, Azərbaycan',
+        experienceYears: calculateExpYears(user.experience),
+        skills: user.skills || [],
+        education: (user.education as any) || [],
+        matchingScore: 0,
+        status: 'Applied',
+        appliedAt: resume.createdAt,
+        appliedJobTitle: 'İstedad Hovuzu'
+      });
+    });
+
+    // 2. Add applicants who are not rejected/hired (Potential candidates)
+    employer.jobs.forEach(job => {
+      job.applications.forEach(app => {
+        const candidate = app.candidate;
+        if (!candidatesMap.has(candidate.email)) {
+          candidatesMap.set(candidate.email, {
+            id: candidate.id,
+            applicationId: app.id,
+            name: candidate.name || `${candidate.firstName || ''} ${candidate.lastName || ''}`.trim() || 'Anonim',
+            email: candidate.email,
+            location: candidate.location || 'Bakı, Azərbaycan',
+            experienceYears: calculateExpYears(candidate.experience),
+            skills: candidate.skills || [],
+            education: (candidate.education as any) || [],
+            matchingScore: app.rating * 20,
+            status: app.stage,
+            appliedAt: app.appliedAt,
+            appliedJobTitle: job.title
+          });
+        }
+      });
+    });
+
+    const finalPool = Array.from(candidatesMap.values())
+      .sort((a, b) => new Date(b.appliedAt).getTime() - new Date(a.appliedAt).getTime());
+
+    res.json(finalPool);
+  } catch (error: any) {
+    console.error('getTalentPool error:', error);
+    res.status(500).json({ message: 'Talent Pool gətirərkən xəta baş verdi', error: error.message });
+  }
+};
+
+export const getCandidateById = async (req: any, res: Response) => {
+  try {
+    const { id } = req.params;
+    const clerkId = req.auth.userId;
+
+    // Find employer to ensure authorization
+    const employer = await prisma.user.findUnique({
+      where: { clerkId }
+    });
+
+    if (!employer) {
+      return res.status(404).json({ message: 'İşəgötürən tapılmadı' });
+    }
+
+    // Try to find candidate in Users (Candidate might be in Talent Pool or have an application)
+    const candidate = await prisma.user.findUnique({
+      where: { id },
+      include: {
+        applications: {
+          where: {
+            job: {
+              employerId: employer.id
+            }
+          },
+          include: {
+            job: true
+          }
+        },
+        resumes: true
+      }
+    });
+
+    if (!candidate) {
+      return res.status(404).json({ message: 'Namizəd tapılmadı' });
+    }
+
+    // Dynamic experience calculation
+    const calculateExpYears = (expJson: any): number => {
+      try {
+        const experiences = typeof expJson === 'string' ? JSON.parse(expJson) : expJson;
+        if (!Array.isArray(experiences)) return 0;
+        let totalMonths = 0;
+        experiences.forEach((exp: any) => {
+          if (exp.startDate && exp.endDate) {
+            const start = new Date(exp.startDate);
+            const end = exp.endDate === 'hazırda' || !exp.endDate ? new Date() : new Date(exp.endDate);
+            const months = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
+            totalMonths += Math.max(0, months);
+          }
+        });
+        return Math.floor(totalMonths / 12);
+      } catch (e) { return 0; }
+    };
+
+    // Prepare unified candidate view
+    const application = candidate.applications[0]; // Get most recent if multiple (simplified)
+    const resume = candidate.resumes[0];
+
+    const result = {
+      id: candidate.id,
+      applicationId: application?.id || null,
+      name: candidate.name || `${candidate.firstName || ''} ${candidate.lastName || ''}`.trim() || 'Anonim',
+      email: candidate.email,
+      location: candidate.location || 'Məlumat yoxdur',
+      experienceYears: calculateExpYears(candidate.experience),
+      skills: candidate.skills || [],
+      education: (candidate.education as any) || [],
+      matchingScore: application ? application.rating * 20 : 0,
+      status: application ? application.stage : 'In Pool',
+      appliedAt: application ? application.appliedAt : resume?.createdAt || candidate.createdAt,
+      appliedJobTitle: application ? application.job.title : 'İstedad Hovuzu',
+      resumeUrl: application?.resumeUrl || resume?.url || null,
+      bio: candidate.bio || '',
+      phone: candidate.phone || ''
+    };
+
+    res.json(result);
+  } catch (error: any) {
+    console.error('getCandidateById error:', error);
+    res.status(500).json({ message: 'Namizəd məlumatlarını gətirərkən xəta baş verdi', error: error.message });
   }
 };
