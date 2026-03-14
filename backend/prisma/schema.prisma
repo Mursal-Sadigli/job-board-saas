@@ -22,12 +22,25 @@ model User {
   companyName   String?
   logoUrl       String?
   bio           String?
+  cvUploadCount Int       @default(0)
+  plan          String    @default("FREE")
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
   // Relationships
   jobs          Job[]
   applications  Application[]
+  resumes       Resume[]
+}
+
+model Resume {
+  id          String    @id @default(uuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  name        String
+  size        Int
+  url         String
+  createdAt   DateTime  @default(now())
 }
 
 model Job {
