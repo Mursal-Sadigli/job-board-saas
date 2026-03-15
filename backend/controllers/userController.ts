@@ -8,17 +8,28 @@ export const syncUser = async (req: any, res: Response) => {
   try {
     const clerkId = req.auth?.userId || req.auth?.sessionClaims?.sub;
     
+    console.log('--- User Sync Started ---');
+    console.log('Clerk ID:', clerkId);
+    console.log('Session Claims:', JSON.stringify(req.auth?.sessionClaims, null, 2));
+
     if (!clerkId) {
-      return res.status(401).json({ message: 'Unauthorized' });
+      console.error('User sync error: No Clerk ID found in request auth.');
+      return res.status(401).json({ message: 'Unauthorized - No Clerk ID' });
     }
 
     // Attempt to get user data from session claims
     // These need to be configured in Clerk Dashboard JWT Template
     const email = req.auth?.sessionClaims?.email;
-    const firstName = req.auth?.sessionClaims?.first_name;
-    const lastName = req.auth?.sessionClaims?.last_name;
+    const firstName = req.auth?.sessionClaims?.first_name || req.auth?.sessionClaims?.firstName;
+    const lastName = req.auth?.sessionClaims?.last_name || req.auth?.sessionClaims?.lastName;
     const name = firstName && lastName ? `${firstName} ${lastName}` : firstName || lastName || null;
     const role = (req.auth?.sessionClaims?.metadata?.role?.toUpperCase() as UserRole) || UserRole.CANDIDATE;
+
+    console.log(`Syncing user details: Email=${email}, Name=${name}, Role=${role}`);
+
+    if (!email) {
+      console.warn('Warning: Email is missing from session claims. This might cause Prisma unique constraint issues if not handled.');
+    }
 
     const user = await prisma.user.upsert({
       where: { clerkId },
@@ -29,20 +40,28 @@ export const syncUser = async (req: any, res: Response) => {
       },
       create: {
         clerkId,
-        email: email || '', // Webhook should eventually fill this if JWT doesn't have it
+        email: email || `user_${clerkId}@temporary.clerk`, // Fallback to avoid unique constraint error if email is missing temporarily
         name,
         role,
       },
       include: { resumes: true }
     });
 
+    console.log('User sync successful for DB ID:', user.id);
+
     res.status(200).json({
       ...user,
       resumes: user.resumes
     });
-  } catch (error) {
-    console.error('User sync error:', error);
-    res.status(500).json({ message: 'İstifadəçi sinxronizasiyası zamanı xəta baş verdi' });
+  } catch (error: any) {
+    console.error('--- User Sync Detailed Error ---');
+    console.error('Error Code:', error.code);
+    console.error('Error Message:', error.message);
+    if (error.code === 'P2002') {
+      console.error('Identity conflict: Email or ClerkID already exists or is empty leading to conflict.');
+      return res.status(409).json({ message: 'İstifadəçi məlumatlarında ziddiyyət yarandı (Email artıq istifadə olunur və ya boşdur)' });
+    }
+    res.status(500).json({ message: 'İstifadəçi sinxronizasiyası zamanı xəta baş verdi', error: error.message });
   }
 };
 

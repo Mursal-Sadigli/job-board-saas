@@ -2,6 +2,7 @@
 
 import { useAuth } from "@clerk/nextjs";
 import { useEffect } from "react";
+import { toast } from "@/hooks/use-toast";
 
 export default function UserSync() {
   const { isLoaded, userId, getToken } = useAuth();
@@ -22,14 +23,28 @@ export default function UserSync() {
           });
 
           if (!response.ok) {
-            const errorText = await response.text();
-            console.error(`Failed to sync user with backend. Status: ${response.status}, Error: ${errorText}`);
+            const errorData = await response.json().catch(() => ({}));
+            console.error(`Failed to sync user. Status: ${response.status}`, errorData);
+            toast({
+              title: "Sinxronizasiya xətası",
+              description: errorData.message || "İstifadəçi məlumatları bazaya yazıla bilmədi.",
+              type: "error"
+            });
           } else {
             const data = await response.json();
-            console.log("User sync successful:", data);
+            console.log("User sync successful:", data.id);
+            // Optional: toast success for debugging locally
+            if (process.env.NODE_ENV === 'development') {
+               console.log("Database ID:", data.id);
+            }
           }
-        } catch (error) {
+        } catch (error: any) {
           console.error("Error during user sync:", error);
+          toast({
+            title: "Sistem xətası",
+            description: "Backend ilə əlaqə qurmaq mümkün deyil.",
+            type: "error"
+          });
         }
       }
     };
