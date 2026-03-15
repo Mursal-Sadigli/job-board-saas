@@ -45,25 +45,63 @@ export const syncUser = async (req: any, res: Response) => {
       email = `user_${clerkId}@temporary.clerk`;
     }
 
-    const user = await prisma.user.upsert({
+    // Check if user exists by clerkId
+    let user = await prisma.user.findUnique({
       where: { clerkId },
-      update: {
-        email: email, // Always update to the best available email
-        name: name,
-        role: role,
-        firstName: firstName,
-        lastName: lastName
-      },
-      create: {
-        clerkId,
-        email: email,
-        name: name,
-        role: role,
-        firstName: firstName,
-        lastName: lastName
-      },
       include: { resumes: true }
     });
+
+    if (user) {
+      // Update existing user with latest info
+      user = await prisma.user.update({
+        where: { clerkId },
+        data: {
+          email: email,
+          name: name,
+          role: role,
+          firstName: firstName,
+          lastName: lastName,
+          updatedAt: new Date()
+        },
+        include: { resumes: true }
+      });
+    } else {
+      // Check if user exists by email (case where clerkId is different or missing)
+      const existingUserByEmail = await prisma.user.findUnique({
+        where: { email }
+      });
+
+      if (existingUserByEmail) {
+        // Link existing email account to this clerkId
+        user = await prisma.user.update({
+          where: { id: existingUserByEmail.id },
+          data: {
+            clerkId,
+            name: name || existingUserByEmail.name,
+            role: role || existingUserByEmail.role,
+            firstName: firstName || existingUserByEmail.firstName,
+            lastName: lastName || existingUserByEmail.lastName,
+            updatedAt: new Date()
+          },
+          include: { resumes: true }
+        });
+        console.log('Linked existing email account to new Clerk ID:', clerkId);
+      } else {
+        // Create brand new user
+        user = await prisma.user.create({
+          data: {
+            clerkId,
+            email: email,
+            name: name,
+            role: role,
+            firstName: firstName,
+            lastName: lastName
+          },
+          include: { resumes: true }
+        });
+        console.log('Created brand new user record');
+      }
+    }
 
     console.log('User sync successful for DB ID:', user.id, 'Email:', user.email);
 
@@ -75,7 +113,21 @@ export const syncUser = async (req: any, res: Response) => {
     console.error('--- User Sync Detailed Error ---');
     console.error('Error Code:', error.code);
     console.error('Error Message:', error.message);
-    res.status(500).json({ message: 'İstifadəçi sinxronizasiyası zamanı xəta baş verdi', error: error.message });
+    console.error('Error Stack:', error.stack);
+    
+    // Prisma unikal məhdudiyyət xətası (P2002)
+    if (error.code === 'P2002') {
+      return res.status(409).json({ 
+        message: 'Bu email artıq istifadə olunur.', 
+        error: error.message 
+      });
+    }
+
+    res.status(500).json({ 
+      message: 'İstifadəçi sinxronizasiyası zamanı xəta baş verdi', 
+      error: error.message,
+      code: error.code 
+    });
   }
 };
 

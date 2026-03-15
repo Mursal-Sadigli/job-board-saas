@@ -13,6 +13,9 @@ import stripeRoutes from './routes/stripeRoutes';
 const app = express();
 const PORT = process.env.PORT || 5001;
 
+// Trust Proxy for Render/Cloudflare/etc.
+app.set('trust proxy', 1);
+
 // Request Logger
 app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
