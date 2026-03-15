@@ -7,7 +7,11 @@ export type JobType =
   | "internship";
 export type ExperienceLevel = "any" | "junior" | "mid" | "senior" | "lead";
 
-export type JobCategory = "any" | "engineering" | "design" | "marketing" | "sales" | "product" | "customer-support" | "other";
+export interface Category {
+  id: string;
+  name: string;
+  slug: string;
+}
 
 export interface Job {
   id: string;
@@ -15,11 +19,12 @@ export interface Job {
   company: string;
   companyLogo?: string;
   location: string;
+  city: string; // Now a dedicated field from DB
   locationType: LocationType;
-  city: string;
   state: string;
   jobType: JobType;
-  category: JobCategory;
+  category?: Category; // From relation
+  categoryId?: string;
   experienceLevel: ExperienceLevel;
   salary?: string;
   postedAt: string;
@@ -38,7 +43,7 @@ export interface JobFilters {
   city: string;
   state: string;
   jobType: JobType;
-  category: JobCategory;
+  category: string; // Slug or ID
   experienceLevel: ExperienceLevel;
 }
 

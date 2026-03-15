@@ -8,10 +8,15 @@ export const getAllJobs = async (req: Request, res: Response) => {
     const jobs = await prisma.job.findMany({
       where: { 
         isActive: true,
-        ...(category && category !== 'any' ? { category: String(category) } : {})
+        ...(category && category !== 'any' ? { 
+          category: {
+            slug: String(category)
+          } 
+        } : {})
       },
       orderBy: { postedAt: 'desc' },
       include: {
+        category: true,
         employer: {
           select: {
             companyName: true,
@@ -39,6 +44,7 @@ export const getJobsByEmployer = async (req: any, res: Response) => {
       where: { employerId: user.id },
       orderBy: { postedAt: 'desc' },
       include: {
+        category: true,
         _count: { select: { applications: true } },
         applications: {
           select: {
@@ -70,7 +76,7 @@ export const createJob = async (req: any, res: Response) => {
 
     const {
       title, description, company, location, locationType,
-      jobType, category, experienceLevel, salary, city, district, deadline, isFeatured
+      jobType, categoryId, category, experienceLevel, salary, city, district, deadline, isFeatured
     } = req.body;
 
     const logoUrl = req.file ? req.file.path : undefined;
@@ -81,15 +87,17 @@ export const createJob = async (req: any, res: Response) => {
         description,
         company: company || user.companyName || 'Şirkət',
         location: [city, district].filter(Boolean).join(', ') || location || '',
+        city: city || '',
         locationType,
         jobType,
-        category: category || 'other',
         experienceLevel,
         salary,
         logoUrl,
         isFeatured: isFeatured === 'true' || isFeatured === true, // handle string from FormData
-        employerId: user.id
-      }
+        employerId: user.id,
+        categoryId: categoryId || undefined
+      },
+      include: { category: true }
     });
 
     res.status(201).json(newJob);
@@ -109,7 +117,7 @@ export const updateJob = async (req: any, res: Response) => {
     const { id } = req.params;
     const {
       title, description, company, location, locationType, jobType,
-      category, experienceLevel, salary, isActive, isFeatured, city, district
+      categoryId, experienceLevel, salary, isActive, isFeatured, city, district
     } = req.body;
 
     // Verify ownership
@@ -126,9 +134,10 @@ export const updateJob = async (req: any, res: Response) => {
         ...(company !== undefined && { company }),
         ...(locationType !== undefined && { locationType }),
         ...(jobType !== undefined && { jobType }),
-        ...(category !== undefined && { category }),
+        ...(categoryId !== undefined && { categoryId }),
         ...(experienceLevel !== undefined && { experienceLevel }),
         ...(salary !== undefined && { salary }),
+        ...(city !== undefined && { city }),
         ...(isActive !== undefined && (isActive === 'true' || isActive === true ? { isActive: true } : { isActive: false })),
         ...(isFeatured !== undefined && (isFeatured === 'true' || isFeatured === true ? { isFeatured: true } : { isFeatured: false })),
         ...(logoUrl && { logoUrl }),
@@ -136,7 +145,8 @@ export const updateJob = async (req: any, res: Response) => {
           location: [city ?? '', district ?? ''].filter(Boolean).join(', ')
         }),
         ...(location !== undefined && !city && !district && { location }),
-      }
+      },
+      include: { category: true }
     });
 
     res.json(updated);

@@ -14,6 +14,7 @@ import {
   Network,
   Banknote,
   X,
+  Layers,
 } from "lucide-react";
 import { ApplyModal } from "@/components/jobs/ApplyModal";
 
@@ -43,6 +44,17 @@ const expLevelConfig: Record<string, string> = {
   mid: "Mid Level",
   senior: "Senior",
   lead: "Lead",
+  any: "İstənilən",
+};
+
+const categoryConfig: Record<string, string> = {
+  engineering: "Mühəndislik",
+  design: "Dizayn",
+  marketing: "Marketinq",
+  sales: "Satış",
+  product: "Məhsul",
+  "customer-support": "Müştəri Xidmətləri",
+  other: "Digər",
   any: "İstənilən",
 };
 
@@ -139,6 +151,12 @@ export default function JobDetailPanel({ job, onClose, onApply }: JobDetailPanel
               <span className="shrink-0">{locConfig.icon}</span>
               {locConfig.label}
             </span>
+            {job.category && job.category !== "other" && job.category !== "any" && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-bold border bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20 dark:border-indigo-500/30">
+                <Layers size={12} />
+                {categoryConfig[job.category] || categoryConfig.other}
+              </span>
+            )}
             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-bold border bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20 dark:border-purple-500/30">
               <Briefcase size={12} />
               {jobTypeConfig[job.jobType] || jobTypeConfig.any}

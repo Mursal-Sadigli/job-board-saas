@@ -59,9 +59,9 @@ model Job {
   description     String
   company         String
   location        String
+  city            String?   // Baku, Ganja, etc.
   locationType    String    // remote, hybrid, in-office
   jobType         String    // full-time, part-time, contract, etc.
-  category        String    @default("other") // engineering, design, marketing, etc.
   experienceLevel String    // junior, mid, senior
   salary          String?
   logoUrl         String?
@@ -73,9 +73,19 @@ model Job {
   updatedAt       DateTime  @updatedAt
 
   // Relationships
+  categoryId      String?
+  category        Category? @relation(fields: [categoryId], references: [id])
   employer        User      @relation(fields: [employerId], references: [id])
   employerId      String
   applications    Application[]
+}
+
+model Category {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  slug      String   @unique
+  jobs      Job[]
+  createdAt DateTime @default(now())
 }
 
 model Application {
