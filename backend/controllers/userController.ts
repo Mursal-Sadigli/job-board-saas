@@ -62,12 +62,17 @@ export const syncUser = async (req: any, res: Response) => {
 
     if (userByClerk && userByEmail && userByClerk.id !== userByEmail.id) {
       // CONFLICT: We have two different records for this identity.
-      // This happens if user logged in with different providers or changed emails.
       console.log('--- CONFLICT DETECTED ---');
       console.log(`Merging user ${userByClerk.id} into ${userByEmail.id}`);
       
-      // We prioritize the record that matches the current EMAIL.
-      // Update the record that has the email to have this new clerkId.
+      // IMPORTANT: To avoid "Unique constraint failed on clerkId" during update,
+      // we must first unset or change the clerkId on the record we are about to discard.
+      await prisma.user.update({
+        where: { id: userByClerk.id },
+        data: { clerkId: `OLD_${clerkId}_${Date.now()}` }
+      });
+
+      // Now we can safely update the record that has the email to have this clerkId.
       finalUser = await prisma.user.update({
         where: { id: userByEmail.id },
         data: {
@@ -81,16 +86,12 @@ export const syncUser = async (req: any, res: Response) => {
         include: { resumes: true }
       });
 
-      // Optionally: Delete the old duplicate record to clean up (IMPORTANT!)
-      // Note: In a real app, you'd want to merge relations (resumes, jobs, etc.) 
-      // but to stop the crash right now, we delete the redundant Clerk record.
+      // Cleanup
       await prisma.user.delete({ where: { id: userByClerk.id } }).catch(e => console.error('Cleanup error:', e));
-      console.log('Redundant record deleted.');
+      console.log('Conflict resolved and redundant record deleted.');
 
     } else if (userByClerk) {
       // Normal case: Update existing clerk record
-      // If email is also changing and it's TAKEN (already handled by conflict above, 
-      // but just in case), this will update smoothly.
       finalUser = await prisma.user.update({
         where: { clerkId },
         data: {
@@ -149,14 +150,16 @@ export const syncUser = async (req: any, res: Response) => {
     
     // Prisma unikal məhdudiyyət xətası (P2002)
     if (error.code === 'P2002') {
+      const field = error.meta?.target || 'məlum olmayan sahə';
       return res.status(409).json({ 
-        message: 'Bu email artıq istifadə olunur.', 
-        error: error.message 
+        message: `Məlumat toqquşması: ${field} artıq istifadə olunur.`, 
+        error: error.message,
+        target: field
       });
     }
 
     res.status(500).json({ 
-      message: 'İstifadəçi sinxronizasiyası zamanı xəta baş verdi', 
+      message: 'İstifadəçi sinxronizasiyası zamanı daxili xəta baş verdi', 
       error: error.message,
       code: error.code 
     });
