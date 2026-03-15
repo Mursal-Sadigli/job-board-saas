@@ -1,11 +1,12 @@
 import { Router } from 'express';
-import { getAllJobs, createJob, getJobsByEmployer, updateJob, deleteJob } from '../controllers/jobController';
+import { getAllJobs, createJob, getJobsByEmployer, updateJob, deleteJob, getAllCategories } from '../controllers/jobController';
 import { isAuthenticated } from '../middlewares/auth';
 import { upload } from '../lib/cloudinary';
 
 const router = Router();
 
 router.get('/', getAllJobs);
+router.get('/categories', getAllCategories);
 router.get('/my', isAuthenticated, getJobsByEmployer);
 router.post('/', isAuthenticated, upload.single('logo'), createJob);
 router.patch('/:id', isAuthenticated, upload.single('logo'), updateJob);

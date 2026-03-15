@@ -47,17 +47,6 @@ const expLevelConfig: Record<string, string> = {
   any: "İstənilən",
 };
 
-const categoryConfig: Record<string, string> = {
-  engineering: "Mühəndislik",
-  design: "Dizayn",
-  marketing: "Marketinq",
-  sales: "Satış",
-  product: "Məhsul",
-  "customer-support": "Müştəri Xidmətləri",
-  other: "Digər",
-  any: "İstənilən",
-};
-
 export default function JobCard({ job, onClick, isSelected }: JobCardProps) {
   const [logoError, setLogoError] = useState(false);
   const [isLiked, setIsLiked] = useState<boolean | null>(null); // null means not mounted yet
@@ -182,16 +171,16 @@ export default function JobCard({ job, onClick, isSelected }: JobCardProps) {
             )}
             <span className="inline-flex items-center gap-1 px-2 py-0.5 sm:px-3 sm:py-1.5 rounded-lg text-[9px] sm:text-xs font-semibold bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
               <MapPin size={11} className="shrink-0" />
-              {job.location || job.city}
+              {job.city || job.location}
             </span>
             <span className="inline-flex items-center gap-1 px-2 py-0.5 sm:px-3 sm:py-1.5 rounded-lg text-[9px] sm:text-xs font-semibold bg-slate-500/10 text-slate-600 dark:text-slate-400 border border-slate-500/20">
               <span className="shrink-0 scale-90">{locConfig.icon}</span>
               {locConfig.label}
             </span>
-            {job.category && job.category !== "other" && job.category !== "any" && (
+            {job.category && (
               <span className="inline-flex items-center gap-1 px-2 py-0.5 sm:px-3 sm:py-1.5 rounded-lg text-[9px] sm:text-xs font-semibold bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">
                 <Layers size={11} className="shrink-0" />
-                {categoryConfig[job.category] || categoryConfig.other}
+                {job.category.name}
               </span>
             )}
             <span className="inline-flex items-center gap-1 px-2 py-0.5 sm:px-3 sm:py-1.5 rounded-lg text-[9px] sm:text-xs font-semibold bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20">

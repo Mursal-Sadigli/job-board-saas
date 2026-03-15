@@ -24,7 +24,7 @@ import {
 import { useSidebar } from "@/hooks/useSidebar";
 import { ROUTES } from "@/routes/paths";
 import { cn } from "@/utils/cn";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -54,16 +54,6 @@ const mainNavItems: NavItem[] = [
     href: ROUTES.aiSearch,
     icon: <Sparkles size={18} />,
   },
-];
-
-const categoriesItems: NavItem[] = [
-  { label: "Mühəndislik", href: "/?category=engineering", icon: <Layers size={16} /> },
-  { label: "Dizayn", href: "/?category=design", icon: <Layers size={16} /> },
-  { label: "Marketinq", href: "/?category=marketing", icon: <Layers size={16} /> },
-  { label: "Satış", href: "/?category=sales", icon: <Layers size={16} /> },
-  { label: "Məhsul", href: "/?category=product", icon: <Layers size={16} /> },
-  { label: "Müştəri Xidmətləri", href: "/?category=customer-support", icon: <Layers size={16} /> },
-  { label: "Digər", href: "/?category=other", icon: <Layers size={16} /> },
 ];
 
 const settingsItems: NavItem[] = [
@@ -102,8 +92,25 @@ export default function Sidebar({
   const { theme, setTheme } = useTheme();
   const { settingsExpanded, toggleSettings } = useSidebar();
   const [categoriesExpanded, setCategoriesExpanded] = useState(false);
+  const [categories, setCategories] = useState<{id: string, name: string, slug: string}[]>([]);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [orgSwitcherOpen, setOrgSwitcherOpen] = useState(false);
+
+  useEffect(() => {
+    async function fetchCategories() {
+      try {
+        const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
+        const response = await fetch(`${API_BASE}/api/jobs/categories`);
+        if (response.ok) {
+          const data = await response.json();
+          setCategories(data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch categories", err);
+      }
+    }
+    fetchCategories();
+  }, []);
 
   // Check if any category is active
   const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
@@ -233,14 +240,13 @@ export default function Sidebar({
               )}
             >
               <div className="ml-5 pl-4 flex flex-col gap-1 border-l border-border/60">
-                {categoriesItems.map((item) => {
-                  const hrefParams = new URLSearchParams(item.href.split('?')[1]);
-                  const isActive = searchParams?.get('category') === hrefParams.get('category');
+                {categories.map((cat) => {
+                  const isActive = searchParams?.get('category') === cat.slug;
                   
                   return (
                     <Link
-                      key={item.href}
-                      href={item.href}
+                      key={cat.id}
+                      href={`/?category=${cat.slug}`}
                       onClick={() => onNavigate?.()}
                       className={cn(
                         "flex items-center gap-3 px-3 py-1.5 rounded-lg text-[13px] font-medium transition-all",
@@ -257,9 +263,9 @@ export default function Sidebar({
                             : "text-slate-400"
                         )}
                       >
-                        {item.icon}
+                        <Layers size={14} />
                       </div>
-                      <span>{item.label}</span>
+                      <span className="truncate">{cat.name}</span>
                     </Link>
                   );
                 })}

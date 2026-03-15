@@ -12,6 +12,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+import { useState, useEffect } from "react";
+
 interface JobFiltersProps {
   filters: any;
   onChange: (filters: any) => void;
@@ -25,6 +27,24 @@ export default function JobFiltersPanel({
   onApply,
   onReset,
 }: JobFiltersProps) {
+  const [categories, setCategories] = useState<{id: string, name: string, slug: string}[]>([]);
+
+  useEffect(() => {
+    async function fetchCategories() {
+      try {
+        const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
+        const response = await fetch(`${API_BASE}/api/jobs/categories`);
+        if (response.ok) {
+          const data = await response.json();
+          setCategories(data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch categories", err);
+      }
+    }
+    fetchCategories();
+  }, []);
+
   const update = <K extends string>(key: K, value: any) => {
     onChange({ ...filters, [key]: value });
   };
@@ -147,13 +167,9 @@ export default function JobFiltersPanel({
             </SelectTrigger>
             <SelectContent className="rounded-xl border-border dark:border-white/10 dark:bg-[#0f1423] backdrop-blur-xl">
               <SelectItem value="any">İstənilən</SelectItem>
-              <SelectItem value="engineering">Mühəndislik</SelectItem>
-              <SelectItem value="design">Dizayn</SelectItem>
-              <SelectItem value="marketing">Marketinq</SelectItem>
-              <SelectItem value="sales">Satış</SelectItem>
-              <SelectItem value="product">Məhsul</SelectItem>
-              <SelectItem value="customer-support">Müştəri Xidmətləri</SelectItem>
-              <SelectItem value="other">Digər</SelectItem>
+              {categories.map((cat) => (
+                <SelectItem key={cat.id} value={cat.slug}>{cat.name}</SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </FilterField>

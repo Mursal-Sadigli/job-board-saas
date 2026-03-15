@@ -1,12 +1,13 @@
 import { useState, useMemo, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import { Job, JobFilters, DEFAULT_FILTERS, JobCategory } from "@/types/job";
+import { Job, JobFilters, DEFAULT_FILTERS, Category } from "@/types/job";
 
 export function useJobs() {
   const searchParams = useSearchParams();
-  const categoryParam = searchParams?.get("category") as JobCategory | null;
+  const categoryParam = searchParams?.get("category"); // slug
 
   const [dbJobs, setDbJobs] = useState<Job[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
   const [filters, setFilters] = useState<JobFilters>({
@@ -26,32 +27,39 @@ export function useJobs() {
   }, [categoryParam]);
 
   useEffect(() => {
-    async function fetchJobs() {
+    async function fetchData() {
       try {
         const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
-        const response = await fetch(`${API_BASE}/api/jobs`);
-        if (response.ok) {
-          const data = await response.json();
-          // Map backend Job to frontend Job type if necessary
+        const [jobsRes, categoriesRes] = await Promise.all([
+          fetch(`${API_BASE}/api/jobs`),
+          fetch(`${API_BASE}/api/jobs/categories`)
+        ]);
+
+        if (jobsRes.ok) {
+          const data = await jobsRes.json();
           const mappedJobs = data.map((j: any) => ({
             ...j,
             company: j.employer?.companyName || j.company,
-            companyLogo: j.logoUrl || j.employer?.logoUrl || "/images/logos/google.png", // fallback to job logo, then employer logo, then default
-            // city and state are missing in DB currently, we extract from location if possible
-            city: j.location?.split(',')[0]?.trim() || "",
+            companyLogo: j.logoUrl || j.employer?.logoUrl || "/images/logos/google.png",
+            city: j.city || j.location?.split(',')[0]?.trim() || "",
             state: j.location?.split(',')[1]?.trim() || "any",
             isNew: true,
             featured: j.isFeatured
           }));
           setDbJobs(mappedJobs);
         }
+
+        if (categoriesRes.ok) {
+          const cats = await categoriesRes.json();
+          setCategories(cats);
+        }
       } catch (err) {
-        console.error("Failed to fetch jobs:", err);
+        console.error("Failed to fetch data:", err);
       } finally {
         setIsLoading(false);
       }
     }
-    fetchJobs();
+    fetchData();
   }, []);
 
   const jobs = useMemo(() => {
@@ -99,7 +107,7 @@ export function useJobs() {
       }
       if (
         appliedFilters.category !== "any" &&
-        job.category !== appliedFilters.category
+        job.category?.slug !== appliedFilters.category
       ) {
         return false;
       }
@@ -113,5 +121,5 @@ export function useJobs() {
     setAppliedFilters(DEFAULT_FILTERS);
   };
 
-  return { jobs, filters, setFilters, applyFilters, resetFilters, isLoading };
+  return { jobs, categories, filters, setFilters, applyFilters, resetFilters, isLoading };
 }

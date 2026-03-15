@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import dynamic from "next/dynamic"
 import { 
   Dialog, 
@@ -50,8 +50,8 @@ export type JobFormData = {
   district: string
   city: string
   locationType: "remote" | "hybrid" | "in-office"
+  categoryId: string
   jobType: "full-time" | "part-time" | "contract" | "internship"
-  category: "engineering" | "design" | "marketing" | "sales" | "product" | "customer-support" | "other"
   experienceLevel: "junior" | "mid" | "senior" | "lead"
   deadline?: string
   logoFile?: File | null
@@ -68,7 +68,7 @@ const defaultForm: JobFormData = {
   city: "",
   locationType: "in-office",
   jobType: "full-time",
-  category: "other",
+  categoryId: "",
   experienceLevel: "mid",
   deadline: "",
   logoFile: null,
@@ -90,7 +90,24 @@ export function PostJobModal({
 }) {
   const [internalOpen, setInternalOpen] = useState(false)
   const [form, setForm] = useState<JobFormData>(initialData || defaultForm)
+  const [categories, setCategories] = useState<{id: string, name: string}[]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    async function fetchCategories() {
+      try {
+        const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
+        const response = await fetch(`${API_BASE}/api/jobs/categories`);
+        if (response.ok) {
+          const data = await response.json();
+          setCategories(data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch categories", err);
+      }
+    }
+    fetchCategories();
+  }, []);
 
   const isControlled = controlledOpen !== undefined
   const open = isControlled ? controlledOpen : internalOpen
@@ -268,15 +285,21 @@ export function PostJobModal({
                 className="h-9 text-sm rounded-md bg-muted/30 border-border focus-visible:ring-ring/30"
               />
             </div>
-            <div className="space-y-1">
-              <label className="text-xs font-semibold text-foreground">Şəhər</label>
-              <Input
-                value={form.city}
-                onChange={e => set("city", e.target.value)}
-                placeholder="Məs: Bakı"
-                className="h-9 text-sm rounded-md bg-muted/30 border-border focus-visible:ring-ring/30"
-              />
-            </div>
+            <SelectField
+              label="Şəhər"
+              field="city"
+              options={[
+                { value: "", label: "Şəhər seçin" },
+                { value: "Bakı", label: "Bakı" },
+                { value: "Gəncə", label: "Gəncə" },
+                { value: "Sumqayıt", label: "Sumqayıt" },
+                { value: "Lənkəran", label: "Lənkəran" },
+                { value: "Şəki", label: "Şəki" },
+                { value: "Quba", label: "Quba" },
+                { value: "Mingəçevir", label: "Mingəçevir" },
+                { value: "Naxçıvan", label: "Naxçıvan" },
+              ]}
+            />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
@@ -301,15 +324,10 @@ export function PostJobModal({
             />
             <SelectField
               label="Kateqoriya"
-              field="category"
+              field="categoryId"
               options={[
-                { value: "engineering", label: "Mühəndislik (Engineering)" },
-                { value: "design", label: "Dizayn (Design)" },
-                { value: "marketing", label: "Marketinq (Marketing)" },
-                { value: "sales", label: "Satış (Sales)" },
-                { value: "product", label: "Məhsul (Product)" },
-                { value: "customer-support", label: "Müştəri Xidmətləri (CS)" },
-                { value: "other", label: "Digər" },
+                { value: "", label: "Kateqoriya seçin" },
+                ...categories.map(c => ({ value: c.id, label: c.name }))
               ]}
             />
             <SelectField

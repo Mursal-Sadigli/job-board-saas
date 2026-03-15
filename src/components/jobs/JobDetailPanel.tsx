@@ -47,17 +47,6 @@ const expLevelConfig: Record<string, string> = {
   any: "İstənilən",
 };
 
-const categoryConfig: Record<string, string> = {
-  engineering: "Mühəndislik",
-  design: "Dizayn",
-  marketing: "Marketinq",
-  sales: "Satış",
-  product: "Məhsul",
-  "customer-support": "Müştəri Xidmətləri",
-  other: "Digər",
-  any: "İstənilən",
-};
-
 export default function JobDetailPanel({ job, onClose, onApply }: JobDetailPanelProps) {
   const [logoError, setLogoError] = useState(false);
   const [isApplied, setIsApplied] = useState(false);
@@ -145,16 +134,16 @@ export default function JobDetailPanel({ job, onClose, onApply }: JobDetailPanel
             )}
             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-bold border bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20 dark:border-blue-500/30">
               <MapPin size={12} />
-              {job.location || job.city}
+              {job.city || job.location}
             </span>
             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-bold border bg-slate-500/5 text-slate-600 dark:text-slate-400 border-border/50 dark:border-white/10">
               <span className="shrink-0">{locConfig.icon}</span>
               {locConfig.label}
             </span>
-            {job.category && job.category !== "other" && job.category !== "any" && (
+            {job.category && (
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-bold border bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20 dark:border-indigo-500/30">
                 <Layers size={12} />
-                {categoryConfig[job.category] || categoryConfig.other}
+                {job.category.name}
               </span>
             )}
             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-bold border bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20 dark:border-purple-500/30">
