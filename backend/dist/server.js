@@ -10,8 +10,11 @@ const cors_1 = __importDefault(require("cors"));
 const helmet_1 = __importDefault(require("helmet"));
 const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
 const webhookRoutes_1 = __importDefault(require("./routes/webhookRoutes"));
+const stripeRoutes_1 = __importDefault(require("./routes/stripeRoutes"));
 const app = (0, express_1.default)();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
+// Trust Proxy for Render/Cloudflare/etc.
+app.set('trust proxy', 1);
 // Request Logger
 app.use((req, res, next) => {
     console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
@@ -22,13 +25,16 @@ app.use((0, helmet_1.default)());
 app.use((0, cors_1.default)({
     origin: [
         process.env.FRONTEND_URL || 'http://localhost:3000',
-        'http://localhost:51212'
+        'https://nextgen-jobboard.vercel.app',
+        'http://localhost:3000'
     ],
     credentials: true
 }));
 // Webhooks (Must be before express.json() for raw body processing)
 app.use('/api/webhooks', webhookRoutes_1.default);
 app.use(express_1.default.json());
+// Main App Routes
+app.use('/api/stripe', stripeRoutes_1.default);
 // Rate Limiting
 const limiter = (0, express_rate_limit_1.default)({
     windowMs: 15 * 60 * 1000, // 15 minutes
@@ -39,6 +45,8 @@ app.use('/api/', limiter);
 const jobRoutes_1 = __importDefault(require("./routes/jobRoutes"));
 const applicationRoutes_1 = __importDefault(require("./routes/applicationRoutes"));
 const userRoutes_1 = __importDefault(require("./routes/userRoutes"));
+const interviewRoutes_1 = __importDefault(require("./routes/interviewRoutes"));
+const analyticsRoutes_1 = __importDefault(require("./routes/analyticsRoutes"));
 const inngest_1 = require("./lib/inngest");
 const express_2 = require("inngest/express");
 // Health Check
@@ -55,6 +63,9 @@ app.use("/api/inngest", (0, express_2.serve)({ client: inngest_1.inngest, functi
 app.use('/api/jobs', jobRoutes_1.default);
 app.use('/api/applications', applicationRoutes_1.default);
 app.use('/api/users', userRoutes_1.default);
+app.use('/api/interviews', interviewRoutes_1.default);
+app.use('/api/analytics', analyticsRoutes_1.default);
+app.use('/inngest', (0, express_2.serve)({ client: inngest_1.inngest, functions: [inngest_1.helloWorld] }));
 // Global Error Handler
 app.use((err, req, res, next) => {
     console.error('--- Global Error Caught ---');

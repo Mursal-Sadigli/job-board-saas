@@ -18,13 +18,18 @@ cloudinary_1.v2.config({
 const storage = new multer_storage_cloudinary_1.CloudinaryStorage({
     cloudinary: cloudinary_1.v2,
     params: async (req, file) => {
-        const extension = file.originalname.split('.').pop()?.toLowerCase() || 'pdf';
-        const baseName = file.originalname.split('.')[0] || 'resume';
+        const isImage = file.mimetype.startsWith('image/');
+        const extension = file.originalname.split('.').pop()?.toLowerCase() || (isImage ? 'png' : 'pdf');
+        const safeName = file.originalname
+            .split('.')[0]
+            .replace(/[^a-z0-9]/gi, '-')
+            .replace(/-+/g, '-')
+            .substring(0, 50);
         return {
-            folder: 'resumes',
-            resource_type: 'auto',
-            public_id: `${Date.now()}-${baseName}`,
-            format: extension,
+            folder: isImage ? 'images' : 'resumes',
+            resource_type: isImage ? 'image' : 'raw',
+            public_id: `${Date.now()}-${safeName}`,
+            format: isImage ? undefined : extension, // raw files need extension in public_id or format
         };
     },
 });

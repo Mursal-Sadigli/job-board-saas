@@ -35,7 +35,10 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importStar(require("express"));
 const webhookController_1 = require("../controllers/webhookController");
+const stripeController_1 = require("../controllers/stripeController");
 const router = (0, express_1.Router)();
 // Clerk webhooks need the raw body for signature verification
 router.post('/clerk', express_1.default.raw({ type: 'application/json' }), webhookController_1.handleClerkWebhook);
+// Stripe webhooks also need the raw body
+router.post('/stripe', express_1.default.raw({ type: 'application/json' }), stripeController_1.handleWebhook);
 exports.default = router;

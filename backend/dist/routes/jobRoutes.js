@@ -2,7 +2,15 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const jobController_1 = require("../controllers/jobController");
+const auth_1 = require("../middlewares/auth");
+const cloudinary_1 = require("../lib/cloudinary");
 const router = (0, express_1.Router)();
 router.get('/', jobController_1.getAllJobs);
-router.post('/', jobController_1.createJob);
+router.get('/my', auth_1.isAuthenticated, jobController_1.getJobsByEmployer);
+router.post('/', auth_1.isAuthenticated, cloudinary_1.upload.single('logo'), jobController_1.createJob);
+router.patch('/:id', auth_1.isAuthenticated, cloudinary_1.upload.single('logo'), jobController_1.updateJob);
+router.delete('/:id', auth_1.isAuthenticated, jobController_1.deleteJob);
+const jobController_2 = require("../controllers/jobController");
+router.post('/:id/view', jobController_2.incrementJobView);
+router.post('/:id/like', jobController_2.likeJob);
 exports.default = router;

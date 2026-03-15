@@ -11,4 +11,8 @@ router.post('/', isAuthenticated, upload.single('logo'), createJob);
 router.patch('/:id', isAuthenticated, upload.single('logo'), updateJob);
 router.delete('/:id', isAuthenticated, deleteJob);
 
+import { incrementJobView, likeJob } from '../controllers/jobController';
+router.post('/:id/view', incrementJobView);
+router.post('/:id/like', likeJob);
+
 export default router;

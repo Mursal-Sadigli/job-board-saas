@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Job } from "@/types/job";
 import { formatRelativeTime } from "@/utils/formatters";
 import { cn } from "@/utils/cn";
@@ -59,6 +59,22 @@ export default function JobDetailPanel({ job, onClose, onApply }: JobDetailPanel
     // istifadəçiyə uğur mesajını görməyə imkan veririk.
     // onApply?.();
   };
+
+  useEffect(() => {
+    // Only increment view if we have a valid job id
+    if (!job?.id) return;
+    
+    const incrementView = async () => {
+      try {
+        const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
+        await fetch(`${API_BASE}/api/jobs/${job.id}/view`, { method: "POST" });
+      } catch (err) {
+        console.error("Failed to increment job view", err);
+      }
+    };
+    
+    incrementView();
+  }, [job?.id]);
 
   return (
     <div className="flex flex-col h-full bg-card dark:bg-[#0b0e14] border-l border-border dark:border-white/10 relative overflow-hidden backdrop-blur-xl">

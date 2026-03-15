@@ -25,6 +25,8 @@ export interface Job {
   description?: string;
   isActive: boolean;
   applicants: any[]; // Temporarily any to avoid complex circular dependencies
+  viewsCount?: number;
+  likesCount?: number;
 }
 
 export interface JobFilters {

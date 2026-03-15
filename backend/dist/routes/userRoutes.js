@@ -3,7 +3,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const userController_1 = require("../controllers/userController");
 const auth_1 = require("../middlewares/auth");
+const cloudinary_1 = require("../lib/cloudinary");
 const router = (0, express_1.Router)();
-// This endpoint is called from frontend to sync user data
 router.post('/sync', auth_1.isAuthenticated, userController_1.syncUser);
+router.post('/resumes', auth_1.isAuthenticated, cloudinary_1.memoryUpload.single('resume'), userController_1.uploadUserResume);
+router.get('/resumes', auth_1.isAuthenticated, userController_1.getUserResumes);
+router.delete('/resumes/:id', auth_1.isAuthenticated, userController_1.deleteUserResume);
+router.get('/profile', auth_1.isAuthenticated, userController_1.getUserProfile);
+router.put('/profile', auth_1.isAuthenticated, userController_1.updateUserProfile);
+router.get('/notifications', auth_1.isAuthenticated, userController_1.getNotificationSettings);
+router.put('/notifications', auth_1.isAuthenticated, userController_1.updateNotificationSettings);
 exports.default = router;

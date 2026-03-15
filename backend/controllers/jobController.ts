@@ -161,3 +161,45 @@ export const deleteJob = async (req: any, res: Response) => {
     res.status(500).json({ message: 'Elan silinərkən xəta baş verdi', error });
   }
 };
+
+export const incrementJobView = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    
+    // Yalnız bazada varsa yeniləyək
+    const job = await prisma.job.findUnique({ where: { id } });
+    if (!job) return res.status(404).json({ message: 'İş elanı tapılmadı' });
+    
+    const updatedJob = await prisma.job.update({
+      where: { id },
+      data: {
+        viewsCount: { increment: 1 }
+      }
+    });
+    
+    res.json({ viewsCount: updatedJob.viewsCount });
+  } catch (error) {
+    res.status(500).json({ message: 'Baxış sayı artırılarkən xəta baş verdi', error });
+  }
+};
+
+export const likeJob = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    
+    // Auth tələb etmirik ki, qonaqlar da test edə bilsin. İdealda istifadəçiyə görə məhdudlaşdırıla bilər.
+    const job = await prisma.job.findUnique({ where: { id } });
+    if (!job) return res.status(404).json({ message: 'İş elanı tapılmadı' });
+    
+    const updatedJob = await prisma.job.update({
+      where: { id },
+      data: {
+        likesCount: { increment: 1 }
+      }
+    });
+    
+    res.json({ likesCount: updatedJob.likesCount });
+  } catch (error) {
+    res.status(500).json({ message: 'Bəyənmə xətası', error });
+  }
+};

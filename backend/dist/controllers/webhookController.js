@@ -52,29 +52,33 @@ const handleClerkWebhook = async (req, res) => {
             console.error('Missing email in webhook payload:', evt.data);
             return res.status(400).json({ error: 'Missing email address' });
         }
-        console.log(`Upserting user: ClerkID=${clerkId}, Email=${email}, Role=${role}`);
+        console.log(`Upserting user: ClerkID=${clerkId}, Email=${email}, Role=${role}, Name=${name}`);
         try {
             const result = await prisma_1.default.user.upsert({
                 where: { clerkId: clerkId },
                 update: {
                     email: email,
                     name: name,
+                    firstName: first_name,
+                    lastName: last_name,
                     role: role,
                 },
                 create: {
                     clerkId: clerkId,
                     email: email,
                     name: name,
+                    firstName: first_name,
+                    lastName: last_name,
                     role: role,
                 },
             });
-            console.log('Database sync successful for user:', result.id);
+            console.log('Database sync successful for user ID:', result.id);
         }
         catch (dbError) {
-            console.error('Database operation failed during webhook sync:');
+            console.error('--- Database Sync Error (Clerk Webhook) ---');
             console.error('Error Code:', dbError.code);
             console.error('Error Message:', dbError.message);
-            return res.status(500).json({ error: 'Database sync failed', details: dbError.message });
+            return res.status(500).json({ error: 'Database sync failed', details: dbError.message, code: dbError.code });
         }
     }
     if (eventType === 'user.deleted') {

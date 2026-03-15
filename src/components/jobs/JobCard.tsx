@@ -13,6 +13,8 @@ import {
   Globe,
   Network,
   Banknote,
+  Heart,
+  Eye,
 } from "lucide-react";
 
 interface JobCardProps {
@@ -46,11 +48,48 @@ const expLevelConfig: Record<string, string> = {
 
 export default function JobCard({ job, onClick, isSelected }: JobCardProps) {
   const [logoError, setLogoError] = useState(false);
+  const [isLiked, setIsLiked] = useState<boolean | null>(null); // null means not mounted yet
+  const [optimisticLikes, setOptimisticLikes] = useState<number | null>(null);
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
-  }, []);
+    if (job?.id) {
+      const likedJobs = JSON.parse(localStorage.getItem('likedJobs') || '[]');
+      setIsLiked(likedJobs.includes(job.id));
+    }
+  }, [job?.id]);
+
+  const views = job?.viewsCount ?? 0;
+  
+  // Məntiqli göstərici: əgər optimistic deyilərsə bazadakı likesCount (və ya 0) istifadə olunur.
+  const baseLikes = job?.likesCount ?? 0;
+  const displayLikes = optimisticLikes !== null ? optimisticLikes : baseLikes;
+
+  const handleLike = async (e: React.MouseEvent) => {
+    e.stopPropagation(); 
+    e.preventDefault();
+
+    if (isLiked) return; // Prevent multiple likes
+
+    // Optimistic UI Update: 
+    setIsLiked(true);
+    setOptimisticLikes(displayLikes + 1);
+    
+    try {
+      const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
+      await fetch(`${API_BASE}/api/jobs/${job.id}/like`, { method: "POST" });
+      
+      // Save to localStorage
+      const likedJobs = JSON.parse(localStorage.getItem('likedJobs') || '[]');
+      localStorage.setItem('likedJobs', JSON.stringify([...likedJobs, job.id]));
+    } catch (err) {
+      console.error("Failed to like job", err);
+      // Revert optimism if failed
+      setIsLiked(false);
+      setOptimisticLikes(null); // Return to base
+    }
+  };
 
   const locConfig = locationTypeConfig[job.locationType] || locationTypeConfig.any;
   const expLabel = expLevelConfig[job.experienceLevel] || expLevelConfig.any;
@@ -119,9 +158,11 @@ export default function JobCard({ job, onClick, isSelected }: JobCardProps) {
             </div>
           </div>
 
-          {/* Tags */}
-          <div className="flex flex-wrap gap-1.5 sm:gap-2">
-            {job.featured && (
+          {/* Footer: Tags and Stats */}
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 sm:gap-4 mt-1">
+            {/* Tags */}
+            <div className="flex flex-wrap gap-1.5 sm:gap-2 flex-1">
+              {job.featured && (
               <span className="inline-flex items-center gap-1 sm:gap-1.5 px-2 py-0.5 sm:px-3 sm:py-1.5 rounded-lg text-[9px] sm:text-[10px] font-black uppercase tracking-wider bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20">
                 < Award size={11} className="shrink-0" />
                 Önə çıxan
@@ -145,6 +186,43 @@ export default function JobCard({ job, onClick, isSelected }: JobCardProps) {
                 {job.salary}
               </span>
             )}
+            </div>
+
+            {/* Stats (Views & Likes) */}
+            <div className="flex items-center gap-3 sm:gap-4 shrink-0 sm:pb-0.5 self-start sm:self-end">
+              <div 
+                className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors"
+                title={`${views} baxış`}
+              >
+                <Eye size={15} className="stroke-[2.5]" />
+                <span className="text-[11px] sm:text-xs font-bold">{views}</span>
+              </div>
+              <button 
+                className={cn(
+                  "flex items-center gap-1.5 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-rose-500 rounded-sm",
+                  isLiked 
+                    ? "text-rose-500" 
+                    : "text-muted-foreground hover:text-rose-500 group/like"
+                )}
+                title={`${displayLikes} bəyənmə`}
+                onClick={handleLike}
+                disabled={isLiked === null || isLiked} // Disable if not mounted or already liked
+              >
+                <Heart 
+                  size={15} 
+                  className={cn(
+                    "stroke-[2.5]",
+                    isLiked ? "fill-rose-500" : "group-hover/like:fill-rose-500/20 active:scale-95 transition-transform"
+                  )} 
+                />
+                <span className={cn(
+                  "text-[11px] sm:text-xs font-bold",
+                  !isLiked && "group-hover/like:text-rose-500"
+                )}>
+                  {displayLikes}
+                </span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
