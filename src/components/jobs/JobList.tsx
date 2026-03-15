@@ -6,11 +6,34 @@ import { Briefcase, SearchX } from "lucide-react";
 
 interface JobListProps {
   jobs: Job[];
+  isLoading?: boolean;
   selectedJobId?: string | null;
   onSelect?: (job: Job) => void;
 }
 
-export default function JobList({ jobs, selectedJobId, onSelect }: JobListProps) {
+export default function JobList({ jobs, isLoading, selectedJobId, onSelect }: JobListProps) {
+  if (isLoading) {
+    return (
+      <div className="flex flex-col gap-3">
+        {[1, 2, 3, 4, 5].map((i) => (
+          <div key={i} className="border rounded-2xl p-5 bg-card dark:bg-slate-900/40 border-border dark:border-white/10 animate-pulse">
+            <div className="flex gap-4 items-start">
+              <div className="w-16 h-16 rounded-xl bg-muted/50 shrink-0" />
+              <div className="flex-1 space-y-3">
+                <div className="h-4 bg-muted/50 rounded-md w-3/4" />
+                <div className="h-3 bg-muted/30 rounded-md w-1/4" />
+                <div className="flex gap-2 pt-2">
+                  <div className="h-6 bg-muted/20 rounded-lg w-20" />
+                  <div className="h-6 bg-muted/20 rounded-lg w-24" />
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
   if (jobs.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-4 bg-card dark:bg-[#0f1423] rounded-[2.5rem] border border-dashed border-border dark:border-white/10 shadow-inner backdrop-blur-xl">

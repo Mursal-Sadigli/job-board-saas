@@ -130,18 +130,12 @@ function JobBoardContent() {
             <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{jobs.length} vakansiya</p>
           </div>
         </div>
-        {isLoading ? (
-          <div className="flex flex-col items-center justify-center h-[50vh] space-y-4">
-            <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-            <p className="text-sm font-bold text-muted-foreground animate-pulse">Vakansiyalar yüklənir...</p>
-          </div>
-        ) : (
-          <JobList
-            jobs={jobs}
-            selectedJobId={selectedJob?.id}
-            onSelect={handleSelectJob}
-          />
-        )}
+        <JobList
+          jobs={jobs}
+          isLoading={isLoading}
+          selectedJobId={selectedJob?.id}
+          onSelect={handleSelectJob}
+        />
       </main>
 
       {/* Resizer Handle */}

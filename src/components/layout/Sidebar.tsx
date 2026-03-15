@@ -240,35 +240,45 @@ export default function Sidebar({
               )}
             >
               <div className="ml-5 pl-4 flex flex-col gap-1 border-l border-border/60">
-                {categories.map((cat) => {
-                  const isActive = searchParams?.get('category') === cat.slug;
-                  
-                  return (
-                    <Link
-                      key={cat.id}
-                      href={`/?category=${cat.slug}`}
-                      onClick={() => onNavigate?.()}
-                      className={cn(
-                        "flex items-center gap-3 px-3 py-1.5 rounded-lg text-[13px] font-medium transition-all",
-                        isActive
-                          ? "text-slate-900 dark:text-white bg-slate-100/50 dark:bg-slate-900/50"
-                          : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-900/30"
-                      )}
-                    >
-                      <div
+                {categories.length === 0 ? (
+                  // Category skeleton
+                  Array.from({ length: 5 }).map((_, i) => (
+                    <div key={i} className="flex items-center gap-3 px-3 py-2 animate-pulse">
+                      <div className="w-5 h-5 rounded-md bg-muted/30" />
+                      <div className="w-24 h-3 rounded-md bg-muted/20" />
+                    </div>
+                  ))
+                ) : (
+                  categories.map((cat) => {
+                    const isActive = searchParams?.get('category') === cat.slug;
+                    
+                    return (
+                      <Link
+                        key={cat.id}
+                        href={`/?category=${cat.slug}`}
+                        onClick={() => onNavigate?.()}
                         className={cn(
-                          "shrink-0",
+                          "flex items-center gap-3 px-3 py-1.5 rounded-lg text-[13px] font-medium transition-all text-truncate",
                           isActive
-                            ? "text-slate-900 dark:text-white"
-                            : "text-slate-400"
+                            ? "text-slate-900 dark:text-white bg-slate-100/50 dark:bg-slate-900/50"
+                            : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-900/30"
                         )}
                       >
-                        <Layers size={14} />
-                      </div>
-                      <span className="truncate">{cat.name}</span>
-                    </Link>
-                  );
-                })}
+                        <div
+                          className={cn(
+                            "shrink-0",
+                            isActive
+                              ? "text-slate-900 dark:text-white"
+                              : "text-slate-400"
+                          )}
+                        >
+                          <Layers size={14} />
+                        </div>
+                        <span className="truncate">{cat.name}</span>
+                      </Link>
+                    );
+                  })
+                )}
               </div>
             </div>
           )}

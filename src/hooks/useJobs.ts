@@ -27,16 +27,13 @@ export function useJobs() {
   }, [categoryParam]);
 
   useEffect(() => {
-    async function fetchData() {
-      try {
-        const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
-        const [jobsRes, categoriesRes] = await Promise.all([
-          fetch(`${API_BASE}/api/jobs`),
-          fetch(`${API_BASE}/api/jobs/categories`)
-        ]);
+    const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
 
-        if (jobsRes.ok) {
-          const data = await jobsRes.json();
+    async function fetchJobs() {
+      try {
+        const response = await fetch(`${API_BASE}/api/jobs`);
+        if (response.ok) {
+          const data = await response.json();
           const mappedJobs = data.map((j: any) => ({
             ...j,
             company: j.employer?.companyName || j.company,
@@ -48,18 +45,27 @@ export function useJobs() {
           }));
           setDbJobs(mappedJobs);
         }
-
-        if (categoriesRes.ok) {
-          const cats = await categoriesRes.json();
-          setCategories(cats);
-        }
       } catch (err) {
-        console.error("Failed to fetch data:", err);
+        console.error("Failed to fetch jobs:", err);
       } finally {
         setIsLoading(false);
       }
     }
-    fetchData();
+
+    async function fetchCategories() {
+      try {
+        const response = await fetch(`${API_BASE}/api/jobs/categories`);
+        if (response.ok) {
+          const cats = await response.json();
+          setCategories(cats);
+        }
+      } catch (err) {
+        console.error("Failed to fetch categories:", err);
+      }
+    }
+
+    fetchJobs();
+    fetchCategories();
   }, []);
 
   const jobs = useMemo(() => {
