@@ -1,12 +1,29 @@
 import { useState, useMemo, useEffect } from "react";
-import { Job, JobFilters, DEFAULT_FILTERS } from "@/types/job";
+import { useSearchParams } from "next/navigation";
+import { Job, JobFilters, DEFAULT_FILTERS, JobCategory } from "@/types/job";
 
 export function useJobs() {
+  const searchParams = useSearchParams();
+  const categoryParam = searchParams?.get("category") as JobCategory | null;
+
   const [dbJobs, setDbJobs] = useState<Job[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [filters, setFilters] = useState<JobFilters>(DEFAULT_FILTERS);
-  const [appliedFilters, setAppliedFilters] =
-    useState<JobFilters>(DEFAULT_FILTERS);
+  
+  const [filters, setFilters] = useState<JobFilters>({
+    ...DEFAULT_FILTERS,
+    category: categoryParam || "any"
+  });
+  
+  const [appliedFilters, setAppliedFilters] = useState<JobFilters>({
+    ...DEFAULT_FILTERS,
+    category: categoryParam || "any"
+  });
+
+  useEffect(() => {
+    const newCategory = categoryParam || "any";
+    setFilters(prev => ({ ...prev, category: newCategory }));
+    setAppliedFilters(prev => ({ ...prev, category: newCategory }));
+  }, [categoryParam]);
 
   useEffect(() => {
     async function fetchJobs() {
@@ -77,6 +94,12 @@ export function useJobs() {
       if (
         appliedFilters.experienceLevel !== "any" &&
         job.experienceLevel !== appliedFilters.experienceLevel
+      ) {
+        return false;
+      }
+      if (
+        appliedFilters.category !== "any" &&
+        job.category !== appliedFilters.category
       ) {
         return false;
       }

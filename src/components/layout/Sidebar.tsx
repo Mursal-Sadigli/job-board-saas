@@ -19,6 +19,7 @@ import {
   User,
   Moon,
   Sun,
+  Layers,
 } from "lucide-react";
 import { useSidebar } from "@/hooks/useSidebar";
 import { ROUTES } from "@/routes/paths";
@@ -53,6 +54,16 @@ const mainNavItems: NavItem[] = [
     href: ROUTES.aiSearch,
     icon: <Sparkles size={18} />,
   },
+];
+
+const categoriesItems: NavItem[] = [
+  { label: "Mühəndislik", href: "/?category=engineering", icon: <Layers size={16} /> },
+  { label: "Dizayn", href: "/?category=design", icon: <Layers size={16} /> },
+  { label: "Marketinq", href: "/?category=marketing", icon: <Layers size={16} /> },
+  { label: "Satış", href: "/?category=sales", icon: <Layers size={16} /> },
+  { label: "Məhsul", href: "/?category=product", icon: <Layers size={16} /> },
+  { label: "Müştəri Xidmətləri", href: "/?category=customer-support", icon: <Layers size={16} /> },
+  { label: "Digər", href: "/?category=other", icon: <Layers size={16} /> },
 ];
 
 const settingsItems: NavItem[] = [
@@ -90,8 +101,13 @@ export default function Sidebar({
   const router = useRouter();
   const { theme, setTheme } = useTheme();
   const { settingsExpanded, toggleSettings } = useSidebar();
+  const [categoriesExpanded, setCategoriesExpanded] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [orgSwitcherOpen, setOrgSwitcherOpen] = useState(false);
+
+  // Check if any category is active
+  const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+  const isCategoriesActive = searchParams?.get('category') ? true : categoriesExpanded;
 
   const isSettingsActive = pathname.startsWith("/settings") || settingsExpanded;
 
@@ -163,6 +179,94 @@ export default function Sidebar({
             </Link>
           );
         })}
+
+        {/* Categories group */}
+        <div className="mt-4">
+          {!isCollapsed && (
+            <div className="px-3 mb-2 text-[10px] font-bold uppercase tracking-widest text-slate-400/80">
+              Kategoriyalar
+            </div>
+          )}
+          <button
+            onClick={() => setCategoriesExpanded(!categoriesExpanded)}
+            className={cn(
+              "w-full flex items-center rounded-xl text-sm font-medium transition-all h-10 group",
+              isCollapsed ? "justify-center px-0" : "px-3 gap-3",
+              isCategoriesActive
+                ? "text-slate-900 dark:text-white"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900"
+            )}
+          >
+            <div
+              className={cn(
+                "shrink-0 transition-colors",
+                isCategoriesActive
+                  ? "text-slate-900 dark:text-white"
+                  : "text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white"
+              )}
+            >
+              <Layers size={18} />
+            </div>
+            {!isCollapsed && (
+              <>
+                <span className="flex-1 text-left truncate font-medium">
+                  Bütün Kategoriyalar
+                </span>
+                <ChevronRight
+                  size={14}
+                  className={cn(
+                    "transition-transform duration-300 text-slate-400",
+                    categoriesExpanded && "rotate-90"
+                  )}
+                />
+              </>
+            )}
+          </button>
+
+          {!isCollapsed && (
+            <div
+              className={cn(
+                "overflow-hidden transition-all duration-500 ease-in-out",
+                categoriesExpanded
+                  ? "max-h-[300px] opacity-100 mt-1"
+                  : "max-h-0 opacity-0"
+              )}
+            >
+              <div className="ml-5 pl-4 flex flex-col gap-1 border-l border-border/60">
+                {categoriesItems.map((item) => {
+                  const hrefParams = new URLSearchParams(item.href.split('?')[1]);
+                  const isActive = searchParams?.get('category') === hrefParams.get('category');
+                  
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => onNavigate?.()}
+                      className={cn(
+                        "flex items-center gap-3 px-3 py-1.5 rounded-lg text-[13px] font-medium transition-all",
+                        isActive
+                          ? "text-slate-900 dark:text-white bg-slate-100/50 dark:bg-slate-900/50"
+                          : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-900/30"
+                      )}
+                    >
+                      <div
+                        className={cn(
+                          "shrink-0",
+                          isActive
+                            ? "text-slate-900 dark:text-white"
+                            : "text-slate-400"
+                        )}
+                      >
+                        {item.icon}
+                      </div>
+                      <span>{item.label}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* Settings group */}
         <div className="mt-4">

@@ -133,6 +133,30 @@ export default function JobFiltersPanel({
             </SelectContent>
           </Select>
         </FilterField>
+
+        {/* Category */}
+        <FilterField label="Kateqoriya">
+          <Select
+            value={filters.category}
+            onValueChange={(value) =>
+              update("category", value)
+            }
+          >
+            <SelectTrigger className="bg-card dark:bg-[#0f1423] border-border dark:border-white/10 h-11 rounded-xl focus:ring-primary/20">
+              <SelectValue placeholder="Kateqoriya seçin" />
+            </SelectTrigger>
+            <SelectContent className="rounded-xl border-border dark:border-white/10 dark:bg-[#0f1423] backdrop-blur-xl">
+              <SelectItem value="any">İstənilən</SelectItem>
+              <SelectItem value="engineering">Mühəndislik</SelectItem>
+              <SelectItem value="design">Dizayn</SelectItem>
+              <SelectItem value="marketing">Marketinq</SelectItem>
+              <SelectItem value="sales">Satış</SelectItem>
+              <SelectItem value="product">Məhsul</SelectItem>
+              <SelectItem value="customer-support">Müştəri Xidmətləri</SelectItem>
+              <SelectItem value="other">Digər</SelectItem>
+            </SelectContent>
+          </Select>
+        </FilterField>
       </div>
 
       <div className="p-6 border-t border-border dark:border-white/10 bg-background dark:bg-[#0b0e14]">

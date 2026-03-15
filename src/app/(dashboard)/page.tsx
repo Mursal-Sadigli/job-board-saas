@@ -10,7 +10,9 @@ import JobDetailPanel from "@/components/jobs/JobDetailPanel";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/utils/cn";
 
-export default function JobBoardPage() {
+import { Suspense } from "react";
+
+function JobBoardContent() {
   const { jobs, filters, setFilters, applyFilters, resetFilters, isLoading } = useJobs();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
@@ -187,6 +189,14 @@ export default function JobBoardPage() {
       </Sheet>
 
     </div>
+  );
+}
+
+export default function JobBoardPage() {
+  return (
+    <Suspense fallback={<div className="flex h-full items-center justify-center p-8"><div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" /></div>}>
+      <JobBoardContent />
+    </Suspense>
   );
 }
 

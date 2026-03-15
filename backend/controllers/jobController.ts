@@ -3,8 +3,13 @@ import prisma from '../lib/prisma';
 
 export const getAllJobs = async (req: Request, res: Response) => {
   try {
+    const { category } = req.query;
+    
     const jobs = await prisma.job.findMany({
-      where: { isActive: true },
+      where: { 
+        isActive: true,
+        ...(category && category !== 'any' ? { category: String(category) } : {})
+      },
       orderBy: { postedAt: 'desc' },
       include: {
         employer: {
@@ -65,7 +70,7 @@ export const createJob = async (req: any, res: Response) => {
 
     const {
       title, description, company, location, locationType,
-      jobType, experienceLevel, salary, city, district, deadline, isFeatured
+      jobType, category, experienceLevel, salary, city, district, deadline, isFeatured
     } = req.body;
 
     const logoUrl = req.file ? req.file.path : undefined;
@@ -78,6 +83,7 @@ export const createJob = async (req: any, res: Response) => {
         location: [city, district].filter(Boolean).join(', ') || location || '',
         locationType,
         jobType,
+        category: category || 'other',
         experienceLevel,
         salary,
         logoUrl,
@@ -103,7 +109,7 @@ export const updateJob = async (req: any, res: Response) => {
     const { id } = req.params;
     const {
       title, description, company, location, locationType, jobType,
-      experienceLevel, salary, isActive, isFeatured, city, district
+      category, experienceLevel, salary, isActive, isFeatured, city, district
     } = req.body;
 
     // Verify ownership
@@ -120,6 +126,7 @@ export const updateJob = async (req: any, res: Response) => {
         ...(company !== undefined && { company }),
         ...(locationType !== undefined && { locationType }),
         ...(jobType !== undefined && { jobType }),
+        ...(category !== undefined && { category }),
         ...(experienceLevel !== undefined && { experienceLevel }),
         ...(salary !== undefined && { salary }),
         ...(isActive !== undefined && (isActive === 'true' || isActive === true ? { isActive: true } : { isActive: false })),

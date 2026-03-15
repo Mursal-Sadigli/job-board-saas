@@ -7,8 +7,12 @@ exports.likeJob = exports.incrementJobView = exports.deleteJob = exports.updateJ
 const prisma_1 = __importDefault(require("../lib/prisma"));
 const getAllJobs = async (req, res) => {
     try {
+        const { category } = req.query;
         const jobs = await prisma_1.default.job.findMany({
-            where: { isActive: true },
+            where: {
+                isActive: true,
+                ...(category && category !== 'any' ? { category: String(category) } : {})
+            },
             orderBy: { postedAt: 'desc' },
             include: {
                 employer: {
@@ -68,7 +72,7 @@ const createJob = async (req, res) => {
         const user = await prisma_1.default.user.findUnique({ where: { clerkId } });
         if (!user)
             return res.status(404).json({ message: 'İstifadəçi tapılmadı' });
-        const { title, description, company, location, locationType, jobType, experienceLevel, salary, city, district, deadline, isFeatured } = req.body;
+        const { title, description, company, location, locationType, jobType, category, experienceLevel, salary, city, district, deadline, isFeatured } = req.body;
         const logoUrl = req.file ? req.file.path : undefined;
         const newJob = await prisma_1.default.job.create({
             data: {
@@ -78,6 +82,7 @@ const createJob = async (req, res) => {
                 location: [city, district].filter(Boolean).join(', ') || location || '',
                 locationType,
                 jobType,
+                category: category || 'other',
                 experienceLevel,
                 salary,
                 logoUrl,
@@ -101,7 +106,7 @@ const updateJob = async (req, res) => {
         if (!user)
             return res.status(404).json({ message: 'İstifadəçi tapılmadı' });
         const { id } = req.params;
-        const { title, description, company, location, locationType, jobType, experienceLevel, salary, isActive, isFeatured, city, district } = req.body;
+        const { title, description, company, location, locationType, jobType, category, experienceLevel, salary, isActive, isFeatured, city, district } = req.body;
         // Verify ownership
         const existing = await prisma_1.default.job.findFirst({ where: { id, employerId: user.id } });
         if (!existing)
@@ -115,6 +120,7 @@ const updateJob = async (req, res) => {
                 ...(company !== undefined && { company }),
                 ...(locationType !== undefined && { locationType }),
                 ...(jobType !== undefined && { jobType }),
+                ...(category !== undefined && { category }),
                 ...(experienceLevel !== undefined && { experienceLevel }),
                 ...(salary !== undefined && { salary }),
                 ...(isActive !== undefined && (isActive === 'true' || isActive === true ? { isActive: true } : { isActive: false })),

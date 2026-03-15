@@ -51,6 +51,7 @@ export type JobFormData = {
   city: string
   locationType: "remote" | "hybrid" | "in-office"
   jobType: "full-time" | "part-time" | "contract" | "internship"
+  category: "engineering" | "design" | "marketing" | "sales" | "product" | "customer-support" | "other"
   experienceLevel: "junior" | "mid" | "senior" | "lead"
   deadline?: string
   logoFile?: File | null
@@ -67,6 +68,7 @@ const defaultForm: JobFormData = {
   city: "",
   locationType: "in-office",
   jobType: "full-time",
+  category: "other",
   experienceLevel: "mid",
   deadline: "",
   logoFile: null,
@@ -277,8 +279,7 @@ export function PostJobModal({
             </div>
           </div>
 
-          {/* Dropdowns */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             <SelectField
               label="İş Rejimi"
               field="locationType"
@@ -296,6 +297,19 @@ export function PostJobModal({
                 { value: "part-time", label: "Yarımştat" },
                 { value: "contract", label: "Müqavilə" },
                 { value: "internship", label: "Təcrübəçi" },
+              ]}
+            />
+            <SelectField
+              label="Kateqoriya"
+              field="category"
+              options={[
+                { value: "engineering", label: "Mühəndislik (Engineering)" },
+                { value: "design", label: "Dizayn (Design)" },
+                { value: "marketing", label: "Marketinq (Marketing)" },
+                { value: "sales", label: "Satış (Sales)" },
+                { value: "product", label: "Məhsul (Product)" },
+                { value: "customer-support", label: "Müştəri Xidmətləri (CS)" },
+                { value: "other", label: "Digər" },
               ]}
             />
             <SelectField

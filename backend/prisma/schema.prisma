@@ -61,6 +61,7 @@ model Job {
   location        String
   locationType    String    // remote, hybrid, in-office
   jobType         String    // full-time, part-time, contract, etc.
+  category        String    @default("other") // engineering, design, marketing, etc.
   experienceLevel String    // junior, mid, senior
   salary          String?
   logoUrl         String?

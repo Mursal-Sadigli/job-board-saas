@@ -7,6 +7,8 @@ export type JobType =
   | "internship";
 export type ExperienceLevel = "any" | "junior" | "mid" | "senior" | "lead";
 
+export type JobCategory = "any" | "engineering" | "design" | "marketing" | "sales" | "product" | "customer-support" | "other";
+
 export interface Job {
   id: string;
   title: string;
@@ -17,6 +19,7 @@ export interface Job {
   city: string;
   state: string;
   jobType: JobType;
+  category: JobCategory;
   experienceLevel: ExperienceLevel;
   salary?: string;
   postedAt: string;
@@ -35,6 +38,7 @@ export interface JobFilters {
   city: string;
   state: string;
   jobType: JobType;
+  category: JobCategory;
   experienceLevel: ExperienceLevel;
 }
 
@@ -44,5 +48,6 @@ export const DEFAULT_FILTERS: JobFilters = {
   city: "",
   state: "any",
   jobType: "any",
+  category: "any",
   experienceLevel: "any",
 };

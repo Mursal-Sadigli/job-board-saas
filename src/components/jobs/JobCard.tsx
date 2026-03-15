@@ -15,6 +15,7 @@ import {
   Banknote,
   Heart,
   Eye,
+  Layers,
 } from "lucide-react";
 
 interface JobCardProps {
@@ -43,6 +44,17 @@ const expLevelConfig: Record<string, string> = {
   mid: "Mid",
   senior: "Senior",
   lead: "Lead",
+  any: "İstənilən",
+};
+
+const categoryConfig: Record<string, string> = {
+  engineering: "Mühəndislik",
+  design: "Dizayn",
+  marketing: "Marketinq",
+  sales: "Satış",
+  product: "Məhsul",
+  "customer-support": "Müştəri Xidmətləri",
+  other: "Digər",
   any: "İstənilən",
 };
 
@@ -176,6 +188,12 @@ export default function JobCard({ job, onClick, isSelected }: JobCardProps) {
               <span className="shrink-0 scale-90">{locConfig.icon}</span>
               {locConfig.label}
             </span>
+            {job.category && job.category !== "other" && job.category !== "any" && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 sm:px-3 sm:py-1.5 rounded-lg text-[9px] sm:text-xs font-semibold bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">
+                <Layers size={11} className="shrink-0" />
+                {categoryConfig[job.category] || categoryConfig.other}
+              </span>
+            )}
             <span className="inline-flex items-center gap-1 px-2 py-0.5 sm:px-3 sm:py-1.5 rounded-lg text-[9px] sm:text-xs font-semibold bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20">
               <Briefcase size={11} className="shrink-0" />
               {jobTypeConfig[job.jobType] || jobTypeConfig.any}
