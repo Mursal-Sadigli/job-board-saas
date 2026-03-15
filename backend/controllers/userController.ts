@@ -1,6 +1,6 @@
 import prisma from '../lib/prisma';
 import { v2 as cloudinary } from 'cloudinary';
-import { ClerkExpressWithAuth } from '@clerk/clerk-sdk-node';
+import { clerkClient } from '@clerk/clerk-sdk-node';
 import { UserRole } from '@prisma/client';
 import { Request, Response } from 'express';
 
@@ -10,44 +10,62 @@ export const syncUser = async (req: any, res: Response) => {
     
     console.log('--- User Sync Started ---');
     console.log('Clerk ID:', clerkId);
-    console.log('Session Claims:', JSON.stringify(req.auth?.sessionClaims, null, 2));
 
     if (!clerkId) {
       console.error('User sync error: No Clerk ID found in request auth.');
       return res.status(401).json({ message: 'Unauthorized - No Clerk ID' });
     }
 
-    // Attempt to get user data from session claims
-    // These need to be configured in Clerk Dashboard JWT Template
-    const email = req.auth?.sessionClaims?.email;
-    const firstName = req.auth?.sessionClaims?.first_name || req.auth?.sessionClaims?.firstName;
-    const lastName = req.auth?.sessionClaims?.last_name || req.auth?.sessionClaims?.lastName;
-    const name = firstName && lastName ? `${firstName} ${lastName}` : firstName || lastName || null;
-    const role = (req.auth?.sessionClaims?.metadata?.role?.toUpperCase() as UserRole) || UserRole.CANDIDATE;
+    // Attempt to get user data from session claims first
+    let email = req.auth?.sessionClaims?.email;
+    let firstName = req.auth?.sessionClaims?.first_name || req.auth?.sessionClaims?.firstName;
+    let lastName = req.auth?.sessionClaims?.last_name || req.auth?.sessionClaims?.lastName;
+    let name = firstName && lastName ? `${firstName} ${lastName}` : firstName || lastName || null;
+    let role = (req.auth?.sessionClaims?.metadata?.role?.toUpperCase() as UserRole) || UserRole.CANDIDATE;
 
-    console.log(`Syncing user details: Email=${email}, Name=${name}, Role=${role}`);
+    // FALLBACK: If email is missing from JWT, fetch it directly from Clerk API
+    if (!email) {
+      console.log('Email missing from JWT, fetching from Clerk API...');
+      try {
+        const clerkUser = await clerkClient.users.getUser(clerkId);
+        email = clerkUser.emailAddresses?.[0]?.emailAddress;
+        firstName = clerkUser.firstName;
+        lastName = clerkUser.lastName;
+        name = `${firstName || ''} ${lastName || ''}`.trim() || null;
+        const metaRole = clerkUser.publicMetadata?.role as string | undefined;
+        role = (metaRole?.toUpperCase() as UserRole) || UserRole.CANDIDATE;
+        console.log(`Fetched from Clerk API: Email=${email}, Role=${role}`);
+      } catch (clerkError: any) {
+        console.error('Error fetching user from Clerk API:', clerkError.message);
+      }
+    }
 
     if (!email) {
-      console.warn('Warning: Email is missing from session claims. This might cause Prisma unique constraint issues if not handled.');
+      console.warn('Warning: Email still missing after Clerk API fallback. Using temporary fallback to prevent DB crash.');
+      email = `user_${clerkId}@temporary.clerk`;
     }
 
     const user = await prisma.user.upsert({
       where: { clerkId },
       update: {
-        ...(email && { email }),
-        ...(name && { name }),
-        ...(role && { role }),
+        email: email, // Always update to the best available email
+        name: name,
+        role: role,
+        firstName: firstName,
+        lastName: lastName
       },
       create: {
         clerkId,
-        email: email || `user_${clerkId}@temporary.clerk`, // Fallback to avoid unique constraint error if email is missing temporarily
-        name,
-        role,
+        email: email,
+        name: name,
+        role: role,
+        firstName: firstName,
+        lastName: lastName
       },
       include: { resumes: true }
     });
 
-    console.log('User sync successful for DB ID:', user.id);
+    console.log('User sync successful for DB ID:', user.id, 'Email:', user.email);
 
     res.status(200).json({
       ...user,
@@ -57,10 +75,6 @@ export const syncUser = async (req: any, res: Response) => {
     console.error('--- User Sync Detailed Error ---');
     console.error('Error Code:', error.code);
     console.error('Error Message:', error.message);
-    if (error.code === 'P2002') {
-      console.error('Identity conflict: Email or ClerkID already exists or is empty leading to conflict.');
-      return res.status(409).json({ message: 'İstifadəçi məlumatlarında ziddiyyət yarandı (Email artıq istifadə olunur və ya boşdur)' });
-    }
     res.status(500).json({ message: 'İstifadəçi sinxronizasiyası zamanı xəta baş verdi', error: error.message });
   }
 };
