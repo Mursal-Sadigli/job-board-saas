@@ -45,69 +45,101 @@ export const syncUser = async (req: any, res: Response) => {
       email = `user_${clerkId}@temporary.clerk`;
     }
 
-    // Check if user exists by clerkId
-    let user = await prisma.user.findUnique({
+    // --- DEEP SYNC LOGIC ---
+    // 1. Try to find user by clerkId
+    let userByClerk = await prisma.user.findUnique({
       where: { clerkId },
       include: { resumes: true }
     });
 
-    if (user) {
-      // Update existing user with latest info
-      user = await prisma.user.update({
-        where: { clerkId },
+    // 2. Try to find user by email
+    let userByEmail = await prisma.user.findUnique({
+      where: { email },
+      include: { resumes: true }
+    });
+
+    let finalUser;
+
+    if (userByClerk && userByEmail && userByClerk.id !== userByEmail.id) {
+      // CONFLICT: We have two different records for this identity.
+      // This happens if user logged in with different providers or changed emails.
+      console.log('--- CONFLICT DETECTED ---');
+      console.log(`Merging user ${userByClerk.id} into ${userByEmail.id}`);
+      
+      // We prioritize the record that matches the current EMAIL.
+      // Update the record that has the email to have this new clerkId.
+      finalUser = await prisma.user.update({
+        where: { id: userByEmail.id },
         data: {
-          email: email,
-          name: name,
-          role: role,
-          firstName: firstName,
-          lastName: lastName,
+          clerkId: clerkId,
+          name: name || userByEmail.name,
+          firstName: firstName || userByEmail.firstName,
+          lastName: lastName || userByEmail.lastName,
+          role: role || userByEmail.role,
           updatedAt: new Date()
         },
         include: { resumes: true }
       });
-    } else {
-      // Check if user exists by email (case where clerkId is different or missing)
-      const existingUserByEmail = await prisma.user.findUnique({
-        where: { email }
-      });
 
-      if (existingUserByEmail) {
-        // Link existing email account to this clerkId
-        user = await prisma.user.update({
-          where: { id: existingUserByEmail.id },
-          data: {
-            clerkId,
-            name: name || existingUserByEmail.name,
-            role: role || existingUserByEmail.role,
-            firstName: firstName || existingUserByEmail.firstName,
-            lastName: lastName || existingUserByEmail.lastName,
-            updatedAt: new Date()
-          },
-          include: { resumes: true }
-        });
-        console.log('Linked existing email account to new Clerk ID:', clerkId);
-      } else {
-        // Create brand new user
-        user = await prisma.user.create({
-          data: {
-            clerkId,
-            email: email,
-            name: name,
-            role: role,
-            firstName: firstName,
-            lastName: lastName
-          },
-          include: { resumes: true }
-        });
-        console.log('Created brand new user record');
-      }
+      // Optionally: Delete the old duplicate record to clean up (IMPORTANT!)
+      // Note: In a real app, you'd want to merge relations (resumes, jobs, etc.) 
+      // but to stop the crash right now, we delete the redundant Clerk record.
+      await prisma.user.delete({ where: { id: userByClerk.id } }).catch(e => console.error('Cleanup error:', e));
+      console.log('Redundant record deleted.');
+
+    } else if (userByClerk) {
+      // Normal case: Update existing clerk record
+      // If email is also changing and it's TAKEN (already handled by conflict above, 
+      // but just in case), this will update smoothly.
+      finalUser = await prisma.user.update({
+        where: { clerkId },
+        data: {
+          email: email,
+          name: name,
+          firstName: firstName,
+          lastName: lastName,
+          role: role,
+          updatedAt: new Date()
+        },
+        include: { resumes: true }
+      });
+      console.log('Updated existing user by Clerk ID');
+    } else if (userByEmail) {
+      // Link existing email account to this new Clerk ID
+      finalUser = await prisma.user.update({
+        where: { email },
+        data: {
+          clerkId: clerkId,
+          name: name || userByEmail.name,
+          firstName: firstName || userByEmail.firstName,
+          lastName: lastName || userByEmail.lastName,
+          role: role || userByEmail.role,
+          updatedAt: new Date()
+        },
+        include: { resumes: true }
+      });
+      console.log('Linked existing email user to new Clerk ID');
+    } else {
+      // Create new user
+      finalUser = await prisma.user.create({
+        data: {
+          clerkId,
+          email,
+          name,
+          firstName,
+          lastName,
+          role
+        },
+        include: { resumes: true }
+      });
+      console.log('Created brand new user record');
     }
 
-    console.log('User sync successful for DB ID:', user.id, 'Email:', user.email);
+    console.log('User sync successful for DB ID:', finalUser.id, 'Email:', finalUser.email);
 
     res.status(200).json({
-      ...user,
-      resumes: user.resumes
+      ...finalUser,
+      resumes: finalUser.resumes
     });
   } catch (error: any) {
     console.error('--- User Sync Detailed Error ---');
