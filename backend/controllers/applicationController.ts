@@ -25,11 +25,25 @@ export const applyForJob = async (req: any, res: Response) => {
     }
 
     if (!file) {
-      return res.status(400).json({ message: 'CV faylı yüklənməyib' });
+      console.error('Apply error: No file provided in request. Field name expected: "resume"');
+      return res.status(400).json({ message: 'CV faylı yüklənməyib. Zəhmət olmasa "resume" sahəsində PDF faylı göndərin.' });
     }
 
     console.log('--- Resume Analysis Started (Memory Mode) ---');
     console.log('File Name:', file.originalname);
+    console.log('File Size:', file.size, 'bytes');
+    console.log('Mime Type:', file.mimetype);
+
+    const allowedMimeTypes = ['application/pdf', 'application/x-pdf', 'application/octet-stream'];
+    const isPDF = allowedMimeTypes.includes(file.mimetype) || file.originalname.toLowerCase().endsWith('.pdf');
+
+    if (!isPDF) {
+      return res.status(400).json({ message: 'Yalnız PDF formatında CV qəbul edilir. Sizin göndərdiyiniz: ' + file.mimetype });
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      return res.status(400).json({ message: 'Fayl ölçüsü çox böyükdür (Max: 5MB)' });
+    }
 
     // Helper to sanitize filename for Cloudinary
     const sanitizeFilename = (filename: string) => {
@@ -146,8 +160,11 @@ export const applyForJob = async (req: any, res: Response) => {
     });
 
   } catch (error: any) {
-    console.error('Apply for job error:', error);
-    res.status(500).json({ message: 'Müraciət zamanı xəta baş verdi', error: error.message });
+    console.error('Apply for job error - FULL DETAILS:', error);
+    res.status(500).json({ 
+      message: 'Müraciət zamanı xəta baş verdi: ' + (error.message || 'Naməlum xəta'), 
+      debug: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
   }
 };
 

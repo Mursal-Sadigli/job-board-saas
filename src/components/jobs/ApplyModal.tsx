@@ -60,7 +60,8 @@ export function ApplyModal({ children, jobId, jobTitle, companyName, onSuccess }
       });
 
       if (!response.ok) {
-        throw new Error("Müraciət zamanı xəta baş verdi");
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || "Müraciət zamanı xəta baş verdi");
       }
 
       const data = await response.json();
@@ -72,11 +73,11 @@ export function ApplyModal({ children, jobId, jobTitle, companyName, onSuccess }
         type: "success"
       });
       onSuccess?.();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Apply error details:", error);
       toast({
         title: "Xəta",
-        description: "Müraciət göndərilərkən bir problem yarandı.",
+        description: error.message || "Müraciət göndərilərkən bir problem yarandı.",
         type: "error"
       });
     } finally {
