@@ -47,6 +47,7 @@ export default function NotificationsPage() {
     platformUpdates: false,
     pushNotifications: false,
     telegramNewApplications: true,
+    whatsappNewApplications: true,
     minRating: "any"
   });
 
@@ -229,6 +230,20 @@ export default function NotificationsPage() {
                     onCheckedChange={() => toggleSetting('telegramNewApplications')} 
                     disabled={!telegramId}
                     className="data-checked:bg-sky-500" 
+                  />
+                </div>
+
+                <div className="h-px bg-border dark:bg-white/10 w-full" />
+
+                <div className="flex items-start justify-between gap-6">
+                  <div className="space-y-1">
+                    <p className="text-sm font-bold text-foreground">WhatsApp Bildirişləri</p>
+                    <p className="text-xs text-muted-foreground">Yeni müraciətlər barədə WhatsApp vasitəsilə dərhal bildiriş alın.</p>
+                  </div>
+                  <Switch 
+                    checked={settings.whatsappNewApplications} 
+                    onCheckedChange={() => toggleSetting('whatsappNewApplications')} 
+                    className="data-checked:bg-emerald-500" 
                   />
                 </div>
               </div>

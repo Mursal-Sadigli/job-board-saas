@@ -1,5 +1,6 @@
 import prisma from '../lib/prisma';
 import axios from 'axios';
+import { sendWhatsAppNotification } from './whatsappService';
 
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const TELEGRAM_CHANNEL_ID = process.env.TELEGRAM_CHANNEL_ID; // Məsələn: @vakansiyalar_az
@@ -54,6 +55,12 @@ export const sendJobNotificationToTelegram = async (jobId: string) => {
 
     // 2. Namizədlərə göndər (Gələcəkdə filtrasiya əsasında fərdiləşdirilə bilər)
     // Şimdilik yalnız kanala kifayətdir
+
+    // WhatsApp bildirişi (əlavə olaraq)
+    // Bu hissə gələcəkdə abunəçilərə göndərmək üçün genişləndirilə bilər
+    // Hal-hazırda sadəcə bir nümunə olaraq qeyd olunur
+    // await sendWhatsAppNotification('TARGET_PHONE_NUMBER', `Yeni Vakansiya: ${job.title} - ${job.company}. Ətraflı: ${process.env.FRONTEND_URL || 'http://localhost:3000'}/jobs/${job.id}`);
+
   } catch (error) {
     console.error('sendJobNotificationToTelegram error:', error);
   }
@@ -72,7 +79,8 @@ export const sendNewApplicationNotification = async (applicationId: string) => {
         candidate: {
           select: {
             name: true,
-            email: true
+            email: true,
+            phone: true // WhatsApp üçün telefon nömrəsi əlavə edildi
           }
         }
       }
@@ -87,6 +95,7 @@ export const sendNewApplicationNotification = async (applicationId: string) => {
     // Setting checks
     const sendEmail = !!settings.newApplications;
     const sendTelegram = !!settings.telegramNewApplications;
+    const sendWhatsApp = !!settings.whatsappNewApplications; // WhatsApp bildirişi üçün setting
 
     // Telegram Bildirişi (İşəgötürənin özünə)
     if (sendTelegram && employer.telegramId) {
@@ -100,6 +109,17 @@ export const sendNewApplicationNotification = async (applicationId: string) => {
 Namizədin CV-sini və AI analizini görmək üçün idarəetmə panelinə daxil olun.
       `;
       await sendTelegramMessage(employer.telegramId, tgMessage);
+    }
+
+    // WhatsApp Bildirişi (İşəgötürənin özünə)
+    if (sendWhatsApp && employer.phone) { // İşəgötürənin telefon nömrəsi olmalıdır
+      const whatsappMessage = `Yeni Müraciət!
+Namizəd: ${application.candidate?.name}
+Vakansiya: ${application.job.title}
+AI Reytinqi: ${candidateRating}/5 ulduz
+
+Namizədin CV-sini və AI analizini görmək üçün idarəetmə panelinə daxil olun.`;
+      await sendWhatsAppNotification(employer.phone, whatsappMessage);
     }
 
     // Email LOG (Simulyasiya)

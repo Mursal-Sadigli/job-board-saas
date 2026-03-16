@@ -20,6 +20,7 @@ import {
   Moon,
   Sun,
   Layers,
+  Wand2,
 } from "lucide-react";
 import { useSidebar } from "@/hooks/useSidebar";
 import { ROUTES } from "@/routes/paths";
@@ -50,9 +51,14 @@ const mainNavItems: NavItem[] = [
     icon: <Briefcase size={18} />,
   },
   {
-    label: "AI",
+    label: "AI Axtarış",
     href: ROUTES.aiSearch,
     icon: <Sparkles size={18} />,
+  },
+  {
+    label: "AI CV Generator",
+    href: ROUTES.cvGenerator,
+    icon: <Wand2 size={18} />,
   },
 ];
 

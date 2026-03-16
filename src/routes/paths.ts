@@ -2,6 +2,7 @@ export const ROUTES = {
   home: "/",
   jobBoard: "/",
   aiSearch: "/ai-search",
+  cvGenerator: "/cv-generator",
   employer: {
     root: "/employer",
     ats: {

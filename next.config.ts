@@ -1,7 +1,14 @@
 import type { NextConfig } from "next";
+const withPWA = require("next-pwa")({
+  dest: "public",
+  register: true,
+  skipWaiting: true,
+  disable: process.env.NODE_ENV === "development",
+});
 
 const nextConfig: NextConfig = {
   /* config options here */
+  turbopack: {},
   images: {
     remotePatterns: [
       {
@@ -15,15 +22,8 @@ const nextConfig: NextConfig = {
     ],
   },
   typescript: {
-    // !! WARN !!
-    // Dangerously allow production builds to successfully complete even if
-    // your project has type errors.
-    // !! WARN !!
     ignoreBuildErrors: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
   },
 };
 
-export default nextConfig;
+export default withPWA(nextConfig);

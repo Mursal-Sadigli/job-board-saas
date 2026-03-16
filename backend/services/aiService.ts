@@ -57,3 +57,38 @@ export async function compareCVWithJob(resumeText: string, jobTitle: string, job
     throw new Error('Süni intellekt analizi zamanı xəta baş verdi.');
   }
 }
+/**
+ * Generates a professional CV content based on user details
+ */
+export const generateCV = async (userData: any) => {
+  try {
+    const prompt = `
+      Sən peşəkar bir CV mütəxəssisisən. Aşağıdakı istifadəçi məlumatlarına əsasən Azərbaycan dilində çox peşəkar, müasir və təsirli bir CV mətni hazırla.
+      
+      İstifadəçi Məlumatları:
+      ${JSON.stringify(userData, null, 2)}
+
+      Tələblər:
+      1. Peşəkar xülasə (Professional Summary) əlavə et.
+      2. İş təcrübələrini bəndlərlə, nailiyyətlərə fokuslanaraq yaz.
+      3. Bacarıqları (Skills) kateqoriyalara ayır.
+      4. Təhsil və sertifikatları qeyd et.
+      5. Dil biliklərini əlavə et.
+      6. Formatı Markdown şəklində qaytar.
+      
+      Yalnız CV-nin özünü qaytar, giriş və ya çıxış sözləri yazma.
+    `;
+
+    const chatCompletion = await groq.chat.completions.create({
+      messages: [{ role: "user", content: prompt }],
+      model: "llama-3.3-70b-versatile",
+      temperature: 0.6,
+      max_tokens: 3000,
+    });
+
+    return chatCompletion.choices[0]?.message?.content || "";
+  } catch (error) {
+    console.error("AI CV Generation Error:", error);
+    throw new Error("CV yaradıla bilmədi.");
+  }
+};

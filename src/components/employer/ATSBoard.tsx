@@ -33,6 +33,7 @@ const STAGES = [
   { id: "Interview", title: "Müsahibə", color: "text-orange-500", bg: "bg-orange-500/10" },
   { id: "Offered", title: "Təklif", color: "text-emerald-500", bg: "bg-emerald-500/10" },
   { id: "Rejected", title: "İmtina", color: "text-red-500", bg: "bg-red-500/10" },
+  { id: "Pool", title: "Talent Pool", color: "text-purple-500", bg: "bg-purple-500/10" },
 ];
 
 interface BoardProps {
@@ -61,14 +62,7 @@ export function ATSBoard({ applications, onStageChange, onViewResume, onViewAnal
   };
 
   const handleDragOver = (event: DragOverEvent) => {
-    const { active, over } = event;
-    if (!over) return;
-
-    const activeApp = applications.find((a) => a.id === active.id);
-    const overId = over.id as string;
-
-    // Logic to handle dragging between containers is handled in onDragEnd for simplicity 
-    // unless we want real-time list reordering within the same column
+    // Column logic is handled in DragEnd for simplicity
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -80,16 +74,13 @@ export function ATSBoard({ applications, onStageChange, onViewResume, onViewAnal
     const activeApp = applications.find((a) => a.id === active.id);
     if (!activeApp) return;
 
-    // Determine if we dropped over a column or another card
     let newStage = over.id as string;
     
-    // If dropped over a card, get its stage
     const overApp = applications.find((a) => a.id === over.id);
     if (overApp) {
       newStage = overApp.stage;
     }
 
-    // Only update if the stage actually changed
     if (STAGES.map(s => s.id).includes(newStage) && activeApp.stage !== newStage) {
       onStageChange(activeApp.id, newStage);
     }
@@ -104,7 +95,7 @@ export function ATSBoard({ applications, onStageChange, onViewResume, onViewAnal
     >
       <div className="flex gap-6 overflow-x-auto pb-6 h-[calc(100vh-350px)] min-h-[500px]">
         {STAGES.map((stage) => (
-          <div key={stage.id} className="flex-shrink-0 w-72 flex flex-col gap-4">
+          <div key={stage.id} className="shrink-0 w-72 flex flex-col gap-4">
             <div className="flex items-center justify-between px-2">
               <div className="flex items-center gap-2">
                 <div className={cn("w-2 h-2 rounded-full", stage.color.replace('text-', 'bg-'))} />
@@ -192,14 +183,8 @@ function SortableCard({ app, onViewResume, onViewAnalysis }: { app: Application,
     >
       <CardContent 
         app={app} 
-        onViewResume={(e) => {
-            e.stopPropagation();
-            onViewResume(app.id);
-        }}
-        onViewAnalysis={(e) => {
-            e.stopPropagation();
-            onViewAnalysis(app.aiAnalysis);
-        }}
+        onViewResume={(id) => onViewResume(id)}
+        onViewAnalysis={(analysis) => onViewAnalysis(analysis)}
       />
     </div>
   );
@@ -213,8 +198,8 @@ function CardContent({
 }: { 
     app: Application; 
     isDragging?: boolean;
-    onViewResume?: (e: React.MouseEvent) => void;
-    onViewAnalysis?: (e: React.MouseEvent) => void;
+    onViewResume?: (id: string) => void;
+    onViewAnalysis?: (analysis: any) => void;
 }) {
   return (
     <div className={cn(
@@ -230,11 +215,11 @@ function CardContent({
           {app.matchScore !== undefined && (
             <div 
                 className={cn(
-                    "w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-black shrink-0",
+                    "w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-black shrink-0 cursor-pointer hover:scale-110 transition-transform",
                     app.matchScore > 80 ? "bg-emerald-500/10 text-emerald-500" : 
                     app.matchScore > 50 ? "bg-amber-500/10 text-amber-500" : "bg-red-500/10 text-red-500"
                 )}
-                onClick={onViewAnalysis}
+                onClick={() => onViewAnalysis && onViewAnalysis(app.aiAnalysis)}
             >
               {app.matchScore}%
             </div>
@@ -254,12 +239,15 @@ function CardContent({
                 ))}
             </div>
             
-            <div className="flex gap-1">
+            <div className="flex items-center gap-1">
                 <Button 
                     variant="ghost" 
                     size="icon" 
                     className="h-7 w-7 rounded-lg text-muted-foreground hover:bg-primary/10 hover:text-primary"
-                    onClick={onViewResume}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onViewResume && onViewResume(app.id);
+                    }}
                 >
                     <FileText size={14} />
                 </Button>
@@ -268,7 +256,10 @@ function CardContent({
                         variant="ghost" 
                         size="icon" 
                         className="h-7 w-7 rounded-lg text-muted-foreground hover:bg-emerald-500/10 hover:text-emerald-500"
-                        onClick={onViewAnalysis}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onViewAnalysis && onViewAnalysis(app.aiAnalysis);
+                        }}
                     >
                         <Brain size={14} />
                     </Button>

@@ -16,9 +16,10 @@ import {
   FileText,
   Sparkles,
   Brain,
-  Info
+  Info,
+  LayoutGrid,
+  Table as TableIcon
 } from "lucide-react";
-import { MOCK_JOBS } from "@/api/jobs";
 import { cn } from "@/utils/cn";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -47,7 +48,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { Progress } from "@/components/ui/progress";
+import { ATSBoard } from "@/components/employer/ATSBoard";
 
 export default function ApplicationsPage() {
   const { 
@@ -68,6 +69,7 @@ export default function ApplicationsPage() {
   const [analyzingId, setAnalyzingId] = useState<string | null>(null);
   const [selectedAnalysis, setSelectedAnalysis] = useState<any | null>(null);
   const [isAnalysisModalOpen, setIsAnalysisModalOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<"table" | "board">("table");
 
   useEffect(() => {
     setIsHydrated(true);
@@ -106,7 +108,6 @@ export default function ApplicationsPage() {
       toast({
         title: "Analiz Tamamlandı",
         description: `Namizəd ${data.matchScore}% uyğunluq göstərdi.`,
-        type: "success"
       });
 
       setSelectedAnalysis(data.analysis);
@@ -124,6 +125,10 @@ export default function ApplicationsPage() {
   };
 
   const handleStageChange = async (appId: string, newStage: string) => {
+    // Optimistic update
+    const previousStage = applications.find(a => a.id === appId)?.stage;
+    updateApplicationStage(appId, newStage);
+
     try {
       const token = await getToken();
       const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
@@ -138,13 +143,12 @@ export default function ApplicationsPage() {
 
       if (!response.ok) throw new Error("Yeniləmə xətası");
 
-      updateApplicationStage(appId, newStage);
       toast({
         title: "Mərhələ Yeniləndi",
         description: "Namizədin mərhələsi uğurla dəyişdirildi.",
-        type: "success"
       });
     } catch (error) {
+      if (previousStage) updateApplicationStage(appId, previousStage); // Rollback on error
       toast({
         title: "Xəta",
         description: "Mərhələni yeniləmək mümkün olmadı.",
@@ -172,7 +176,6 @@ export default function ApplicationsPage() {
       toast({
         title: "Reytinq Yeniləndi",
         description: "Namizədin reytinqi uğurla dəyişdirildi.",
-        type: "success"
       });
     } catch (error) {
       toast({
@@ -183,17 +186,13 @@ export default function ApplicationsPage() {
     }
   };
 
-  const handleDelete = async (appId: string, name: string, isVirtual?: boolean) => {
+  const handleDelete = async (appId: string, name: string) => {
     try {
       if (!confirm(`${name} müraciətini silmək istədiyinizə əminsiniz?`)) return;
 
       const token = await getToken();
       const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
-      const deleteUrl = isVirtual 
-        ? `${API_BASE}/api/users/resumes/${appId.replace('resume-', '')}`
-        : `${API_BASE}/api/applications/${appId}`;
-
-      const response = await fetch(deleteUrl, {
+      const response = await fetch(`${API_BASE}/api/applications/${appId}`, {
         method: "DELETE",
         headers: {
           "Authorization": `Bearer ${token}`
@@ -206,7 +205,6 @@ export default function ApplicationsPage() {
       toast({
         title: "Müraciət Silindi",
         description: `${name} müraciəti uğurla silindi.`,
-        type: "success"
       });
     } catch (error) {
       console.error("Delete error:", error);
@@ -290,32 +288,52 @@ export default function ApplicationsPage() {
   return (
     <div className="pl-12 pr-6 pb-6 pt-0 lg:px-20 lg:py-12 max-w-7xl mx-auto space-y-6 sm:space-y-8">
       {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 lg:pl-16 pl-12">
-          <div>
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-foreground tracking-tight">Müraciətlər</h1>
-            <p className="text-sm text-muted-foreground mt-1">Vakansiyalar üzrə aktiv müraciətlərin idarə edilməsi</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 lg:pl-16 pl-12">
+        <div>
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-foreground tracking-tight">Müraciətlər</h1>
+          <p className="text-sm text-muted-foreground mt-1">Vakansiyalar üzrə aktiv müraciətlərin idarə edilməsi</p>
+        </div>
+        <div className="flex items-center gap-3">
+          {/* View Toggle */}
+          <div className="flex items-center bg-muted/50 p-1 rounded-xl border border-border dark:border-white/5">
+            <Button 
+                variant={viewMode === "table" ? "secondary" : "ghost"} 
+                size="sm" 
+                onClick={() => setViewMode("table")}
+                className="rounded-lg h-9 px-3 gap-2 font-bold"
+            >
+                <TableIcon size={14} />
+                <span className="hidden sm:inline">Cədvəl</span>
+            </Button>
+            <Button 
+                variant={viewMode === "board" ? "secondary" : "ghost"} 
+                size="sm" 
+                onClick={() => setViewMode("board")}
+                className="rounded-lg h-9 px-3 gap-2 font-bold"
+            >
+                <LayoutGrid size={14} />
+                <span className="hidden sm:inline">Board</span>
+            </Button>
           </div>
-        <div className="flex items-center gap-2">
-            <DropdownMenu>
-                <DropdownMenuTrigger render={
-                    <Button variant="outline" className="rounded-xl gap-2 font-bold text-sm h-11 px-5 border-border dark:border-white/10 hover:bg-muted transition-all">
-                        <Filter size={16} />
-                        {stageFilter === "Bütün" ? "Filtrlər" : getStageLabel(stageFilter)}
-                    </Button>
-                } />
-                <DropdownMenuContent align="end" className="w-52 rounded-2xl p-2 bg-card dark:bg-[#0f172a] border-border dark:border-white/5 shadow-2xl">
-                    <DropdownMenuGroup>
-                        <DropdownMenuLabel className="text-[10px] uppercase tracking-widest text-muted-foreground/60 px-3 py-2">Mərhələyə görə</DropdownMenuLabel>
-                        <DropdownMenuItem onClick={() => setStageFilter("Bütün")} className="rounded-xl font-bold px-3 py-2.5 text-xs">Bütün</DropdownMenuItem>
-                        <DropdownMenuSeparator className="bg-border/50" />
-                        {STAGES.map(s => (
-                            <DropdownMenuItem key={s.value} onClick={() => setStageFilter(s.value)} className={cn("rounded-xl font-bold px-3 py-2.5 text-xs", s.color)}>
-                                {s.label}
-                            </DropdownMenuItem>
-                        ))}
-                    </DropdownMenuGroup>
-                </DropdownMenuContent>
-            </DropdownMenu>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger className="inline-flex items-center cursor-pointer select-none rounded-xl gap-2 font-bold text-sm h-11 px-5 border border-border dark:border-white/10 bg-card hover:bg-muted transition-all">
+                <Filter size={16} />
+                {stageFilter === "Bütün" ? "Filtrlər" : getStageLabel(stageFilter)}
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-52 rounded-2xl p-2 bg-card dark:bg-[#0f172a] border-border dark:border-white/5 shadow-2xl">
+              <DropdownMenuGroup>
+                <DropdownMenuLabel className="text-[10px] uppercase tracking-widest text-muted-foreground/60 px-3 py-2">Mərhələyə görə</DropdownMenuLabel>
+                <DropdownMenuItem onClick={() => setStageFilter("Bütün")} className="rounded-xl font-bold px-3 py-2.5 text-xs">Bütün</DropdownMenuItem>
+                <DropdownMenuSeparator className="bg-border/50" />
+                {STAGES.map(s => (
+                  <DropdownMenuItem key={s.value} onClick={() => setStageFilter(s.value)} className={cn("rounded-xl font-bold px-3 py-2.5 text-xs", s.color)}>
+                    {s.label}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
@@ -350,283 +368,161 @@ export default function ApplicationsPage() {
       </div>
 
       {/* Applications List */}
-      <div className="bg-card rounded-3xl border border-border dark:border-white/10 shadow-xl overflow-hidden">
-        {/* Desktop Table View */}
-        <div className="hidden lg:block overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b border-border dark:border-white/10 bg-muted/20">
-                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 text-center w-12">#</th>
-                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">Namizəd / Vakansiya</th>
-                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 text-center">AI Uyğunluq</th>
-                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 text-center">Mərhələ</th>
-                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 text-center">Reytinq</th>
-                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 text-right"></th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border dark:divide-white/5">
-              {isFetching ? (
-                <tr>
-                   <td colSpan={6} className="px-6 py-20 text-center">
-                     <div className="flex flex-col items-center gap-3">
-                       <Loader2 className="w-8 h-8 animate-spin text-primary" />
-                       <p className="text-sm font-bold text-muted-foreground">Müraciətlər yüklənir...</p>
-                     </div>
-                   </td>
+      {viewMode === "table" ? (
+        <div className="bg-card rounded-3xl border border-border dark:border-white/10 shadow-xl overflow-hidden">
+          <div className="hidden lg:block overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-border dark:border-white/10 bg-muted/20">
+                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 text-center w-12">#</th>
+                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">Namizəd / Vakansiya</th>
+                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 text-center">AI Uyğunluq</th>
+                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 text-center">Mərhələ</th>
+                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 text-center">Reytinq</th>
+                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 text-right"></th>
                 </tr>
-              ) : filteredApps.map((app, idx) => (
-                <tr key={app.id} className="group hover:bg-muted/30 transition-all duration-300">
-                  <td className="px-6 py-5 text-center text-[10px] font-black text-muted-foreground/20 italic">{idx + 1}</td>
-                  <td className="px-6 py-5">
-                    <div className="flex flex-col min-w-0">
-                      <span className="text-sm font-black text-foreground group-hover:text-primary transition-colors">{app.name}</span>
-                      <span className="text-xs text-muted-foreground font-medium flex items-center gap-1 mt-0.5 truncate">
-                        <Briefcase size={10} className="opacity-50" />
-                        {app.jobTitle}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-5 text-center">
-                    {app.matchScore !== undefined ? (
-                      <div 
-                        className="flex flex-col items-center gap-1 cursor-pointer hover:scale-105 transition-transform"
-                        onClick={() => {
-                          setSelectedAnalysis(app.aiAnalysis);
-                          setIsAnalysisModalOpen(true);
-                        }}
-                      >
-                        <div className="relative w-12 h-12 flex items-center justify-center">
-                          <svg className="w-full h-full transform -rotate-90">
-                            <circle
-                              cx="24"
-                              cy="24"
-                              r="20"
-                              stroke="currentColor"
-                              strokeWidth="4"
-                              fill="transparent"
-                              className="text-muted/20"
-                            />
-                            <circle
-                              cx="24"
-                              cy="24"
-                              r="20"
-                              stroke="currentColor"
-                              strokeWidth="4"
-                              fill="transparent"
-                              strokeDasharray={126}
-                              strokeDashoffset={126 - (126 * app.matchScore) / 100}
-                              className={cn(
-                                app.matchScore > 80 ? "text-emerald-500" : app.matchScore > 50 ? "text-amber-500" : "text-red-500"
-                              )}
-                            />
-                          </svg>
-                          <span className="absolute text-[10px] font-black">{app.matchScore}%</span>
-                        </div>
-                      </div>
-                    ) : (
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="h-8 rounded-lg gap-2 text-[10px] font-black uppercase text-primary hover:bg-primary/10"
-                        onClick={() => handleAIAnalyze(app.id)}
-                        disabled={analyzingId === app.id}
-                      >
-                        {analyzingId === app.id ? (
-                          <Loader2 size={12} className="animate-spin" />
-                        ) : (
-                          <Sparkles size={12} />
-                        )}
-                        <span>AI Analiz</span>
-                      </Button>
-                    )}
-                  </td>
-                  <td className="px-6 py-5 text-center">
-                    {app.isVirtual ? (
-                      <Badge variant="outline" className={cn("rounded-lg font-bold text-[10px] uppercase tracking-wider px-3 py-1 border dark:border-0", getStageColor(app.stage))}>
-                        {getStageLabel(app.stage)}
-                      </Badge>
-                    ) : (
-                      <DropdownMenu>
-                        <DropdownMenuTrigger nativeButton={false} render={
-                            <Badge variant="outline" className={cn("rounded-lg font-bold text-[10px] uppercase tracking-wider px-3 py-1 border dark:border-0 cursor-pointer hover:opacity-80 transition-opacity", getStageColor(app.stage))}>
-                                {getStageLabel(app.stage)}
-                            </Badge>
-                        } />
-                        <DropdownMenuContent align="center" className="w-40 rounded-2xl p-2 bg-card dark:bg-[#0f172a] border-border dark:border-white/5 shadow-2xl">
-                            {STAGES.map(s => (
-                                <DropdownMenuItem 
-                                    key={s.value} 
-                                    onClick={() => handleStageChange(app.id, s.value)} 
-                                    className={cn("rounded-xl font-bold px-3 py-2 text-[11px]", s.color)}
-                                >
-                                    {s.label}
-                                </DropdownMenuItem>
-                            ))}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    )}
-                  </td>
-                  <td className="px-6 py-5">
-                    <div className="flex justify-center gap-0.5">
-                      {[1, 2, 3, 4, 5].map((s) => (
-                        <Star 
-                          key={s} 
-                          size={12} 
-                          className={cn(
-                            app.isVirtual ? "cursor-default opacity-50" : "cursor-pointer transition-all hover:scale-125",
-                            s <= app.rating ? "text-amber-400 fill-amber-400" : "text-muted/30"
-                          )} 
-                          onClick={() => app.isVirtual ? null : handleRatingChange(app.id, s)}
-                        />
-                      ))}
-                    </div>
-                  </td>
-                  <td className="px-6 py-5 text-right">
-                    <DropdownMenu>
-                        <DropdownMenuTrigger render={
-                            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-xl text-muted-foreground hover:bg-primary/10 hover:text-primary transition-all">
-                                <MoreHorizontal size={16} />
-                            </Button>
-                        } />
-                        <DropdownMenuContent align="end" className="w-40 rounded-2xl p-2 bg-card dark:bg-[#0f172a] border-border dark:border-white/5 shadow-2xl">
-                            <DropdownMenuItem onClick={() => handleViewResume(app.id)} className="rounded-xl font-bold px-3 py-2.5 text-xs gap-2">
-                                <FileText size={14} className="text-primary" />
-                                <span>CV-yə bax</span>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleDelete(app.id, app.name, app.isVirtual)} className="rounded-xl font-bold px-3 py-2.5 text-xs text-red-500 gap-2">
-                                <Trash2 size={14} />
-                                <span>Sil</span>
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                  </td>
-                </tr>
-              ))}
-              {!isFetching && filteredApps.length === 0 && (
-                <tr>
-                   <td colSpan={6} className="px-6 py-12 text-center text-muted-foreground font-medium">Heç bir müraciət tapılmadı.</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Mobile List View */}
-        <div className="lg:hidden divide-y divide-border dark:divide-white/5">
-            {isFetching ? (
-                <div className="p-12 text-center">
-                    <div className="flex flex-col items-center gap-3">
+              </thead>
+              <tbody className="divide-y divide-border dark:divide-white/5">
+                {isFetching ? (
+                  <tr>
+                    <td colSpan={6} className="px-6 py-20 text-center">
+                      <div className="flex flex-col items-center gap-3">
                         <Loader2 className="w-8 h-8 animate-spin text-primary" />
                         <p className="text-sm font-bold text-muted-foreground">Müraciətlər yüklənir...</p>
-                    </div>
+                      </div>
+                    </td>
+                  </tr>
+                ) : filteredApps.map((app, idx) => (
+                  <tr key={app.id} className="group hover:bg-muted/30 transition-all duration-300">
+                    <td className="px-6 py-5 text-center text-[10px] font-black text-muted-foreground/20 italic">{idx + 1}</td>
+                    <td className="px-6 py-5">
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-sm font-black text-foreground group-hover:text-primary transition-colors">{app.name}</span>
+                        <span className="text-xs text-muted-foreground font-medium flex items-center gap-1 mt-0.5 truncate">
+                          <Briefcase size={10} className="opacity-50" />
+                          {app.jobTitle}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-5 text-center">
+                      {app.matchScore !== undefined ? (
+                        <div 
+                          className="flex flex-col items-center gap-1 cursor-pointer hover:scale-105 transition-transform"
+                          onClick={() => {
+                            setSelectedAnalysis(app.aiAnalysis);
+                            setIsAnalysisModalOpen(true);
+                          }}
+                        >
+                          <div className="relative w-12 h-12 flex items-center justify-center">
+                            <svg className="w-full h-full transform -rotate-90">
+                              <circle cx="24" cy="24" r="20" stroke="currentColor" strokeWidth="4" fill="transparent" className="text-muted/20" />
+                              <circle
+                                cx="24" cy="24" r="20" stroke="currentColor" strokeWidth="4" fill="transparent"
+                                strokeDasharray={126}
+                                strokeDashoffset={126 - (126 * app.matchScore) / 100}
+                                className={cn(app.matchScore > 80 ? "text-emerald-500" : app.matchScore > 50 ? "text-amber-500" : "text-red-500")}
+                              />
+                            </svg>
+                            <span className="absolute text-[10px] font-black">{app.matchScore}%</span>
+                          </div>
+                        </div>
+                      ) : (
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="h-8 rounded-lg gap-2 text-[10px] font-black uppercase text-primary hover:bg-primary/10"
+                          onClick={() => handleAIAnalyze(app.id)}
+                          disabled={analyzingId === app.id}
+                        >
+                          {analyzingId === app.id ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
+                          <span>AI Analiz</span>
+                        </Button>
+                      )}
+                    </td>
+                    <td className="px-6 py-5 text-center">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger>
+                          <Badge variant="outline" className={cn("rounded-lg font-bold text-[10px] uppercase tracking-wider px-3 py-1 border dark:border-0 cursor-pointer hover:opacity-80 transition-opacity", getStageColor(app.stage))}>
+                            {getStageLabel(app.stage)}
+                          </Badge>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="center" className="w-40 rounded-2xl p-2 bg-card dark:bg-[#0f172a] border-border dark:border-white/5 shadow-2xl">
+                          {STAGES.map(s => (
+                            <DropdownMenuItem key={s.value} onClick={() => handleStageChange(app.id, s.value)} className={cn("rounded-xl font-bold px-3 py-2 text-[11px]", s.color)}>
+                              {s.label}
+                            </DropdownMenuItem>
+                          ))}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </td>
+                    <td className="px-6 py-5 text-center">
+                      <div className="flex justify-center gap-0.5">
+                        {[1, 2, 3, 4, 5].map((s) => (
+                          <Star 
+                            key={s} 
+                            size={12} 
+                            className={cn("cursor-pointer transition-all hover:scale-125", s <= app.rating ? "text-amber-400 fill-amber-400" : "text-muted/30")} 
+                            onClick={() => handleRatingChange(app.id, s)}
+                          />
+                        ))}
+                      </div>
+                    </td>
+                    <td className="px-6 py-5 text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger className="inline-flex items-center justify-center cursor-pointer h-8 w-8 rounded-xl text-muted-foreground hover:bg-primary/10 hover:text-primary transition-all">
+                            <MoreHorizontal size={16} />
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-40 rounded-2xl p-2 bg-card dark:bg-[#0f172a] border-border dark:border-white/5 shadow-2xl">
+                          <DropdownMenuItem onClick={() => handleViewResume(app.id)} className="rounded-xl font-bold px-3 py-2.5 text-xs gap-2">
+                            <FileText size={14} className="text-primary" />
+                            <span>CV-yə bax</span>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleDelete(app.id, app.name)} className="rounded-xl font-bold px-3 py-2.5 text-xs text-red-500 gap-2">
+                            <Trash2 size={14} />
+                            <span>Sil</span>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="lg:hidden divide-y divide-border dark:divide-white/5">
+            {filteredApps.map((app) => (
+              <div key={app.id} className="p-5 space-y-4 hover:bg-muted/30 transition-colors">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex flex-col min-w-0">
+                    <h3 className="font-black text-foreground text-sm leading-tight">{app.name}</h3>
+                    <p className="text-xs text-muted-foreground font-medium flex items-center gap-1.5 mt-1 truncate">
+                      <Briefcase size={12} className="opacity-40" />
+                      {app.jobTitle}
+                    </p>
+                  </div>
+                  <Badge variant="outline" className={cn("rounded-lg font-black text-[9px] uppercase tracking-widest px-2.5 py-1 shrink-0 border", getStageColor(app.stage))}>
+                    {getStageLabel(app.stage)}
+                  </Badge>
                 </div>
-            ) : filteredApps.map((app) => (
-                <div key={app.id} className="p-5 space-y-4 hover:bg-muted/30 transition-colors">
-                    <div className="flex items-start justify-between gap-4">
-                        <div className="flex flex-col min-w-0">
-                            <h3 className="font-black text-foreground text-sm leading-tight">{app.name}</h3>
-                            <p className="text-xs text-muted-foreground font-medium flex items-center gap-1.5 mt-1 truncate">
-                                <Briefcase size={12} className="opacity-40" />
-                                {app.jobTitle}
-                            </p>
-                        </div>
-                        <div className="flex flex-col items-end gap-2">
-                          {app.matchScore !== undefined && (
-                            <Badge className="rounded-lg bg-emerald-500/10 text-emerald-500 border-emerald-500/20 text-[10px] font-black">
-                              {app.matchScore}% Uyğun
-                            </Badge>
-                          )}
-                          {app.isVirtual ? (
-                              <Badge variant="outline" className={cn("rounded-lg font-black text-[9px] uppercase tracking-widest px-2.5 py-1 shrink-0 border", getStageColor(app.stage))}>
-                                  {getStageLabel(app.stage)}
-                              </Badge>
-                          ) : (
-                              <DropdownMenu>
-                                  <DropdownMenuTrigger nativeButton={false} render={
-                                      <Badge variant="outline" className={cn("rounded-lg font-black text-[9px] uppercase tracking-widest px-2.5 py-1 shrink-0 border cursor-pointer", getStageColor(app.stage))}>
-                                          {getStageLabel(app.stage)}
-                                      </Badge>
-                                  } />
-                                  <DropdownMenuContent align="end" className="w-40 rounded-2xl p-2 bg-card dark:bg-[#0f172a] border-border dark:border-white/5 shadow-2xl">
-                                      {STAGES.map(s => (
-                                          <DropdownMenuItem 
-                                              key={s.value} 
-                                              onClick={() => handleStageChange(app.id, s.value)} 
-                                              className={cn("rounded-xl font-bold px-3 py-2 text-[11px]", s.color)}
-                                          >
-                                              {s.label}
-                                          </DropdownMenuItem>
-                                      ))}
-                                  </DropdownMenuContent>
-                              </DropdownMenu>
-                          )}
-                        </div>
-                    </div>
-                    
-                    <div className="flex items-center justify-between pt-2 border-t border-border/10 dark:border-white/5">
-                        <div className="flex gap-2">
-                            {app.matchScore === undefined && !app.isVirtual && (
-                              <Button 
-                                variant="outline" 
-                                size="sm" 
-                                className="h-8 rounded-lg text-[10px] font-bold gap-1.5 px-3"
-                                onClick={() => handleAIAnalyze(app.id)}
-                                disabled={analyzingId === app.id}
-                              >
-                                {analyzingId === app.id ? <Loader2 size={10} className="animate-spin" /> : <Sparkles size={10} className="text-primary" />}
-                                AI Analiz
-                              </Button>
-                            )}
-                            <div className="flex gap-0.5 items-center">
-                              {[1, 2, 3, 4, 5].map((s) => (
-                                  <Star 
-                                      key={s} 
-                                      size={12} 
-                                      className={cn(
-                                          app.isVirtual ? "cursor-default opacity-50" : "cursor-pointer",
-                                          s <= app.rating ? "text-amber-400 fill-amber-400" : "text-muted/20"
-                                      )} 
-                                      onClick={() => app.isVirtual ? null : handleRatingChange(app.id, s)}
-                                  />
-                              ))}
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-4">
-                             <div className="flex flex-col items-end">
-                                <span className="text-[10px] font-black text-muted-foreground/40 uppercase tracking-tighter">
-                                    {app.isVirtual ? 'Profil CV' : 'Tarix'}
-                                </span>
-                                <span className="text-xs font-bold text-foreground/80">{new Date(app.appliedAt).toLocaleDateString("az-AZ")}</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger render={
-                                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-muted-foreground hover:bg-primary/10 hover:text-primary transition-all">
-                                            <MoreHorizontal size={18} />
-                                        </Button>
-                                    } />
-                                    <DropdownMenuContent align="end" className="w-40 rounded-2xl p-2 bg-card dark:bg-[#0f172a] border-border dark:border-white/5 shadow-2xl">
-                                        <DropdownMenuItem onClick={() => handleViewResume(app.id)} className="rounded-xl font-bold px-3 py-2.5 text-xs gap-2">
-                                            <FileText size={14} className="text-primary" />
-                                            <span>CV-yə bax</span>
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem onClick={() => handleDelete(app.id, app.name, app.isVirtual)} className="rounded-xl font-bold px-3 py-2.5 text-xs text-red-500 gap-2">
-                                            <Trash2 size={14} />
-                                            <span>Sil</span>
-                                        </DropdownMenuItem>
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+              </div>
             ))}
+          </div>
         </div>
-      </div>
+      ) : (
+        <ATSBoard 
+          applications={filteredApps} 
+          onStageChange={handleStageChange}
+          onViewResume={handleViewResume}
+          onViewAnalysis={(analysis) => {
+            setSelectedAnalysis(analysis);
+            setIsAnalysisModalOpen(true);
+          }}
+        />
+      )}
 
       {/* AI Analysis Modal */}
       <Dialog open={isAnalysisModalOpen} onOpenChange={setIsAnalysisModalOpen}>
-        <DialogContent className="max-w-2xl rounded-[2rem] bg-card dark:bg-[#0f172a] border-border dark:border-white/10 shadow-2xl">
+        <DialogContent className="max-w-2xl w-[95vw] max-h-[90vh] overflow-y-auto rounded-4xl bg-card dark:bg-[#0f172a] border-border dark:border-white/10 shadow-2xl p-4 sm:p-6">
           <DialogHeader>
             <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
               <Brain className="text-primary" size={24} />
@@ -637,18 +533,12 @@ export default function ApplicationsPage() {
 
           {selectedAnalysis && (
             <div className="space-y-6 mt-4">
-              {/* Match Score Gauge */}
               <div className="flex items-center gap-6 p-6 rounded-3xl bg-muted/20 border border-border/50">
                 <div className="relative w-24 h-24 flex items-center justify-center shrink-0">
                   <svg className="w-full h-full transform -rotate-90">
                     <circle cx="48" cy="48" r="42" stroke="currentColor" strokeWidth="8" fill="transparent" className="text-muted/10" />
                     <circle
-                      cx="48"
-                      cy="48"
-                      r="42"
-                      stroke="currentColor"
-                      strokeWidth="8"
-                      fill="transparent"
+                      cx="48" cy="48" r="42" stroke="currentColor" strokeWidth="8" fill="transparent"
                       strokeDasharray={264}
                       strokeDashoffset={264 - (264 * selectedAnalysis.matchScore) / 100}
                       className={cn("transition-all duration-1000 ease-out", selectedAnalysis.matchScore > 80 ? "text-emerald-500" : selectedAnalysis.matchScore > 50 ? "text-amber-500" : "text-red-500")}
@@ -656,7 +546,6 @@ export default function ApplicationsPage() {
                   </svg>
                   <div className="absolute flex flex-col items-center">
                     <span className="text-2xl font-black">{selectedAnalysis.matchScore}%</span>
-                    <span className="text-[8px] font-bold uppercase tracking-widest text-muted-foreground">Uyğunluq</span>
                   </div>
                 </div>
                 <div className="space-y-2">
@@ -667,59 +556,33 @@ export default function ApplicationsPage() {
                 </div>
               </div>
 
-              {/* Skills Section */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-3">
                   <h4 className="text-xs font-black uppercase tracking-widest text-emerald-500 flex items-center gap-2">
-                    <CheckCircle2 size={14} />
-                    Uyğun Bacarıqlar
+                    <CheckCircle2 size={14} /> Uyğun Bacarıqlar
                   </h4>
                   <div className="flex flex-wrap gap-2">
                     {selectedAnalysis.matchedSkills?.map((skill: string) => (
-                      <Badge key={skill} variant="secondary" className="rounded-lg bg-emerald-500/5 text-emerald-600 border-emerald-500/10 text-[11px] font-bold">
-                        {skill}
-                      </Badge>
+                      <Badge key={skill} variant="secondary" className="rounded-lg bg-emerald-500/5 text-emerald-600 border-emerald-500/10 text-[11px] font-bold"> {skill} </Badge>
                     ))}
-                    {(!selectedAnalysis.matchedSkills || selectedAnalysis.matchedSkills.length === 0) && <span className="text-xs text-muted-foreground italic">Heç bir uyğunluq tapılmadı.</span>}
                   </div>
                 </div>
                 <div className="space-y-3">
                   <h4 className="text-xs font-black uppercase tracking-widest text-red-500 flex items-center gap-2">
-                    <XCircle size={14} />
-                    Çatışmayanlar
+                    <XCircle size={14} /> Çatışmayanlar
                   </h4>
                   <div className="flex flex-wrap gap-2">
                     {selectedAnalysis.missingSkills?.map((skill: string) => (
-                      <Badge key={skill} variant="secondary" className="rounded-lg bg-red-500/5 text-red-600 border-red-500/10 text-[11px] font-bold">
-                        {skill}
-                      </Badge>
+                      <Badge key={skill} variant="secondary" className="rounded-lg bg-red-500/5 text-red-600 border-red-500/10 text-[11px] font-bold"> {skill} </Badge>
                     ))}
-                    {(!selectedAnalysis.missingSkills || selectedAnalysis.missingSkills.length === 0) && <span className="text-xs text-muted-foreground italic">Ciddi əksiklik tapılmadı.</span>}
                   </div>
                 </div>
-              </div>
-
-              {/* Recommendations */}
-              <div className="p-5 rounded-2xl bg-primary/5 border border-primary/10 space-y-3">
-                <h4 className="text-xs font-black uppercase tracking-widest text-primary flex items-center gap-2">
-                  <Info size={14} />
-                  Tövsiyələr
-                </h4>
-                <ul className="space-y-2">
-                  {selectedAnalysis.recommendations?.map((rec: string, i: number) => (
-                    <li key={i} className="text-xs font-medium text-muted-foreground flex items-start gap-2">
-                      <div className="w-1 h-1 rounded-full bg-primary/40 mt-1.5 shrink-0" />
-                      {rec}
-                    </li>
-                  ))}
-                </ul>
               </div>
             </div>
           )}
 
           <div className="flex justify-end gap-3 mt-6">
-            <Button variant="outline" className="rounded-xl font-bold border-border dark:border-white/10" onClick={() => setIsAnalysisModalOpen(false)}> Bağla </Button>
-            <Button className="rounded-xl font-black tracking-tight" onClick={() => setIsAnalysisModalOpen(false)}> Nəzərə Alındı </Button>
+            <Button variant="outline" className="rounded-xl font-bold" onClick={() => setIsAnalysisModalOpen(false)}> Bağla </Button>
           </div>
         </DialogContent>
       </Dialog>

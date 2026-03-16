@@ -54,6 +54,7 @@ import applicationRoutes from './routes/applicationRoutes';
 import userRoutes from './routes/userRoutes';
 import interviewRoutes from './routes/interviewRoutes';
 import analyticsRoutes from './routes/analyticsRoutes';
+import aiRoutes from './routes/aiRoutes';
 import { inngest, helloWorld } from './lib/inngest';
 import { serve } from 'inngest/express';
 
@@ -74,6 +75,7 @@ app.use('/api/applications', applicationRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/interviews', interviewRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/ai', aiRoutes);
 app.use('/inngest', serve({ client: inngest, functions: [helloWorld] }));
 
 // Global Error Handler
