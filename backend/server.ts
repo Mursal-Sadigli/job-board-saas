@@ -27,7 +27,8 @@ app.use(helmet());
 app.use(cors({
   origin: [
     process.env.FRONTEND_URL || 'http://localhost:3000',
-    'https://nextgen-jobboard.vercel.app',
+    'https://nextgen-jobboard.vercel.app', // Eski host
+    'https://job-board-saas.vercel.app', // YENİ VERCEL HOST
     'http://localhost:3000'
   ],
   credentials: true
