@@ -56,3 +56,33 @@ export const DEFAULT_FILTERS: JobFilters = {
   category: "any",
   experienceLevel: "any",
 };
+
+export interface AIAnalysis {
+  matchScore: number;
+  summary: string;
+  matchedSkills: string[];
+  missingSkills: string[];
+  recommendations: string[];
+  verdict: string;
+}
+
+export interface Application {
+  id: string;
+  jobId: string;
+  candidateId: string;
+  stage: string;
+  rating: number;
+  resumeUrl: string;
+  resumeText?: string;
+  matchScore?: number;
+  aiAnalysis?: AIAnalysis;
+  appliedAt: string;
+  candidate?: {
+    name: string;
+    email: string;
+  };
+  job?: {
+    title: string;
+    company: string;
+  };
+}

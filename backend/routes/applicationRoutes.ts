@@ -8,7 +8,8 @@ import {
   getCandidates,
   getTalentPool,
   getCandidateById,
-  analyzeAndAddToPool
+  analyzeAndAddToPool,
+  analyzeApplication
 } from '../controllers/applicationController';
 
 import { upload, memoryUpload } from '../lib/cloudinary';
@@ -24,6 +25,7 @@ router.get('/talent-pool', isAuthenticated, getTalentPool);
 router.patch('/:id', isAuthenticated, updateApplication);
 router.delete('/:id', isAuthenticated, deleteApplication);
 router.get('/:id/resume', isAuthenticated, getApplicationResumeUrl);
+router.post('/:id/analyze', isAuthenticated, analyzeApplication);
 router.post('/analyze', isAuthenticated, memoryUpload.single('resume'), analyzeAndAddToPool);
 
 export default router;

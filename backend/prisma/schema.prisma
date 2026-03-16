@@ -26,6 +26,7 @@ model User {
   bio           String?
   location      String?
   phone         String?
+  telegramId    String?
   skills        String[]  @default([])
   experience    Json?     @default("[]")
   education     Json?     @default("[]")
@@ -94,9 +95,10 @@ model Application {
   rating          Int       @default(0)
   resumeUrl       String?
   resumeText      String?
+  matchScore      Int?
+  aiAnalysis      Json?
   appliedAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
-
   // Relationships
   candidate       User      @relation(fields: [candidateId], references: [id])
   candidateId     String

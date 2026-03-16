@@ -13,7 +13,10 @@ import {
   XCircle,
   MoreHorizontal,
   Trash2,
-  FileText
+  FileText,
+  Sparkles,
+  Brain,
+  Info
 } from "lucide-react";
 import { MOCK_JOBS } from "@/api/jobs";
 import { cn } from "@/utils/cn";
@@ -37,6 +40,15 @@ import { useApplications } from "@/hooks/useApplications";
 import { Loader2 } from "lucide-react";
 import { useAuth } from "@clerk/nextjs";
 
+import { 
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Progress } from "@/components/ui/progress";
+
 export default function ApplicationsPage() {
   const { 
     applications, 
@@ -46,16 +58,70 @@ export default function ApplicationsPage() {
     setStageFilter, 
     updateApplicationStage, 
     updateApplicationRating, 
-    deleteApplication 
+    deleteApplication,
+    setApplications
   } = useApplicationStore();
   const { isLoading: isFetching } = useApplications();
   const { getToken } = useAuth();
 
   const [isHydrated, setIsHydrated] = useState(false);
+  const [analyzingId, setAnalyzingId] = useState<string | null>(null);
+  const [selectedAnalysis, setSelectedAnalysis] = useState<any | null>(null);
+  const [isAnalysisModalOpen, setIsAnalysisModalOpen] = useState(false);
 
   useEffect(() => {
     setIsHydrated(true);
   }, []);
+
+  const handleAIAnalyze = async (appId: string) => {
+    try {
+      setAnalyzingId(appId);
+      const token = await getToken();
+      const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
+      
+      const response = await fetch(`${API_BASE}/api/applications/${appId}/analyze`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.message || "Analiz xətası");
+      }
+
+      const data = await response.json();
+      
+      // Update local store
+      const updatedApps = applications.map(app => 
+        app.id === appId ? { 
+          ...app, 
+          matchScore: data.matchScore, 
+          aiAnalysis: data.analysis 
+        } : app
+      );
+      setApplications(updatedApps);
+
+      toast({
+        title: "Analiz Tamamlandı",
+        description: `Namizəd ${data.matchScore}% uyğunluq göstərdi.`,
+        type: "success"
+      });
+
+      setSelectedAnalysis(data.analysis);
+      setIsAnalysisModalOpen(true);
+
+    } catch (error: any) {
+      toast({
+        title: "Xəta",
+        description: error.message || "Analiz mümkün olmadı.",
+        type: "error"
+      });
+    } finally {
+      setAnalyzingId(null);
+    }
+  };
 
   const handleStageChange = async (appId: string, newStage: string) => {
     try {
@@ -152,16 +218,31 @@ export default function ApplicationsPage() {
     }
   };
 
-  const handleViewResume = (url: string) => {
-    if (!url) {
+  const handleViewResume = async (appId: string) => {
+    try {
+      const token = await getToken();
+      const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
+      const response = await fetch(`${API_BASE}/api/applications/${appId}/resume`, {
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.message || "CV tapılmadı");
+      }
+
+      const data = await response.json();
+      window.open(data.url, '_blank', 'noopener,noreferrer');
+    } catch (error: any) {
+      console.error("View resume error:", error);
       toast({
         title: "Xəta",
-        description: "CV faylı tapılmadı.",
+        description: error.message || "CV yüklənərkən xəta baş verdi.",
         type: "error"
       });
-      return;
     }
-    window.open(url, '_blank', 'noopener,noreferrer');
   };
 
   const filteredApps = applications.filter(app => {
@@ -277,9 +358,9 @@ export default function ApplicationsPage() {
               <tr className="border-b border-border dark:border-white/10 bg-muted/20">
                 <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 text-center w-12">#</th>
                 <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">Namizəd / Vakansiya</th>
+                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 text-center">AI Uyğunluq</th>
                 <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 text-center">Mərhələ</th>
                 <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 text-center">Reytinq</th>
-                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 text-center">Tarix</th>
                 <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 text-right"></th>
               </tr>
             </thead>
@@ -304,6 +385,60 @@ export default function ApplicationsPage() {
                         {app.jobTitle}
                       </span>
                     </div>
+                  </td>
+                  <td className="px-6 py-5 text-center">
+                    {app.matchScore !== undefined ? (
+                      <div 
+                        className="flex flex-col items-center gap-1 cursor-pointer hover:scale-105 transition-transform"
+                        onClick={() => {
+                          setSelectedAnalysis(app.aiAnalysis);
+                          setIsAnalysisModalOpen(true);
+                        }}
+                      >
+                        <div className="relative w-12 h-12 flex items-center justify-center">
+                          <svg className="w-full h-full transform -rotate-90">
+                            <circle
+                              cx="24"
+                              cy="24"
+                              r="20"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                              fill="transparent"
+                              className="text-muted/20"
+                            />
+                            <circle
+                              cx="24"
+                              cy="24"
+                              r="20"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                              fill="transparent"
+                              strokeDasharray={126}
+                              strokeDashoffset={126 - (126 * app.matchScore) / 100}
+                              className={cn(
+                                app.matchScore > 80 ? "text-emerald-500" : app.matchScore > 50 ? "text-amber-500" : "text-red-500"
+                              )}
+                            />
+                          </svg>
+                          <span className="absolute text-[10px] font-black">{app.matchScore}%</span>
+                        </div>
+                      </div>
+                    ) : (
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="h-8 rounded-lg gap-2 text-[10px] font-black uppercase text-primary hover:bg-primary/10"
+                        onClick={() => handleAIAnalyze(app.id)}
+                        disabled={analyzingId === app.id}
+                      >
+                        {analyzingId === app.id ? (
+                          <Loader2 size={12} className="animate-spin" />
+                        ) : (
+                          <Sparkles size={12} />
+                        )}
+                        <span>AI Analiz</span>
+                      </Button>
+                    )}
                   </td>
                   <td className="px-6 py-5 text-center">
                     {app.isVirtual ? (
@@ -346,16 +481,6 @@ export default function ApplicationsPage() {
                       ))}
                     </div>
                   </td>
-                  <td className="px-6 py-5 text-center">
-                    <div className="flex flex-col items-center">
-                      <span className="text-xs font-bold text-foreground">
-                        {new Date(app.appliedAt).toLocaleDateString("az-AZ")}
-                      </span>
-                      <span className="text-[10px] font-medium text-muted-foreground/50 italic">
-                        {app.isVirtual ? 'Profil CV' : 'Müraciət'}
-                      </span>
-                    </div>
-                  </td>
                   <td className="px-6 py-5 text-right">
                     <DropdownMenu>
                         <DropdownMenuTrigger render={
@@ -364,7 +489,7 @@ export default function ApplicationsPage() {
                             </Button>
                         } />
                         <DropdownMenuContent align="end" className="w-40 rounded-2xl p-2 bg-card dark:bg-[#0f172a] border-border dark:border-white/5 shadow-2xl">
-                            <DropdownMenuItem onClick={() => handleViewResume(app.resumeUrl)} className="rounded-xl font-bold px-3 py-2.5 text-xs gap-2">
+                            <DropdownMenuItem onClick={() => handleViewResume(app.id)} className="rounded-xl font-bold px-3 py-2.5 text-xs gap-2">
                                 <FileText size={14} className="text-primary" />
                                 <span>CV-yə bax</span>
                             </DropdownMenuItem>
@@ -405,45 +530,66 @@ export default function ApplicationsPage() {
                                 {app.jobTitle}
                             </p>
                         </div>
-                        {app.isVirtual ? (
-                            <Badge variant="outline" className={cn("rounded-lg font-black text-[9px] uppercase tracking-widest px-2.5 py-1 shrink-0 border", getStageColor(app.stage))}>
-                                {getStageLabel(app.stage)}
+                        <div className="flex flex-col items-end gap-2">
+                          {app.matchScore !== undefined && (
+                            <Badge className="rounded-lg bg-emerald-500/10 text-emerald-500 border-emerald-500/20 text-[10px] font-black">
+                              {app.matchScore}% Uyğun
                             </Badge>
-                        ) : (
-                            <DropdownMenu>
-                                <DropdownMenuTrigger nativeButton={false} render={
-                                    <Badge variant="outline" className={cn("rounded-lg font-black text-[9px] uppercase tracking-widest px-2.5 py-1 shrink-0 border cursor-pointer", getStageColor(app.stage))}>
-                                        {getStageLabel(app.stage)}
-                                    </Badge>
-                                } />
-                                <DropdownMenuContent align="end" className="w-40 rounded-2xl p-2 bg-card dark:bg-[#0f172a] border-border dark:border-white/5 shadow-2xl">
-                                    {STAGES.map(s => (
-                                        <DropdownMenuItem 
-                                            key={s.value} 
-                                            onClick={() => handleStageChange(app.id, s.value)} 
-                                            className={cn("rounded-xl font-bold px-3 py-2 text-[11px]", s.color)}
-                                        >
-                                            {s.label}
-                                        </DropdownMenuItem>
-                                    ))}
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                        )}
+                          )}
+                          {app.isVirtual ? (
+                              <Badge variant="outline" className={cn("rounded-lg font-black text-[9px] uppercase tracking-widest px-2.5 py-1 shrink-0 border", getStageColor(app.stage))}>
+                                  {getStageLabel(app.stage)}
+                              </Badge>
+                          ) : (
+                              <DropdownMenu>
+                                  <DropdownMenuTrigger nativeButton={false} render={
+                                      <Badge variant="outline" className={cn("rounded-lg font-black text-[9px] uppercase tracking-widest px-2.5 py-1 shrink-0 border cursor-pointer", getStageColor(app.stage))}>
+                                          {getStageLabel(app.stage)}
+                                      </Badge>
+                                  } />
+                                  <DropdownMenuContent align="end" className="w-40 rounded-2xl p-2 bg-card dark:bg-[#0f172a] border-border dark:border-white/5 shadow-2xl">
+                                      {STAGES.map(s => (
+                                          <DropdownMenuItem 
+                                              key={s.value} 
+                                              onClick={() => handleStageChange(app.id, s.value)} 
+                                              className={cn("rounded-xl font-bold px-3 py-2 text-[11px]", s.color)}
+                                          >
+                                              {s.label}
+                                          </DropdownMenuItem>
+                                      ))}
+                                  </DropdownMenuContent>
+                              </DropdownMenu>
+                          )}
+                        </div>
                     </div>
                     
                     <div className="flex items-center justify-between pt-2 border-t border-border/10 dark:border-white/5">
-                        <div className="flex gap-0.5">
-                            {[1, 2, 3, 4, 5].map((s) => (
-                                <Star 
-                                    key={s} 
-                                    size={14} 
-                                    className={cn(
-                                        app.isVirtual ? "cursor-default opacity-50" : "cursor-pointer",
-                                        s <= app.rating ? "text-amber-400 fill-amber-400" : "text-muted/20"
-                                    )} 
-                                    onClick={() => app.isVirtual ? null : handleRatingChange(app.id, s)}
-                                />
-                            ))}
+                        <div className="flex gap-2">
+                            {app.matchScore === undefined && !app.isVirtual && (
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="h-8 rounded-lg text-[10px] font-bold gap-1.5 px-3"
+                                onClick={() => handleAIAnalyze(app.id)}
+                                disabled={analyzingId === app.id}
+                              >
+                                {analyzingId === app.id ? <Loader2 size={10} className="animate-spin" /> : <Sparkles size={10} className="text-primary" />}
+                                AI Analiz
+                              </Button>
+                            )}
+                            <div className="flex gap-0.5 items-center">
+                              {[1, 2, 3, 4, 5].map((s) => (
+                                  <Star 
+                                      key={s} 
+                                      size={12} 
+                                      className={cn(
+                                          app.isVirtual ? "cursor-default opacity-50" : "cursor-pointer",
+                                          s <= app.rating ? "text-amber-400 fill-amber-400" : "text-muted/20"
+                                      )} 
+                                      onClick={() => app.isVirtual ? null : handleRatingChange(app.id, s)}
+                                  />
+                              ))}
+                            </div>
                         </div>
                         <div className="flex items-center gap-4">
                              <div className="flex flex-col items-end">
@@ -460,7 +606,7 @@ export default function ApplicationsPage() {
                                         </Button>
                                     } />
                                     <DropdownMenuContent align="end" className="w-40 rounded-2xl p-2 bg-card dark:bg-[#0f172a] border-border dark:border-white/5 shadow-2xl">
-                                        <DropdownMenuItem onClick={() => handleViewResume(app.resumeUrl)} className="rounded-xl font-bold px-3 py-2.5 text-xs gap-2">
+                                        <DropdownMenuItem onClick={() => handleViewResume(app.id)} className="rounded-xl font-bold px-3 py-2.5 text-xs gap-2">
                                             <FileText size={14} className="text-primary" />
                                             <span>CV-yə bax</span>
                                         </DropdownMenuItem>
@@ -475,11 +621,108 @@ export default function ApplicationsPage() {
                     </div>
                 </div>
             ))}
-            {!isFetching && filteredApps.length === 0 && (
-                <div className="p-12 text-center text-muted-foreground font-medium">Heç bir müraciət tapılmadı.</div>
-            )}
         </div>
       </div>
+
+      {/* AI Analysis Modal */}
+      <Dialog open={isAnalysisModalOpen} onOpenChange={setIsAnalysisModalOpen}>
+        <DialogContent className="max-w-2xl rounded-[2rem] bg-card dark:bg-[#0f172a] border-border dark:border-white/10 shadow-2xl">
+          <DialogHeader>
+            <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
+              <Brain className="text-primary" size={24} />
+            </div>
+            <DialogTitle className="text-2xl font-black tracking-tight">AI ATS Analiz Hesabatı</DialogTitle>
+            <DialogDescription className="text-muted-foreground font-medium"> Namizədin vakansiya tələblərinə uyğunluq analizi </DialogDescription>
+          </DialogHeader>
+
+          {selectedAnalysis && (
+            <div className="space-y-6 mt-4">
+              {/* Match Score Gauge */}
+              <div className="flex items-center gap-6 p-6 rounded-3xl bg-muted/20 border border-border/50">
+                <div className="relative w-24 h-24 flex items-center justify-center shrink-0">
+                  <svg className="w-full h-full transform -rotate-90">
+                    <circle cx="48" cy="48" r="42" stroke="currentColor" strokeWidth="8" fill="transparent" className="text-muted/10" />
+                    <circle
+                      cx="48"
+                      cy="48"
+                      r="42"
+                      stroke="currentColor"
+                      strokeWidth="8"
+                      fill="transparent"
+                      strokeDasharray={264}
+                      strokeDashoffset={264 - (264 * selectedAnalysis.matchScore) / 100}
+                      className={cn("transition-all duration-1000 ease-out", selectedAnalysis.matchScore > 80 ? "text-emerald-500" : selectedAnalysis.matchScore > 50 ? "text-amber-500" : "text-red-500")}
+                    />
+                  </svg>
+                  <div className="absolute flex flex-col items-center">
+                    <span className="text-2xl font-black">{selectedAnalysis.matchScore}%</span>
+                    <span className="text-[8px] font-bold uppercase tracking-widest text-muted-foreground">Uyğunluq</span>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Badge className={cn("font-black tracking-widest uppercase text-[10px]", selectedAnalysis.verdict === 'Pas keçdi' ? "bg-emerald-500/10 text-emerald-500" : selectedAnalysis.verdict === 'Kəsildi' ? "bg-red-500/10 text-red-500" : "bg-amber-500/10 text-amber-500")}>
+                    {selectedAnalysis.verdict}
+                  </Badge>
+                  <p className="text-sm font-medium text-foreground leading-relaxed">{selectedAnalysis.summary}</p>
+                </div>
+              </div>
+
+              {/* Skills Section */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-3">
+                  <h4 className="text-xs font-black uppercase tracking-widest text-emerald-500 flex items-center gap-2">
+                    <CheckCircle2 size={14} />
+                    Uyğun Bacarıqlar
+                  </h4>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedAnalysis.matchedSkills?.map((skill: string) => (
+                      <Badge key={skill} variant="secondary" className="rounded-lg bg-emerald-500/5 text-emerald-600 border-emerald-500/10 text-[11px] font-bold">
+                        {skill}
+                      </Badge>
+                    ))}
+                    {(!selectedAnalysis.matchedSkills || selectedAnalysis.matchedSkills.length === 0) && <span className="text-xs text-muted-foreground italic">Heç bir uyğunluq tapılmadı.</span>}
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <h4 className="text-xs font-black uppercase tracking-widest text-red-500 flex items-center gap-2">
+                    <XCircle size={14} />
+                    Çatışmayanlar
+                  </h4>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedAnalysis.missingSkills?.map((skill: string) => (
+                      <Badge key={skill} variant="secondary" className="rounded-lg bg-red-500/5 text-red-600 border-red-500/10 text-[11px] font-bold">
+                        {skill}
+                      </Badge>
+                    ))}
+                    {(!selectedAnalysis.missingSkills || selectedAnalysis.missingSkills.length === 0) && <span className="text-xs text-muted-foreground italic">Ciddi əksiklik tapılmadı.</span>}
+                  </div>
+                </div>
+              </div>
+
+              {/* Recommendations */}
+              <div className="p-5 rounded-2xl bg-primary/5 border border-primary/10 space-y-3">
+                <h4 className="text-xs font-black uppercase tracking-widest text-primary flex items-center gap-2">
+                  <Info size={14} />
+                  Tövsiyələr
+                </h4>
+                <ul className="space-y-2">
+                  {selectedAnalysis.recommendations?.map((rec: string, i: number) => (
+                    <li key={i} className="text-xs font-medium text-muted-foreground flex items-start gap-2">
+                      <div className="w-1 h-1 rounded-full bg-primary/40 mt-1.5 shrink-0" />
+                      {rec}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          )}
+
+          <div className="flex justify-end gap-3 mt-6">
+            <Button variant="outline" className="rounded-xl font-bold border-border dark:border-white/10" onClick={() => setIsAnalysisModalOpen(false)}> Bağla </Button>
+            <Button className="rounded-xl font-black tracking-tight" onClick={() => setIsAnalysisModalOpen(false)}> Nəzərə Alındı </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

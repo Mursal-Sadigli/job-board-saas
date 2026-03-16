@@ -14,6 +14,8 @@ export interface Application {
   jobId: string;
   resumeUrl: string;
   isVirtual?: boolean;
+  matchScore?: number;
+  aiAnalysis?: any;
 }
 
 interface ApplicationState {

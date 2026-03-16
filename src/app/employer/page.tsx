@@ -171,6 +171,7 @@ function mapApiJobToJob(apiJob: any): Job {
     salary: apiJob.salary || "",
     isActive: apiJob.isActive,
     isFeatured: apiJob.isFeatured,
+    categoryId: apiJob.categoryId || "",
     city,
     district,
     deadline: apiJob.deadline || "",
@@ -307,18 +308,31 @@ function ApplicationsSection({
     }
   };
 
+  const { getToken } = useAuth();
+
   const handleViewResume = async (applicationId: string) => {
     try {
+      console.log('Fetching resume for application:', applicationId);
+      const freshToken = await getToken();
+      
       const res = await fetch(`${API_BASE}/api/applications/${applicationId}/resume`, {
-        headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) }
+        headers: { ...(freshToken ? { Authorization: `Bearer ${freshToken}` } : {}) }
       });
-      const data = await res.json();
+      
       if (!res.ok) {
+        const data = await res.json();
         alert(data.message || 'CV tapılmadı və ya artıq silinib.');
         return;
       }
-      window.open(data.url, '_blank');
+      
+      const data = await res.json();
+      if (data.url) {
+        window.open(data.url, '_blank');
+      } else {
+        alert('CV linki tapılmadı.');
+      }
     } catch (error) {
+      console.error('Resume view error:', error);
       alert('CV yüklənərkən xəta baş verdi. Zəhmət olmasa yenidən yoxlayın.');
     }
   };

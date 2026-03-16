@@ -6,6 +6,7 @@ import pdf from 'pdf-parse';
 import groq from '../lib/groq';
 import { cloudinary } from '../lib/cloudinary';
 import { sendNewApplicationNotification } from '../services/notificationService';
+import { compareCVWithJob } from '../services/aiService';
 
 export const applyForJob = async (req: any, res: Response) => {
   try {
@@ -168,46 +169,112 @@ export const applyForJob = async (req: any, res: Response) => {
   }
 };
 
+export const analyzeApplication = async (req: any, res: Response) => {
+  try {
+    const { id } = req.params;
+    const clerkId = req.auth?.userId;
+
+    // 1. Find Application with Job details
+    const application = await prisma.application.findUnique({
+      where: { id },
+      include: {
+        job: true,
+      }
+    });
+
+    if (!application) {
+      return res.status(404).json({ message: 'Müraciət tapılmadı' });
+    }
+
+    if (!application.resumeText) {
+      return res.status(400).json({ message: 'CV mətni tapılmadı, xahiş olunur CV-ni yenidən yükləyin.' });
+    }
+
+    // 2. Perform AI Comparison
+    console.log(`Analyzing application ${id} against job ${application.job.title}`);
+    const analysisResult = await compareCVWithJob(
+      application.resumeText,
+      application.job.title,
+      application.job.description
+    );
+
+    // 3. Update Application in DB
+    const updatedApplication = await prisma.application.update({
+      where: { id },
+      data: {
+        matchScore: analysisResult.matchScore,
+        aiAnalysis: analysisResult as any, // Store full JSON
+      }
+    });
+
+    res.json({
+      message: 'Analiz uğurla tamamlandı',
+      matchScore: analysisResult.matchScore,
+      analysis: analysisResult
+    });
+
+  } catch (error: any) {
+    console.error('analyzeApplication error:', error);
+    res.status(500).json({ message: 'Analiz zamanı xəta baş verdi', error: error.message });
+  }
+};
+
 export const getApplicationResumeUrl = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const application = await prisma.application.findUnique({
-      where: { id }
-    });
+    let resumeUrl: string | null = null;
 
-    if (!application || !application.resumeUrl) {
-      return res.status(404).json({ message: 'Müraciət və ya CV tapılmadı' });
+    // 1. Handle Virtual (Talent Pool) vs Real Applications
+    if (id.startsWith('resume-')) {
+      const resumeId = id.replace('resume-', '');
+      const resume = await prisma.resume.findUnique({
+        where: { id: resumeId }
+      });
+      resumeUrl = resume?.url || null;
+    } else {
+      const application = await prisma.application.findUnique({
+        where: { id }
+      });
+      resumeUrl = application?.resumeUrl || null;
     }
 
-    const { resumeUrl } = application;
-    const isRaw = resumeUrl.includes('/raw/upload/');
-    const resourceType = isRaw ? 'raw' : 'image';
-
-    let publicId = resumeUrl.split('/upload/')[1];
-    if (publicId && publicId.match(/^v\d+\//)) {
-      publicId = publicId.replace(/^v\d+\//, '');
+    if (!resumeUrl) {
+      return res.status(404).json({ message: 'CV tapılmadı' });
     }
 
+    // 2. Cloudinary API check (Optional but good for validation)
     try {
-      // CDN yaddaşını (cache) aşmaq və 100% dəqiqlik üçün Cloudinary Admin API istifadə edirik
-      await cloudinary.api.resource(publicId, { resource_type: resourceType });
+      if (resumeUrl.includes('cloudinary')) {
+        const parts = resumeUrl.split('/upload/');
+        if (parts.length > 1) {
+          let publicId = parts[1];
+          // Remove versioning (v12345678/)
+          if (publicId.match(/^v\d+\//)) {
+            publicId = publicId.replace(/^v\d+\//, '');
+          }
+          
+          // Determine resource type
+          const isRaw = resumeUrl.includes('/raw/upload/');
+          const resourceType = isRaw ? 'raw' : 'image';
+
+          // Validate with Cloudinary API
+          await cloudinary.api.resource(publicId, { resource_type: resourceType });
+        }
+      }
       
-      const urlWithCacheBuster = `${resumeUrl}?t=${Date.now()}`;
+      const urlWithCacheBuster = resumeUrl.includes('?') 
+        ? `${resumeUrl}&t=${Date.now()}` 
+        : `${resumeUrl}?t=${Date.now()}`;
+        
       return res.status(200).json({ url: urlWithCacheBuster });
     } catch (err: any) {
-      // Cloudinary api.resource faylı tapmadıqda 404 xətası atır
-      if (err.error && err.error.http_code === 404) {
-        return res.status(404).json({ message: 'Bu CV Cloudinary bazasından admin tərəfindən silinib.' });
-      }
-      if (err.http_code === 404) {
-         return res.status(404).json({ message: 'Bu CV Cloudinary bazasından admin tərəfindən silinib.' });
-      }
-      // Hər ehtimala qarşı başqa error varsa, linki qaytarırıq (bəlkə API limitinə düşmüşük)
-      return res.status(200).json({ url: `${resumeUrl}?t=${Date.now()}` });
+      console.warn('Cloudinary verification warning:', err.message);
+      // Fallback: return the URL even if API check fails (maybe API limits)
+      return res.status(200).json({ url: resumeUrl });
     }
   } catch (error) {
     console.error('get resume url error:', error);
-    res.status(500).json({ message: 'CV axtarışı zamanı xəta' });
+    res.status(500).json({ message: 'CV axtarışı zamanı daxili xəta baş verdi' });
   }
 };
 

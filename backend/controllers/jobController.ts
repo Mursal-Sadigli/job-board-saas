@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import prisma from '../lib/prisma';
+import { sendJobNotificationToTelegram } from '../services/notificationService';
 
 export const getAllJobs = async (req: Request, res: Response) => {
   try {
@@ -99,6 +100,9 @@ export const createJob = async (req: any, res: Response) => {
       },
       include: { category: true }
     });
+    
+    // 📣 Telegram Bildirişi Göndər (Async)
+    sendJobNotificationToTelegram(newJob.id);
 
     res.status(201).json(newJob);
   } catch (error) {
