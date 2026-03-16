@@ -294,7 +294,7 @@ export const updateUserProfile = async (req: any, res: Response) => {
 
     const { 
       firstName, lastName, title, bio, location, phone, 
-      skills, experience, education, socialLinks 
+      skills, experience, education, socialLinks, telegramId
     } = req.body;
 
     const updatedUser = await prisma.user.update({
@@ -307,6 +307,7 @@ export const updateUserProfile = async (req: any, res: Response) => {
         bio,
         location,
         phone,
+        telegramId,
         skills: Array.isArray(skills) ? skills : undefined,
         experience: experience || undefined,
         education: education || undefined,

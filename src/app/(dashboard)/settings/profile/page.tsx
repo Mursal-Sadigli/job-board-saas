@@ -54,6 +54,7 @@ export default function ProfilePage() {
     bio: "",
     location: "",
     phone: "",
+    telegramId: "",
     skills: [],
     experience: [],
     education: [],
@@ -86,6 +87,7 @@ export default function ProfilePage() {
             bio: data.bio || "",
             location: data.location || "",
             phone: data.phone || "",
+            telegramId: data.telegramId || "",
             skills: data.skills || [],
             experience: Array.isArray(data.experience) ? data.experience : [],
             education: Array.isArray(data.education) ? data.education : [],
@@ -125,6 +127,7 @@ export default function ProfilePage() {
           bio: profile.bio,
           location: profile.location,
           phone: profile.phone,
+          telegramId: profile.telegramId,
           skills: profile.skills,
           experience: profile.experience,
           education: profile.education,
@@ -393,27 +396,7 @@ export default function ProfilePage() {
                   placeholder="Məs: Senior Frontend Developer"
                   className="bg-muted/30 border-border rounded-xl h-12 font-bold focus:ring-2 focus:ring-primary/20"
                 />
-              </div>
-              <div className="space-y-1">
-                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground px-1">TELEFON</label>
-                <Input 
-                  value={profile.phone}
-                  onChange={(e) => setProfile(prev => ({ ...prev, phone: e.target.value }))}
-                  placeholder="+994 -- --- -- --"
-                  className="bg-muted/30 border-border rounded-xl h-12 font-bold focus:ring-2 focus:ring-primary/20"
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground px-1">MƏKAN</label>
-                <Input 
-                  value={profile.location}
-                  onChange={(e) => setProfile(prev => ({ ...prev, location: e.target.value }))}
-                  placeholder="Məs: Bakı, Azərbaycan"
-                  className="bg-muted/30 border-border rounded-xl h-12 font-bold focus:ring-2 focus:ring-primary/20"
-                />
-              </div>
-            </div>
-          </div>
+,ReplacementContent:
 
           {/* About Me Section */}
           <div className="bg-card dark:bg-[#0f1423] border border-border dark:border-white/10 rounded-[2.5rem] p-8 shadow-xl shadow-shadow/5 backdrop-blur-xl transition-colors">

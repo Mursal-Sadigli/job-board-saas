@@ -11,6 +11,7 @@ export interface CandidateProfile extends UserProfile {
   bio: string;
   location: string;
   phone: string;
+  telegramId?: string;
   experience: ExperienceItem[];
   education: EducationItem[];
   skills: string[];
