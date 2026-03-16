@@ -22,6 +22,17 @@ export const metadata: Metadata = {
   description:
     "AI ilə dəstəklənən müasir iş elanları platforması. Bacarıq və seçimlərinizə uyğun ən yaxşı texnoloji işləri tapın.",
   manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "WDS Jobs",
+  },
+  icons: {
+    apple: "/icons/icon-192x192.png",
+  },
+  formatDetection: {
+    telephone: false,
+  },
 };
 
 export const viewport: Viewport = {
@@ -29,6 +40,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
+  viewportFit: "cover",
 };
 
 import { ThemeProvider } from "@/components/ThemeProvider";
