@@ -3,8 +3,9 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@clerk/nextjs";
 import { useToast } from "@/hooks/use-toast";
-import { Save, CheckCircle, Star, BellRing, Mail, MessageSquare, Briefcase, Sparkles, Smartphone } from "lucide-react";
+import { Save, CheckCircle, Star, BellRing, Mail, MessageSquare, Briefcase, Sparkles, Smartphone, Send, ExternalLink, AlertCircle } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
+import Link from "next/link";
 import {
   Select,
   SelectContent,
@@ -37,6 +38,7 @@ export default function NotificationsPage() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
   const [saved, setSaved] = useState(false);
+  const [telegramId, setTelegramId] = useState<string | null>(null);
   const [settings, setSettings] = useState({
     dailyDigest: true,
     newApplications: true,
@@ -44,6 +46,7 @@ export default function NotificationsPage() {
     jobExpiry: true,
     platformUpdates: false,
     pushNotifications: false,
+    telegramNewApplications: true,
     minRating: "any"
   });
 
@@ -63,7 +66,9 @@ export default function NotificationsPage() {
         if (response.ok) {
           const data = await response.json();
           if (data) {
-            setSettings(data);
+            const { telegramId: tgId, ...rest } = data;
+            setSettings(prev => ({ ...prev, ...rest }));
+            setTelegramId(tgId);
           }
         }
       } catch (error) {
@@ -182,9 +187,56 @@ export default function NotificationsPage() {
               </div>
             </div>
 
+            {/* Telegram Bildirişləri Section */}
+            <div className="bg-card dark:bg-[#0f1423] border border-border dark:border-white/10 rounded-[2.5rem] p-6 sm:p-8 shadow-xl shadow-shadow/5 relative overflow-hidden backdrop-blur-xl transition-colors">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-sky-500/10 dark:bg-sky-500/20 rounded-full -mr-16 -mt-16 blur-2xl" />
+              
+              <h3 className="text-lg font-black text-foreground mb-8 flex items-center gap-3 uppercase tracking-wider">
+                <Send className="text-sky-500" size={20} />
+                Telegram Bildirişləri
+              </h3>
+
+              {!telegramId ? (
+                <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-5 mb-6 flex items-start gap-4">
+                  <AlertCircle className="text-amber-500 shrink-0 mt-0.5" size={20} />
+                  <div>
+                    <p className="text-sm font-bold text-amber-500 mb-1">Telegram ID tapılmadı</p>
+                    <p className="text-xs text-amber-500/80 leading-relaxed mb-3">
+                      Telegram bildirişlərini almaq üçün profilinizdə Telegram ID-nizi qeyd etməlisiniz.
+                    </p>
+                    <Link href="/settings/profile" className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest text-amber-600 hover:text-amber-700 transition-colors">
+                      Profilə get <ExternalLink size={14} />
+                    </Link>
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-4 mb-6 flex items-center gap-3">
+                  <CheckCircle className="text-emerald-500" size={18} />
+                  <p className="text-xs font-bold text-emerald-500">
+                    Telegram qoşulub (ID: {telegramId})
+                  </p>
+                </div>
+              )}
+
+              <div className="space-y-6 relative z-10">
+                <div className="flex items-start justify-between gap-6">
+                  <div className="space-y-1">
+                    <p className="text-sm font-bold text-foreground">Yeni Müraciətlər (Telegram)</p>
+                    <p className="text-xs text-muted-foreground">Yeni müraciət gəldikdə AI reytinqi ilə birbaşa Telegram mesajı alın.</p>
+                  </div>
+                  <Switch 
+                    checked={settings.telegramNewApplications} 
+                    onCheckedChange={() => toggleSetting('telegramNewApplications')} 
+                    disabled={!telegramId}
+                    className="data-checked:bg-sky-500" 
+                  />
+                </div>
+              </div>
+            </div>
+
             {/* Sistem və Yeniliklər */}
             <div className="bg-card dark:bg-[#0f1423] border border-border dark:border-white/10 rounded-[2.5rem] p-6 sm:p-8 shadow-xl shadow-shadow/5 backdrop-blur-xl transition-colors">
-              <h3 className="text-lg font-black text-foreground mb-8 flex items-center gap-3">
+              <h3 className="text-lg font-black text-foreground mb-8 flex items-center gap-3 uppercase tracking-wider">
                 <Sparkles className="text-amber-500" size={20} />
                 Sistem & Yeniliklər
               </h3>
@@ -218,15 +270,14 @@ export default function NotificationsPage() {
             <div className="bg-card dark:bg-[#0f1423] border border-border dark:border-white/10 rounded-[2.5rem] p-6 sm:p-8 shadow-xl shadow-shadow/5 relative overflow-hidden transition-all backdrop-blur-xl">
               <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 dark:bg-primary/20 rounded-full -mr-16 -mt-16 blur-2xl" />
               
-              <h3 className="text-lg font-black text-foreground mb-6 flex items-center gap-3 relative z-10">
+              <h3 className="text-lg font-black text-foreground mb-6 flex items-center gap-3 relative z-10 uppercase tracking-wider">
                 <Smartphone size={20} className="text-blue-500" />
                 Push Bildirişlər
               </h3>
               
-              <p className="text-sm text-muted-foreground mb-6 leading-relaxed relative z-10">
+              <p className="text-sm text-muted-foreground mb-6 leading-relaxed relative z-10 font-medium">
                 Brauzerinizdən çıxsanız belə dərhal ekranınıza bildirişlərin gəlməsini istəyirsiniz?
               </p>
-
 
               <div className="flex items-center justify-between bg-muted/50 dark:bg-white/5 rounded-2xl p-4 sm:p-5 border border-border dark:border-white/10 relative z-10 backdrop-blur-md">
                 <span className="font-bold text-sm text-foreground">Aktivləşdir</span>
@@ -242,7 +293,7 @@ export default function NotificationsPage() {
 
             {/* Minimum Rating Filter */}
             <div className="bg-card dark:bg-[#0f1423] border border-border dark:border-white/10 rounded-[2.5rem] p-6 sm:p-8 shadow-xl shadow-shadow/5 backdrop-blur-xl transition-colors">
-              <h3 className="text-lg font-black text-foreground mb-6 flex items-center gap-3">
+              <h3 className="text-lg font-black text-foreground mb-6 flex items-center gap-3 uppercase tracking-wider">
                 <Star className="text-emerald-500" size={20} />
                 Ağıllı Filtr
               </h3>
@@ -256,7 +307,7 @@ export default function NotificationsPage() {
                     </SelectTrigger>
                     <SelectContent className="bg-card dark:bg-slate-900 border-border dark:border-slate-700 rounded-xl">
                       <SelectItem value="any">
-                        <span className="text-muted-foreground font-bold">Bütün Namizədlər</span>
+                        <span className="text-muted-foreground font-bold italic">Bütün Namizədlər</span>
                       </SelectItem>
                       {[1, 2, 3, 4, 5].map((n) => (
                         <SelectItem key={n} value={String(n)}>
@@ -266,8 +317,8 @@ export default function NotificationsPage() {
                     </SelectContent>
                   </Select>
                 </div>
-                <p className="text-[11px] text-muted-foreground leading-relaxed bg-muted/50 dark:bg-slate-800 p-4 rounded-xl border border-border/50 dark:border-slate-700 font-medium">
-                  Yalnız seçdiyiniz reytinqə uyğun olan və ya onu aşan namizədlər barədə bildiriş alacaqsınız. <strong className="text-foreground dark:text-white">3-5 ulduzlu</strong> namizədlər tələblərə daha çox uyğundur.
+                <p className="text-[11px] text-muted-foreground leading-relaxed bg-muted/50 dark:bg-slate-800 p-4 rounded-xl border border-border/50 dark:border-slate-700 font-medium tracking-tight">
+                  Yalnız seçdiyiniz reytinqə uyğun olan və ya onu aşan namizədlər barədə bildiriş alacaqsınız. <strong className="text-foreground dark:text-white font-black underline decoration-primary/30 underline-offset-2 tracking-normal">3-5 ulduzlu</strong> namizədlər tələblərə daha çox uyğundur.
                 </p>
               </div>
             </div>

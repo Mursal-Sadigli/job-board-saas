@@ -376,14 +376,20 @@ export const getNotificationSettings = async (req: any, res: Response) => {
 
     const user = await prisma.user.findUnique({
       where: { clerkId },
-      select: { notificationSettings: true }
+      select: { 
+        notificationSettings: true,
+        telegramId: true
+      }
     });
 
     if (!user) {
       return res.status(404).json({ message: 'İstifadəçi tapılmadı' });
     }
 
-    res.status(200).json(user.notificationSettings);
+    res.status(200).json({
+      ...(user.notificationSettings as any),
+      telegramId: user.telegramId
+    });
   } catch (error) {
     console.error('Get notifications error:', error);
     res.status(500).json({ message: 'Bildiriş tənzimləmələri gətirərkən xəta baş verdi' });

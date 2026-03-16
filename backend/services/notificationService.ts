@@ -84,11 +84,12 @@ export const sendNewApplicationNotification = async (applicationId: string) => {
     const settings: any = employer.notificationSettings || {};
     const candidateRating = application.rating || 0;
 
-    // Setting check
-    if (!settings.newApplications) return;
+    // Setting checks
+    const sendEmail = !!settings.newApplications;
+    const sendTelegram = !!settings.telegramNewApplications;
 
     // Telegram Bildirişi (İşəgötürənin özünə)
-    if (employer.telegramId) {
+    if (sendTelegram && employer.telegramId) {
       const tgMessage = `
 📩 <b>Yeni Müraciət!</b>
 
@@ -101,8 +102,10 @@ Namizədin CV-sini və AI analizini görmək üçün idarəetmə panelinə daxil
       await sendTelegramMessage(employer.telegramId, tgMessage);
     }
 
-    // LOG (E-mail simulyasiyası)
-    console.log(`Notification sent to ${employer.email} for application ${applicationId}`);
+    // Email LOG (Simulyasiya)
+    if (sendEmail) {
+      console.log(`Notification sent to ${employer.email} for application ${applicationId}`);
+    }
 
   } catch (error) {
     console.error('Error sending new application notification:', error);

@@ -132,7 +132,23 @@ export const applyForJob = async (req: any, res: Response) => {
     }
 
     // 5. Save to database
-    console.log('6. Create Application record');
+    console.log('6. Get Job details for AI Matching');
+    const job = await prisma.job.findUnique({
+      where: { id: jobId }
+    });
+
+    if (!job) {
+      return res.status(404).json({ message: 'Vakansiya tapılmadı' });
+    }
+
+    console.log('7. Performing Smart Matching AI Analysis');
+    const analysisResult = await compareCVWithJob(
+      resumeText,
+      job.title,
+      job.description
+    );
+
+    console.log('8. Create Application record with full AI context');
     const application = await prisma.application.create({
       data: {
         candidateId: user.id,
@@ -140,6 +156,8 @@ export const applyForJob = async (req: any, res: Response) => {
         resumeUrl: cloudinaryResult.secure_url,
         resumeText: resumeText,
         rating: aiAnalysis.rating || 0,
+        matchScore: analysisResult.matchScore,
+        aiAnalysis: analysisResult as any,
         stage: 'Applied',
       }
     });

@@ -396,7 +396,39 @@ export default function ProfilePage() {
                   placeholder="Məs: Senior Frontend Developer"
                   className="bg-muted/30 border-border rounded-xl h-12 font-bold focus:ring-2 focus:ring-primary/20"
                 />
-,ReplacementContent:
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground px-1">TELEFON</label>
+                <Input 
+                  value={profile.phone}
+                  onChange={(e) => setProfile(prev => ({ ...prev, phone: e.target.value }))}
+                  placeholder="+994 -- --- -- --"
+                  className="bg-muted/30 border-border rounded-xl h-12 font-bold focus:ring-2 focus:ring-primary/20"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground px-1 flex items-center gap-1.5">
+                  TELEGRAM ID
+                  <span className="text-[9px] lowercase font-medium text-muted-foreground/60">(məs: 54293420)</span>
+                </label>
+                <Input 
+                  value={profile.telegramId}
+                  onChange={(e) => setProfile(prev => ({ ...prev, telegramId: e.target.value }))}
+                  placeholder="Telegram ID-nizi daxil edin"
+                  className="bg-muted/30 border-border rounded-xl h-12 font-bold focus:ring-2 focus:ring-primary/20"
+                />
+              </div>
+              <div className="space-y-1 md:col-span-2">
+                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground px-1">MƏKAN</label>
+                <Input 
+                  value={profile.location}
+                  onChange={(e) => setProfile(prev => ({ ...prev, location: e.target.value }))}
+                  placeholder="Məs: Bakı, Azərbaycan"
+                  className="bg-muted/30 border-border rounded-xl h-12 font-bold focus:ring-2 focus:ring-primary/20"
+                />
+              </div>
+            </div>
+          </div>
 
           {/* About Me Section */}
           <div className="bg-card dark:bg-[#0f1423] border border-border dark:border-white/10 rounded-[2.5rem] p-8 shadow-xl shadow-shadow/5 backdrop-blur-xl transition-colors">
