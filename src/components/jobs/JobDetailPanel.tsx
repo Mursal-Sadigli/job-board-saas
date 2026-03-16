@@ -80,7 +80,7 @@ export default function JobDetailPanel({ job, onClose, onApply }: JobDetailPanel
   return (
     <div className="flex flex-col h-full bg-card dark:bg-[#0b0e14] border-l border-border dark:border-white/10 relative overflow-hidden backdrop-blur-xl">
       {/* Scrollable Content Area */}
-      <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar w-full overflow-x-visible">
+      <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden custom-scrollbar w-full flex flex-col">
         {/* Header Section */}
         <div className="px-6 pt-8 pb-6 relative border-b border-border/40 dark:border-white/5">
           {/* Minimalist Close button */}
@@ -110,10 +110,10 @@ export default function JobDetailPanel({ job, onClose, onApply }: JobDetailPanel
               )}
             </div>
             <div className="flex-1 min-w-0 pr-10">
-              <h2 className="text-xl sm:text-2xl font-bold leading-tight tracking-tight text-foreground wrap-break-word whitespace-normal">
+              <h2 className="text-xl sm:text-2xl font-bold leading-tight tracking-tight text-foreground break-words overflow-wrap-anywhere whitespace-normal">
                 {job.title}
               </h2>
-              <p className="text-sm sm:text-base font-semibold mt-1 text-muted-foreground/80">
+              <p className="text-sm sm:text-base font-semibold mt-1 text-muted-foreground/80 break-words whitespace-normal">
                 {job.company}
               </p>
             </div>
@@ -164,20 +164,29 @@ export default function JobDetailPanel({ job, onClose, onApply }: JobDetailPanel
         </div>
 
         {/* Description Section */}
-        <div className="px-6 py-10 pb-28 w-full min-w-0">
+        <div className="px-5 sm:px-6 py-10 pb-28 w-full max-w-full box-border">
           <h3 className="text-[11px] font-black uppercase tracking-[0.25em] text-muted-foreground/30 mb-8 font-jakarta">İş haqqında məlumat</h3>
           {job.description ? (
             <div
-              className="prose prose-sm dark:prose-invert max-w-none w-full min-w-0
-                [&_h2]:text-base [&_h2]:font-bold [&_h2]:text-foreground [&_h2]:mb-2 [&_h2]:mt-6 [&_h2]:first:mt-0 [&_h2]:wrap-break-word [&_h2]:whitespace-normal
-                [&_p]:text-[15px] [&_p]:text-muted-foreground [&_p]:leading-relaxed [&_p]:mb-4 [&_p]:wrap-break-word [&_p]:whitespace-normal [&_p]:w-full
-                [&_ul]:space-y-4 [&_ul]:mb-6 [&_ul]:pl-0 [&_ul]:list-none [&_ul]:w-full
-                [&_li]:text-[15px] [&_li]:text-muted-foreground [&_li]:leading-normal [&_li]:wrap-break-word [&_li]:whitespace-normal [&_li]:w-full
-                [&_li]:grid [&_li]:grid-cols-[20px_minmax(0,1fr)] [&_li]:items-start [&_li]:gap-2
-                [&_li]:before:content-['•'] [&_li]:before:text-primary [&_li]:before:font-black [&_li]:before:text-lg [&_li]:before:leading-[1.4]"
-              style={{ overflowWrap: 'anywhere', wordBreak: 'break-word' }}
-              dangerouslySetInnerHTML={{ __html: job.description }}
-            />
+              className="prose prose-sm sm:prose-base dark:prose-invert w-full max-w-full"
+              style={{ 
+                wordBreak: 'break-word', 
+                overflowWrap: 'anywhere', 
+                whiteSpace: 'normal',
+                display: 'block'
+              }}
+            >
+              <div 
+                className="w-full max-w-full overflow-x-clip
+                  [&_h2]:text-base sm:[&_h2]:text-lg [&_h2]:font-bold [&_h2]:text-foreground [&_h2]:mb-3 [&_h2]:mt-6 [&_h2]:first:mt-0 
+                  [&_p]:text-[14px] sm:[&_p]:text-[15px] [&_p]:text-muted-foreground [&_p]:leading-relaxed [&_p]:mb-4
+                  [&_ul]:space-y-3 [&_ul]:mb-6 [&_ul]:pl-5 [&_ul]:list-disc [&_ul]:marker:text-primary/70
+                  [&_ol]:space-y-3 [&_ol]:mb-6 [&_ol]:pl-5 [&_ol]:list-decimal [&_ol]:marker:text-primary/70
+                  [&_li]:text-[14px] sm:[&_li]:text-[15px] [&_li]:text-muted-foreground [&_li]:leading-relaxed [&_li]:pl-1 
+                  [&_strong]:text-foreground [&_strong]:font-bold"
+                dangerouslySetInnerHTML={{ __html: job.description }}
+              />
+            </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-20 text-center gap-3">
               <Briefcase size={32} className="text-muted-foreground/20" />
