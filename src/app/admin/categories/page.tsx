@@ -8,8 +8,8 @@ import {
   TableHead, 
   TableHeader, 
   TableRow 
-} from "@/components/ui/Table";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
+} from "@/components/ui/table";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { 
@@ -104,7 +104,7 @@ export default function CategoriesAdminPage() {
                   <TableCell className="text-slate-500">{cat.createdAt}</TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
+                      <DropdownMenuTrigger>
                         <Button variant="ghost" size="icon" className="rounded-full hover:bg-slate-100">
                           <MoreVertical size={18} />
                         </Button>

@@ -19,6 +19,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useAuth, UserButton } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
+import { ModeToggle } from "@/components/ModeToggle";
 
 const navItems = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
@@ -58,7 +59,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold group-hover:scale-110 transition-transform">
                 W
               </div>
-              <span className="text-xl font-bold tracking-tight dark:text-white">Admin Panel</span>
+              <h2 className="text-3xl font-bold tracking-tight bg-linear-to-r from-blue-500 to-blue-600 bg-clip-text text-transparent">Admin Panel</h2>
             </Link>
           </div>
 
@@ -87,7 +88,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           {/* User Profile / Logout Mini Card */}
           <div className="p-4 border-t border-slate-200 dark:border-slate-800">
              <div className="flex items-center gap-3 px-2">
-                <UserButton afterSignOutUrl="/" />
+                <UserButton />
                 <div className="flex-1 overflow-hidden">
                    <p className="text-xs font-medium text-slate-700 dark:text-slate-300 truncate">Admin</p>
                    <p className="text-[10px] text-slate-500 truncate">admin@wdsjobs.com</p>
@@ -118,15 +119,24 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </div>
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-4">
-            <Button variant="ghost" size="icon" className="relative text-slate-600 hover:bg-slate-100 rounded-full">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <ModeToggle />
+            <Button variant="ghost" size="icon" className="relative text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full">
                <Bell size={20} />
                <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-slate-900" />
             </Button>
-            <div className="h-8 w-[1px] bg-slate-200 dark:bg-slate-800 mx-1 hidden sm:block" />
-            <div className="flex items-center gap-2">
-               <div className="hidden sm:block text-right">
-                  <p className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">İdarəçi</p>
+            <div className="h-8 w-px bg-slate-200 dark:bg-slate-800 mx-1 hidden sm:block" />
+            <div className="flex items-center gap-3">
+               <UserButton 
+                 appearance={{
+                   elements: {
+                     userButtonAvatarBox: "w-9 h-9 border border-slate-200 dark:border-slate-700"
+                   }
+                 }}
+               />
+               <div className="hidden lg:block text-left">
+                  <p className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider leading-none">İdarəçi</p>
+                  <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">Sistem Admini</p>
                </div>
             </div>
           </div>

@@ -70,6 +70,8 @@ app.get('/health', (req: Request, res: Response) => {
 
 // Inngest
 app.use("/api/inngest", serve({ client: inngest, functions: [helloWorld] }));
+import adminRoutes from './routes/adminRoutes';
+
 // Routes Registration
 app.use('/api/jobs', jobRoutes);
 app.use('/api/applications', applicationRoutes);
@@ -77,6 +79,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/interviews', interviewRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/admin', adminRoutes);
 app.use('/inngest', serve({ client: inngest, functions: [helloWorld] }));
 
 // Global Error Handler
