@@ -104,10 +104,10 @@ export default function CategoriesAdminPage() {
                   <TableCell className="text-slate-500">{cat.createdAt}</TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
-                      <DropdownMenuTrigger>
-                        <Button variant="ghost" size="icon" className="rounded-full hover:bg-slate-100">
-                          <MoreVertical size={18} />
-                        </Button>
+                      <DropdownMenuTrigger
+                        className="rounded-full hover:bg-slate-100 p-2 text-slate-500 transition-colors focus:outline-hidden"
+                      >
+                        <MoreVertical size={18} />
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="w-48 rounded-xl p-1 shadow-xl border-slate-200">
                         <DropdownMenuItem className="flex items-center gap-2 rounded-lg cursor-pointer py-2 focus:bg-slate-50">

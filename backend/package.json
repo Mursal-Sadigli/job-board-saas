@@ -40,6 +40,8 @@
     "ngrok": "^5.0.0-beta.2",
     "pdf-parse": "^1.1.1",
     "pg": "^8.20.0",
+    "prisma": "^7.5.0",
+    "@prisma/client": "^7.5.0",
     "resend": "^6.9.3",
     "stripe": "^20.4.1",
     "svix": "^1.88.0",
@@ -48,8 +50,6 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
-    "@prisma/client": "^7.5.0",
-    "nodemon": "^3.1.0",
-    "prisma": "^7.5.0"
+    "nodemon": "^3.1.0"
   }
 }
