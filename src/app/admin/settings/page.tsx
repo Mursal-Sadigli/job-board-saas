@@ -38,7 +38,10 @@ export default function SettingsPage() {
       const res = await fetch(`${API_URL}${url}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      if (!res.ok) throw new Error("Ayarları yükləmək mümkün olmadı");
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.error || errorData.message || "Ayarları yükləmək mümkün olmadı");
+      }
       return res.json();
     }
   );

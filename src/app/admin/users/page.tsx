@@ -86,7 +86,7 @@ export default function UsersPage() {
         </Button>
       </div>
 
-      <Card className="border-none shadow-sm overflow-hidden bg-white dark:bg-slate-900 shadow-xs">
+      <Card className="border-none shadow-sm overflow-hidden bg-white dark:bg-slate-900">
         <CardHeader className="border-b pb-4">
           <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
              <div className="relative w-full md:w-96 group">
