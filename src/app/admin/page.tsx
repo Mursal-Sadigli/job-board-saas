@@ -22,10 +22,14 @@ export default function AdminDashboard() {
     "/api/admin/stats",
     async (url) => {
       const token = await getToken();
+      console.log('>>> FETCHING STATS - TOKEN:', token ? 'PRESENT' : 'ABSENT');
       const res = await fetch(`${API_URL}${url}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      if (!res.ok) throw new Error("Statistikalar yüklənmədi");
+      if (!res.ok) {
+        console.error('>>> STATS FETCH FAILED:', res.status);
+        throw new Error("Statistikalar yüklənmədi");
+      }
       return res.json();
     }
   );

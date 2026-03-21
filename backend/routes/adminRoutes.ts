@@ -1,15 +1,13 @@
 import express from 'express';
-import { ClerkExpressWithAuth } from '@clerk/clerk-sdk-node';
-import { isAdmin } from '../middlewares/auth';
+import { isAuthenticated, isAdmin } from '../middlewares/auth';
 import { getSystemSettings, updateSystemSettings, getAdminStats, getAllUsers } from '../controllers/adminController';
 
 const router = express.Router();
-const withAuth = ClerkExpressWithAuth();
 
 // Admin routes
-router.get('/settings', withAuth, isAdmin, getSystemSettings);
-router.post('/settings', withAuth, isAdmin, updateSystemSettings);
-router.get('/stats', withAuth, isAdmin, getAdminStats);
-router.get('/users', withAuth, isAdmin, getAllUsers);
+router.get('/settings', isAuthenticated, isAdmin, getSystemSettings);
+router.post('/settings', isAuthenticated, isAdmin, updateSystemSettings);
+router.get('/stats', isAuthenticated, isAdmin, getAdminStats);
+router.get('/users', isAuthenticated, isAdmin, getAllUsers);
 
 export default router;

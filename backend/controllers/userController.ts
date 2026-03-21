@@ -99,7 +99,7 @@ export const syncUser = async (req: any, res: Response) => {
           name: name,
           firstName: firstName,
           lastName: lastName,
-          role: role,
+          role: userByClerk.role === 'ADMIN' ? 'ADMIN' : role,
           updatedAt: new Date()
         },
         include: { resumes: true }
@@ -114,7 +114,7 @@ export const syncUser = async (req: any, res: Response) => {
           name: name || userByEmail.name,
           firstName: firstName || userByEmail.firstName,
           lastName: lastName || userByEmail.lastName,
-          role: role || userByEmail.role,
+          role: userByEmail.role === 'ADMIN' ? 'ADMIN' : (role || userByEmail.role),
           updatedAt: new Date()
         },
         include: { resumes: true }

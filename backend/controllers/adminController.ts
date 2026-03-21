@@ -4,7 +4,13 @@ import prisma from '../lib/prisma';
 export const getSystemSettings = async (req: Request, res: Response) => {
   console.log('[DEBUG] getSystemSettings called');
   try {
-    let settings = await (prisma as any).systemSettings.findUnique({
+    // Prisma klientində modelin mövcudluğunu yoxlayırıq
+    const model = (prisma as any).systemSettings;
+    if (!model) {
+      throw new Error('Prisma systemSettings model is not defined. Please run npx prisma generate.');
+    }
+
+    let settings = await model.findUnique({
       where: { id: 'global' }
     });
 
@@ -12,8 +18,7 @@ export const getSystemSettings = async (req: Request, res: Response) => {
 
     if (!settings) {
       console.log('[DEBUG] Creating default settings...');
-      // Create initial settings if not exists
-      settings = await (prisma as any).systemSettings.create({
+      settings = await model.create({
         data: { id: 'global' }
       });
     }
@@ -28,13 +33,13 @@ export const getSystemSettings = async (req: Request, res: Response) => {
 export const updateSystemSettings = async (req: Request, res: Response) => {
   console.log('[DEBUG] updateSystemSettings called with data:', req.body);
   try {
+    const model = (prisma as any).systemSettings;
     const data = req.body;
-    const settings = await (prisma as any).systemSettings.upsert({
+    const settings = await model.upsert({
       where: { id: 'global' },
       update: data,
       create: { ...data, id: 'global' }
     });
-    console.log('[DEBUG] Settings updated successfully');
     res.json(settings);
   } catch (error: any) {
     console.error('[CRITICAL] updateSystemSettings error:', error);

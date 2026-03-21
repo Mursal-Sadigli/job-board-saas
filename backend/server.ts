@@ -31,7 +31,9 @@ app.use(cors({
     'https://job-board-saas.vercel.app', // YENİ VERCEL HOST
     'http://localhost:3000'
   ],
-  credentials: true
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH']
 }));
 
 // Webhooks (Must be before express.json() for raw body processing)
@@ -71,10 +73,17 @@ app.get('/health', (req: Request, res: Response) => {
 // Inngest
 app.use("/api/inngest", serve({ client: inngest, functions: [helloWorld] }));
 import adminRoutes from './routes/adminRoutes';
+import publicRoutes from './routes/publicRoutes';
 
-// Routes Registration
+// Root API
+app.get('/', (req, res) => {
+  res.send('Job Board API is running...');
+});
+
+// Routes
 app.use('/api/jobs', jobRoutes);
 app.use('/api/applications', applicationRoutes);
+app.use('/api/public', publicRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/interviews', interviewRoutes);
 app.use('/api/analytics', analyticsRoutes);
