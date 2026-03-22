@@ -45,7 +45,7 @@ export const viewport: Viewport = {
 
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { ClerkProvider } from "@clerk/nextjs";
-import { Toaster } from "@/components/ui/Toaster";
+import { Toaster } from "@/components/ui/toaster";
 import UserSync from "@/components/UserSync";
 import MaintenanceGuard from "@/components/MaintenanceGuard";
 
