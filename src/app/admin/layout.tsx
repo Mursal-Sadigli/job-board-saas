@@ -131,7 +131,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                "flex items-center gap-3 px-2 py-2 rounded-2xl bg-slate-50 dark:bg-slate-800/50 transition-all",
                isCollapsed && !sidebarOpen ? "justify-center px-0" : ""
              )}>
-                <UserButton afterSignOutUrl="/" />
+                <UserButton />
                 {(!isCollapsed || sidebarOpen) && (
                   <div className="flex-1 overflow-hidden animate-in fade-in duration-300">
                     <p className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate">İdarəçi</p>
