@@ -21,10 +21,8 @@ export default function MaintenanceGuard({ children }: { children: React.ReactNo
     { refreshInterval: 30000 } // Hər 30 saniyədən bir yoxla
   );
 
-  // Admin profilini yoxlayırıq (Clerk metadata və ya e-poçt vasitəsilə)
-  const isAdminUser = 
-    user?.publicMetadata?.role === "ADMIN" || 
-    user?.primaryEmailAddress?.emailAddress === "msadigli2025@gmail.com";
+  // Admin profilini yoxlayırıq (YALNIZ msadigli2025@gmail.com)
+  const isAdminUser = user?.primaryEmailAddress?.emailAddress === "msadigli2025@gmail.com";
 
   // Admin route-ları hər zaman açıqdır
   const isAdminRoute = pathname?.startsWith("/admin");

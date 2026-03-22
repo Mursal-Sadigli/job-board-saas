@@ -10,8 +10,8 @@ export const isAdmin = async (req: any, res: Response, next: NextFunction) => {
     const userEmail = req.auth?.sessionClaims?.email;
     let userId = req.auth?.userId;
 
-    // 1. Clerk Claims yoxlanışı (Ən sürətli yol)
-    if (roleFromClaims === 'ADMIN' || userEmail === 'msadigli2025@gmail.com') {
+    // 1. Clerk Claims yoxlanışı (YALNIZ msadigli2025@gmail.com)
+    if (userEmail === 'msadigli2025@gmail.com') {
       return next();
     }
 
@@ -39,7 +39,7 @@ export const isAdmin = async (req: any, res: Response, next: NextFunction) => {
 
       console.log(`[DEBUG] DB User: e=${dbUser?.email}, r=${dbUser?.role}`);
 
-      if (dbUser?.role === 'ADMIN' || dbUser?.email === 'msadigli2025@gmail.com') {
+      if (dbUser?.email === 'msadigli2025@gmail.com') {
         return next();
       }
     }
