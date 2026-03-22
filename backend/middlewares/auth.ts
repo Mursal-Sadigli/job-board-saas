@@ -7,7 +7,7 @@ export const isAuthenticated = ClerkExpressWithAuth();
 export const isAdmin = async (req: any, res: Response, next: NextFunction) => {
   try {
     const roleFromClaims = req.auth?.sessionClaims?.metadata?.role;
-    const userEmail = req.auth?.sessionClaims?.email;
+    const userEmail = req.auth?.sessionClaims?.email?.toLowerCase()?.trim();
     let userId = req.auth?.userId;
 
     // 1. Clerk Claims yoxlanışı (YALNIZ msadigli2025@gmail.com)
@@ -39,7 +39,7 @@ export const isAdmin = async (req: any, res: Response, next: NextFunction) => {
 
       console.log(`[DEBUG] DB User: e=${dbUser?.email}, r=${dbUser?.role}`);
 
-      if (dbUser?.email === 'msadigli2025@gmail.com') {
+      if (dbUser?.email?.toLowerCase()?.trim() === 'msadigli2025@gmail.com') {
         return next();
       }
     }

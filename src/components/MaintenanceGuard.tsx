@@ -22,7 +22,12 @@ export default function MaintenanceGuard({ children }: { children: React.ReactNo
   );
 
   // Admin profilini yoxlayırıq (YALNIZ msadigli2025@gmail.com)
-  const isAdminUser = user?.primaryEmailAddress?.emailAddress === "msadigli2025@gmail.com";
+  const userEmail = user?.primaryEmailAddress?.emailAddress?.toLowerCase()?.trim();
+  const isAdminUser = userEmail === "msadigli2025@gmail.com";
+
+  if (settings?.maintenanceMode) {
+    console.log("[DEBUG] Maintenance active. User Email:", userEmail, "IsAdmin:", isAdminUser);
+  }
 
   // Admin route-ları hər zaman açıqdır
   const isAdminRoute = pathname?.startsWith("/admin");
